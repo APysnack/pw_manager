@@ -32,8 +32,9 @@ public class DbConnection {
 		try {
 			stmt = conn.createStatement();
 			result = stmt.executeQuery(new_query);
+			
 			while(result.next()) {
-				arrList.add(result.getString(2));
+				arrList.add(result.getString(3));
 			}
 			
 			return arrList;
