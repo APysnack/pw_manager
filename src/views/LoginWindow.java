@@ -1,4 +1,4 @@
-package pw_manager;
+package views;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -21,6 +21,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import controller.Controller;
+import model.DbConnection;
+import model.DbConnection;
+
 public class LoginWindow extends JFrame {
 	
 	CardLayout cl;
@@ -30,7 +34,7 @@ public class LoginWindow extends JFrame {
 	String userName;
 	Controller ctrl;
 	
-	LoginWindow() {
+	public LoginWindow() {
 		buildLoginWindow();
 		conn = new DbConnection();
 		cl = new CardLayout();

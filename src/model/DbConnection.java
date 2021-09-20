@@ -1,4 +1,4 @@
-package pw_manager;
+package model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,13 +8,15 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import views.LoginWindow;
+
 public class DbConnection {
 	String dbpath;
 	String new_query;
 	ResultSet result;
 	Connection conn;
 	
-	DbConnection(){
+	public DbConnection(){
 		try {
 			this.dbpath = "jdbc:sqlite:pwdb.db";
 			Connection conn = DriverManager.getConnection(dbpath);

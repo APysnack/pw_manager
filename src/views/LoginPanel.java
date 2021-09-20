@@ -1,10 +1,13 @@
-package pw_manager;
+package views;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import controller.Controller;
+
 import java.awt.CardLayout;
 import java.awt.GridLayout;
 import java.awt.event.FocusEvent;
@@ -22,7 +25,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 	Controller ctrl;
 	
 	
-	LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr){
+	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr){
 		
 		setLayout(new GridLayout(4, 1, 2, 2));
 		

@@ -1,12 +1,14 @@
-package pw_manager;
+package controller;
 
 import java.util.ArrayList;
+
+import model.DbConnection;
 
 public class Controller {
 	
 	DbConnection conn;
 	
-	Controller(DbConnection conn){
+	public Controller(DbConnection conn){
 		this.conn = conn;
 	}
 	

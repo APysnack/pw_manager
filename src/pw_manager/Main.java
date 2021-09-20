@@ -12,6 +12,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+
+import views.LoginWindow;
+import model.DbConnection;
+
 import javax.swing.UnsupportedLookAndFeelException;
 import java.util.ArrayList;
 
