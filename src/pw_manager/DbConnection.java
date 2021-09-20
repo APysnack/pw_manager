@@ -27,6 +27,7 @@ public class DbConnection {
 	public ArrayList<String> get_all_from_db() {
 		new_query = "select * from passwords";
 		ArrayList<String> arrList = new ArrayList<String>();
+		
 		Statement stmt;
 		
 		try {
@@ -34,7 +35,7 @@ public class DbConnection {
 			result = stmt.executeQuery(new_query);
 			
 			while(result.next()) {
-				arrList.add(result.getString(3));
+				arrList.add(result.getString(2));
 			}
 			
 			return arrList;

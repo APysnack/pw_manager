@@ -92,10 +92,9 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 			String password = String.valueOf(pwField.getPassword());
 			
 			if (ctrl.authenticateUser(userName, password) == true) {
-				System.out.println("True");
+				cl.show(scrnMgr, "Assignments");
 			}
 			
-			cl.show(scrnMgr, "Assignments");
 		}
 	}
 	
