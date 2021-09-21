@@ -84,10 +84,14 @@ public class AppWindow extends JFrame {
 		this.scrnMgr = new JPanel(cl);
 		
 		JPanel loginPanel = buildLoginPanel();
+		JPanel mngUsrPanel = buildMngUserPanel();
+		JPanel mngPWPanel = buildMngPWPanel();
 		JPanel setupPanel = buildSetupPanel();
 		JPanel errorPanel = buildErrorPanel();
 		JPanel userPanel = buildUserPanel();
 		
+		scrnMgr.add(mngUsrPanel, "ManageUsers");
+		scrnMgr.add(mngPWPanel, "ManagePasswords");
 		scrnMgr.add(errorPanel, "Error");
 		scrnMgr.add(setupPanel, "Setup");
 		scrnMgr.add(loginPanel, "Login");
@@ -116,8 +120,14 @@ public class AppWindow extends JFrame {
 		return userPnl;
 	}
 	
-	public void testFunc() {
-		System.out.println("k");
+	public JPanel buildMngUserPanel() {
+		MngUserPanel mngUserPnl = new MngUserPanel(ctrl, cl, scrnMgr);
+		return mngUserPnl;
+	}
+	
+	public JPanel buildMngPWPanel() {
+		MngPWPanel mngPWPnl = new MngPWPanel(ctrl, cl, scrnMgr);
+		return mngPWPnl;
 	}
 	
 }
