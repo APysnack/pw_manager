@@ -25,7 +25,7 @@ import controller.Controller;
 import model.DbConnection;
 import model.DbConnection;
 
-public class LoginWindow extends JFrame {
+public class AppWindow extends JFrame {
 	
 	CardLayout cl;
 	JPanel scrnMgr;
@@ -34,7 +34,7 @@ public class LoginWindow extends JFrame {
 	String userName;
 	Controller ctrl;
 	
-	public LoginWindow() {
+	public AppWindow() {
 		buildLoginWindow();
 		conn = new DbConnection();
 		cl = new CardLayout();
@@ -78,36 +78,18 @@ public class LoginWindow extends JFrame {
 	}
 	
 	public JPanel buildLoginPanel() {
-		JPanel mainPanel = new JPanel(new BorderLayout());
-		JPanel pad = new JPanel();
-		pad.setBorder(new EmptyBorder(140, 140, 140, 140));
-		JPanel pad2 = new JPanel();
-		pad2.setBorder(new EmptyBorder(140, 140, 140, 140));
-		JPanel pad3 = new JPanel();
-		pad3.setBorder(new EmptyBorder(95, 95, 95, 95));
-		JPanel pad4 = new JPanel();
-		pad4.setBorder(new EmptyBorder(95, 95, 95, 95));
-		JPanel midPanel = new JPanel(new BorderLayout());
-
-		LoginPanel lgnPnl = new LoginPanel(ctrl, cl, scrnMgr);
-
-		midPanel.add(lgnPnl, BorderLayout.CENTER);
-		midPanel.add(pad, BorderLayout.WEST);
-		midPanel.add(pad2, BorderLayout.EAST);
-		midPanel.add(pad3, BorderLayout.NORTH);
-		midPanel.add(pad4, BorderLayout.SOUTH);
-		mainPanel.add(midPanel, BorderLayout.CENTER);
-		return mainPanel;
+		LoginPanel loginPnl = new LoginPanel(ctrl, cl, scrnMgr);
+		return loginPnl;
 	}
 	
 	public JPanel buildSetupPanel() {
-		SetupPanel mainPanel = new SetupPanel(ctrl, cl, scrnMgr);
-		return mainPanel;
+		SetupPanel setupPnl = new SetupPanel(ctrl, cl, scrnMgr);
+		return setupPnl;
 	}
 	
 	public JPanel buildErrorPanel() {
-		ErrorPanel mainPanel = new ErrorPanel(ctrl, cl, scrnMgr);
-		return mainPanel;
+		ErrorPanel errorPnl = new ErrorPanel(ctrl, cl, scrnMgr);
+		return errorPnl;
 	}
 	
 	

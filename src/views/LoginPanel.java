@@ -5,9 +5,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import controller.Controller;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.GridLayout;
 import java.awt.event.FocusEvent;
@@ -27,7 +29,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 	
 	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr){
 		
-		setLayout(new GridLayout(4, 1, 2, 2));
+		setLayout(new BorderLayout());
 		
 		JButton lgnBtn = new JButton("Log In");
 		JLabel lgnLbl = new JLabel("Please Enter your Login Information");
@@ -42,16 +44,35 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 		this.usrField = usrField;
 		this.pwField = pwField;
 		
-		add(lgnBtn);
-		ctrLblPnl.add(lgnLbl);
+		JPanel innerPanel = new JPanel(new GridLayout(4, 1, 2, 2));
+		innerPanel.add(lgnBtn);
 		add(ctrLblPnl);
-		add(usrField);
-		add(pwField);
-		add(lgnBtn);
+		innerPanel.add(ctrLblPnl);
+		innerPanel.add(usrField);
+		innerPanel.add(pwField);
+		innerPanel.add(lgnBtn);
 		
 		usrField.addFocusListener(this);
 		pwField.addFocusListener(this);
 		lgnBtn.addActionListener(this);
+		
+		
+		JPanel midPanel = new JPanel(new BorderLayout());
+		JPanel pad = new JPanel();
+		pad.setBorder(new EmptyBorder(140, 140, 140, 140));
+		JPanel pad2 = new JPanel();
+		pad2.setBorder(new EmptyBorder(140, 140, 140, 140));
+		JPanel pad3 = new JPanel();
+		pad3.setBorder(new EmptyBorder(95, 95, 95, 95));
+		JPanel pad4 = new JPanel();
+		pad4.setBorder(new EmptyBorder(95, 95, 95, 95));
+
+		midPanel.add(innerPanel, BorderLayout.CENTER);
+		midPanel.add(pad, BorderLayout.WEST);
+		midPanel.add(pad2, BorderLayout.EAST);
+		midPanel.add(pad3, BorderLayout.NORTH);
+		midPanel.add(pad4, BorderLayout.SOUTH);
+		add(midPanel, BorderLayout.CENTER);
 	}
 	
 	@Override

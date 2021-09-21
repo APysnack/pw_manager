@@ -13,7 +13,7 @@ import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import views.LoginWindow;
+import views.AppWindow;
 import model.DbConnection;
 
 import javax.swing.UnsupportedLookAndFeelException;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 
 public class Main {
 	public static void main(String args[]) {
-		LoginWindow login = new LoginWindow();
-		login.setSize(900, 550);
-		login.setVisible(true);
+		AppWindow appWindow = new AppWindow();
+		appWindow.setSize(900, 550);
+		appWindow.setVisible(true);
 	}
 }
