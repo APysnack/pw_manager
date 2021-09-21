@@ -14,6 +14,7 @@ public class DbConnection {
 	String new_query;
 	ResultSet result;
 	Connection conn;
+	public String userName;
 
 	// tries to connect to the database, prints out an error if unsuccessful
 	public DbConnection() {
@@ -25,34 +26,35 @@ public class DbConnection {
 			System.out.println(e);
 		}
 	}
-	
-	
-	// tries to add user to the database. returns true if successful. Uses prepared statement to prevent SQL injection
+
+	// tries to add user to the database. returns true if successful. Uses prepared
+	// statement to prevent SQL injection
 	// still needs to handle the user's permissions to add/edit/remove from db
 	public boolean addUserToDb(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
 		new_query = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES (?,?)";
 
 		try {
-			PreparedStatement preparedStatement = conn.prepareStatement(new_query);
-			preparedStatement.setString(1, userName);
-			preparedStatement.setString(2, password);
-			
+			PreparedStatement pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, userName);
+			pStmt.setString(2, password);
+
 			// if rowsAffected > 0, insert was successful
-			int rowsAffected = preparedStatement.executeUpdate();
+			int rowsAffected = pStmt.executeUpdate();
 			return true;
 		} catch (SQLException e) {
 			System.out.println(e);
 			return false;
 		}
 	}
-	
-	// note: prepared statements aren't usually necessary if we're not adding anything to the database
+
+	// note: prepared statements aren't usually necessary if we're not adding
+	// anything to the database
 	public int getRowCountFromTable(String tableName) {
 		new_query = "SELECT COUNT(*) FROM " + tableName;
-		
+
 		Statement stmt;
-		
+
 		try {
 			stmt = conn.createStatement();
 			result = stmt.executeQuery(new_query);
@@ -64,27 +66,31 @@ public class DbConnection {
 		}
 	}
 
-	// old code, probably don't need it 
-//	public ArrayList<String> get_all_from_db() {
-//		new_query = "select * from passwords";
-//		ArrayList<String> arrList = new ArrayList<String>();
-//
-//		Statement stmt;
-//
-//		try {
-//			stmt = conn.createStatement();
-//			result = stmt.executeQuery(new_query);
-//
-//			while (result.next()) {
-//				arrList.add(result.getString(2));
-//			}
-//
-//			return arrList;
-//
-//		} catch (SQLException e) {
-//			System.out.println(e);
-//			return arrList;
-//		}
-//
-//	}
+	public boolean authenticateUserInDb(String userName, String password) {
+		new_query = "SELECT COUNT(*) FROM USERS WHERE USERNAME=? AND PASSWORD=?";
+
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1,  userName);
+			pStmt.setString(2, password);
+			ResultSet result = pStmt.executeQuery();
+			int userCount = result.getInt(1);
+			
+			if(userCount > 0) {
+				this.userName = userName;
+				return true;
+			}
+			else {
+				return false;
+			}
+		} catch (SQLException e) {
+			System.out.println(e);
+			return false;
+		}
+	}
+	
+	
+	public String getUserName() {
+		return userName;
+	}
 }

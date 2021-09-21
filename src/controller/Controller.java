@@ -22,4 +22,21 @@ public class Controller {
 			return false;
 		}
 	}
+	
+	// needs encryption/decryption
+	public boolean authenticateUser(String userName, String password) {
+		
+		boolean userAuthenticated = conn.authenticateUserInDb(userName, password);
+		if(userAuthenticated == true) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public String getUserName() {
+		String userName = conn.getUserName();
+		return userName;
+	}
 }

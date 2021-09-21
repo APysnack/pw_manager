@@ -25,6 +25,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 	JPanel scrnMgr;
 	CardLayout cl;
 	Controller ctrl;
+	Utils u;
 	
 	
 	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr){
@@ -37,6 +38,9 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 		JPasswordField pwField = new JPasswordField("Enter Password", 15);
 		JPanel ctrLblPnl = new JPanel();
 		
+		Utils u = new Utils();
+		
+		this.u = u;
 		this.ctrl = ctrl;
 		this.scrnMgr = scrnMgr;
 		this.cl = cl;
@@ -58,14 +62,10 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 		
 		
 		JPanel midPanel = new JPanel(new BorderLayout());
-		JPanel pad = new JPanel();
-		pad.setBorder(new EmptyBorder(140, 140, 140, 140));
-		JPanel pad2 = new JPanel();
-		pad2.setBorder(new EmptyBorder(140, 140, 140, 140));
-		JPanel pad3 = new JPanel();
-		pad3.setBorder(new EmptyBorder(95, 95, 95, 95));
-		JPanel pad4 = new JPanel();
-		pad4.setBorder(new EmptyBorder(95, 95, 95, 95));
+		JPanel pad = u.pad(140, 140, 140, 140);
+		JPanel pad2 = u.pad(140, 140, 140, 140);
+		JPanel pad3 = u.pad(95, 95, 95, 95);
+		JPanel pad4 = u.pad(95, 95, 95, 95);
 
 		midPanel.add(innerPanel, BorderLayout.CENTER);
 		midPanel.add(pad, BorderLayout.WEST);
@@ -114,6 +114,14 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 		if(source == loginBtn) {
 			String userName = usrField.getText();
 			String password = String.valueOf(pwField.getPassword());
+			
+			boolean userAuthenticated = ctrl.authenticateUser(userName, password);
+			if(userAuthenticated == true) {
+				cl.show(scrnMgr, "User");
+			}
+			else {
+				cl.show(scrnMgr, "Error");
+			}
 		}
 	}
 	

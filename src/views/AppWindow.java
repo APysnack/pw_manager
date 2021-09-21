@@ -35,36 +35,37 @@ public class AppWindow extends JFrame {
 	Controller ctrl;
 	
 	public AppWindow() {
-		buildLoginWindow();
+		
+		// builds the App window, sets size, etc.
+		buildAppWindow();
+		
+		// creates a database connection
 		conn = new DbConnection();
-		cl = new CardLayout();
+		
+		// creates a controller object, passes it the db connection
 		Controller ctrl = new Controller(conn);
-		
 		this.ctrl = ctrl;
-		this.scrnMgr = new JPanel(cl);
 		
-		JPanel loginPanel = buildLoginPanel();
-		JPanel setupPanel = buildSetupPanel();
-		JPanel errorPanel = buildErrorPanel();
+		// initial set-up to switch between screens in the GUI
+		initializeScreenManager();
 		
-		scrnMgr.add(errorPanel, "Error");
-		scrnMgr.add(setupPanel, "Setup");
-		scrnMgr.add(loginPanel, "Login");
-		
+		// fetches the number of users in the database
 		int numUsers = conn.getRowCountFromTable("users");
 		
+		// if the database is empty, prompts the window to create a new user
 		if(numUsers == 0) {
 			cl.show(scrnMgr, "Setup");
 		}
+		
+		// otherwise, a user already exists in the database. prompts the user to log in
 		else {
 			cl.show(scrnMgr, "Login");
 		}
 		
-		this.add(scrnMgr);
 		this.pack();
 	}
 	
-	public void buildLoginWindow() {
+	public void buildAppWindow() {
 		DbConnection connect = new DbConnection();
 		this.conn = connect;
 		this.setSize(900, 550);
@@ -75,6 +76,24 @@ public class AppWindow extends JFrame {
 		this.setLocation(xPos, yPos);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setTitle("Password Manager");
+	}
+	
+	public void initializeScreenManager(){
+		CardLayout cl = new CardLayout();
+		this.cl = cl;
+		this.scrnMgr = new JPanel(cl);
+		
+		JPanel loginPanel = buildLoginPanel();
+		JPanel setupPanel = buildSetupPanel();
+		JPanel errorPanel = buildErrorPanel();
+		JPanel userPanel = buildUserPanel();
+		
+		scrnMgr.add(errorPanel, "Error");
+		scrnMgr.add(setupPanel, "Setup");
+		scrnMgr.add(loginPanel, "Login");
+		scrnMgr.add(userPanel, "User");
+		
+		this.add(scrnMgr);
 	}
 	
 	public JPanel buildLoginPanel() {
@@ -92,5 +111,13 @@ public class AppWindow extends JFrame {
 		return errorPnl;
 	}
 	
+	public JPanel buildUserPanel() {
+		UserPanel userPnl = new UserPanel(ctrl, cl, scrnMgr);
+		return userPnl;
+	}
+	
+	public void testFunc() {
+		System.out.println("k");
+	}
 	
 }
