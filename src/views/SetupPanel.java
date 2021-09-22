@@ -14,6 +14,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.GridLayout;
 
@@ -203,7 +204,8 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 			boolean addSuccessful = ctrl.addUser(userName, password, true, true, true);
 			
 			if(addSuccessful == true) {
-				cl.show(scrnMgr, "Login");
+				AppWindow window = (AppWindow) SwingUtilities.getWindowAncestor(this);
+				window.rebuildApp();
 			}
 			else {
 				cl.show(scrnMgr, "Error");
