@@ -130,7 +130,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		} else if (source == addUserBtn) {
 			System.out.println("add user");
 		} else if (source == backButton) {
-			cl.previous(scrnMgr);
+			cl.show(scrnMgr, "User");
 		}
 
 	}

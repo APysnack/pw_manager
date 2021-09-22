@@ -20,8 +20,10 @@ public class Controller {
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
 
-		boolean insertSuccessful = conn.addUserToDb(userName, password, addPermission, editPermission,
-				deletePermission);
+		int pwLength = password.length();
+		User user = new User(userName, password, addPermission, editPermission, deletePermission, pwLength);
+		
+		boolean insertSuccessful = conn.addUserToDb(user);
 
 		if (insertSuccessful) {
 			return true;

@@ -13,10 +13,12 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.GridLayout;
 
@@ -38,6 +40,7 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 	JLabel userPnlLbl;
 	JButton managePWBtn;
 	JButton manageUsrBtn;
+	JButton logOutButton;
 	DbConnection conn;
 
 	public UserPanel() {
@@ -53,16 +56,18 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 		
 		addComponentListener(this);
 		userPnlLbl = new JLabel("Welcome " + userName);
-		
+		logOutButton = new JButton("Log Out");
 		manageUsrBtn = new JButton("Manage Users");
 		managePWBtn = new JButton("Manage Passwords");
 		
 		manageUsrBtn.addActionListener(this);
 		managePWBtn.addActionListener(this);
+		logOutButton.addActionListener(this);
 		
 		add(userPnlLbl);
 		add(manageUsrBtn);
 		add(managePWBtn);
+		add(logOutButton);
 	}
 
 	@Override
@@ -97,6 +102,9 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 		else if(e.getSource() == managePWBtn) {
 			cl.show(scrnMgr, "ManagePasswords");
 		}
-		
+		else if(e.getSource() == logOutButton) {
+			AppWindow window = (AppWindow) SwingUtilities.getWindowAncestor(this);
+			window.rebuildApp();
+		}
 	}
 }

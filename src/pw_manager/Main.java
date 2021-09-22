@@ -21,9 +21,8 @@ import java.util.ArrayList;
 
 
 public class Main {
+	
 	public static void main(String args[]) {
-		AppWindow appWindow = new AppWindow();
-		appWindow.setSize(900, 550);
-		appWindow.setVisible(true);
+		App application = new App();
 	}
 }

@@ -26,26 +26,37 @@ public class MngPWPanel extends JPanel implements ActionListener {
 
 	JTextField usrField;
 	JPasswordField pwField;
-	JButton createUserBtn;
 	JPanel scrnMgr;
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
 	DbConnection conn;
+	JButton backButton;
 
 	public MngPWPanel() {
 
 	}
 	
 	public MngPWPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
+		this.cl = cl;
 		this.conn = conn;
+		this.scrnMgr = scrnMgr;
+		
 		JLabel errorLbl = new JLabel("Manage Passwords");
 		add(errorLbl);
+		
+		backButton = new JButton("Back");
+		backButton.addActionListener(this);
+		
+		add(backButton);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		Object source = e.getSource();
+		if (source == backButton) {
+			cl.show(scrnMgr, "User");
+		}
 		
 	}
 }

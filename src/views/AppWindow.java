@@ -19,10 +19,12 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import controller.Controller;
 import model.DbConnection;
+import pw_manager.App;
 import model.DbConnection;
 
 public class AppWindow extends JFrame {
@@ -38,7 +40,10 @@ public class AppWindow extends JFrame {
 	JPanel mngUsrPnl;
 	
 	public AppWindow() {
-		
+		createAppWindow();
+	}
+	
+	public void createAppWindow() {
 		// builds the App window, sets size, etc.
 		buildAppWindow();
 		
@@ -134,8 +139,9 @@ public class AppWindow extends JFrame {
 		return mngPWPnl;
 	}
 	
-	public void rebuildPanel() {
-		System.out.println("test");
+	public void rebuildApp() {
+		this.dispose();
+		App application = new App();
 	}
 	
 }

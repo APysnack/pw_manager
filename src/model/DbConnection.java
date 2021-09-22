@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import pw_manager.User;
+
 public class DbConnection {
 	
 	String dbpath;
@@ -66,14 +68,14 @@ public class DbConnection {
 	// tries to add user to the database. returns true if successful. Uses prepared
 	// statement to prevent SQL injection
 	// still needs to handle the user's permissions to add/edit/remove from db
-	public boolean addUserToDb(String userName, String password, boolean addPermission, boolean editPermission,
-			boolean deletePermission) {
-		new_query = "INSERT INTO USERS (USERNAME, PASSWORD) VALUES (?,?)";
+	public boolean addUserToDb(User user) {
+		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?,?,?)";
 
 		try {
 			PreparedStatement pStmt = conn.prepareStatement(new_query);
-			pStmt.setString(1, userName);
-			pStmt.setString(2, password);
+			pStmt.setString(1, user.getUsername());
+			pStmt.setString(2, user.getEncryptedPassword());
+			pStmt.setInt(3, user.getPasswordLength());
 
 			// if rowsAffected > 0, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
