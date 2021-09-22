@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.awt.BorderLayout;
 
 import controller.Controller;
+import model.DbConnection;
 
 public class MngPWPanel extends JPanel implements ActionListener {
 
@@ -30,12 +31,14 @@ public class MngPWPanel extends JPanel implements ActionListener {
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
+	DbConnection conn;
 
 	public MngPWPanel() {
 
 	}
 	
-	public MngPWPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr) {
+	public MngPWPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
+		this.conn = conn;
 		JLabel errorLbl = new JLabel("Manage Passwords");
 		add(errorLbl);
 	}

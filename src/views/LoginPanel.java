@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import controller.Controller;
+import model.DbConnection;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -26,9 +27,9 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
+	DbConnection conn;
 	
-	
-	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr){
+	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn){
 		
 		setLayout(new BorderLayout());
 		
@@ -40,6 +41,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 		
 		Utils u = new Utils();
 		
+		this.conn = conn;
 		this.u = u;
 		this.ctrl = ctrl;
 		this.scrnMgr = scrnMgr;

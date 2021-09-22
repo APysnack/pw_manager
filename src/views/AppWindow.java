@@ -29,10 +29,13 @@ public class AppWindow extends JFrame {
 	
 	CardLayout cl;
 	JPanel scrnMgr;
-	JPanel lgnPanel;
 	DbConnection conn;
 	String userName;
 	Controller ctrl;
+	
+	
+	JPanel loginPanel;
+	JPanel mngUsrPnl;
 	
 	public AppWindow() {
 		
@@ -101,33 +104,38 @@ public class AppWindow extends JFrame {
 	}
 	
 	public JPanel buildLoginPanel() {
-		LoginPanel loginPnl = new LoginPanel(ctrl, cl, scrnMgr);
+		LoginPanel loginPnl = new LoginPanel(ctrl, cl, scrnMgr, conn);
 		return loginPnl;
 	}
 	
 	public JPanel buildSetupPanel() {
-		SetupPanel setupPnl = new SetupPanel(ctrl, cl, scrnMgr);
+		SetupPanel setupPnl = new SetupPanel(ctrl, cl, scrnMgr, conn);
 		return setupPnl;
 	}
 	
 	public JPanel buildErrorPanel() {
-		ErrorPanel errorPnl = new ErrorPanel(ctrl, cl, scrnMgr);
+		ErrorPanel errorPnl = new ErrorPanel(ctrl, cl, scrnMgr, conn);
 		return errorPnl;
 	}
 	
 	public JPanel buildUserPanel() {
-		UserPanel userPnl = new UserPanel(ctrl, cl, scrnMgr);
+		UserPanel userPnl = new UserPanel(ctrl, cl, scrnMgr, conn);
 		return userPnl;
 	}
 	
 	public JPanel buildMngUserPanel() {
-		MngUserPanel mngUserPnl = new MngUserPanel(ctrl, cl, scrnMgr);
+		MngUserPanel mngUserPnl = new MngUserPanel(ctrl, cl, scrnMgr, conn);
+		this.mngUsrPnl = mngUserPnl;
 		return mngUserPnl;
 	}
 	
 	public JPanel buildMngPWPanel() {
-		MngPWPanel mngPWPnl = new MngPWPanel(ctrl, cl, scrnMgr);
+		MngPWPanel mngPWPnl = new MngPWPanel(ctrl, cl, scrnMgr, conn);
 		return mngPWPnl;
+	}
+	
+	public void rebuildPanel() {
+		System.out.println("test");
 	}
 	
 }

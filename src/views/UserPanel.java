@@ -23,6 +23,7 @@ import java.awt.GridLayout;
 import java.awt.BorderLayout;
 
 import controller.Controller;
+import model.DbConnection;
 
 public class UserPanel extends JPanel implements ComponentListener, ActionListener {
 
@@ -37,16 +38,18 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 	JLabel userPnlLbl;
 	JButton managePWBtn;
 	JButton manageUsrBtn;
+	DbConnection conn;
 
 	public UserPanel() {
 
 	}
 	
-	public UserPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr) {
+	public UserPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
 		setName("userPanel");
 		this.ctrl = ctrl;
 		this.cl = cl;
 		this.scrnMgr = scrnMgr;
+		this.conn = conn;
 		
 		addComponentListener(this);
 		userPnlLbl = new JLabel("Welcome " + userName);
@@ -77,7 +80,7 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 	@Override
 	public void componentShown(ComponentEvent e) {
 		if(((Component) e.getSource()).getName() == "userPanel") {
-			this.userName = ctrl.getUserName();
+			this.userName = conn.getCurrentUserName();
 			userPnlLbl.setText("Welcome " + userName);
 		}
 	}

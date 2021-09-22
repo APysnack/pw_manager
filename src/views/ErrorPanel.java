@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.awt.BorderLayout;
 
 import controller.Controller;
+import model.DbConnection;
 
 public class ErrorPanel extends JPanel implements ActionListener {
 
@@ -35,7 +36,7 @@ public class ErrorPanel extends JPanel implements ActionListener {
 
 	}
 	
-	public ErrorPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr) {
+	public ErrorPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
 		JLabel errorLbl = new JLabel("There was an error with your request. Please close out the application and try again.");
 		add(errorLbl);
 	}

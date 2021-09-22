@@ -20,6 +20,7 @@ import java.awt.GridLayout;
 import java.awt.BorderLayout;
 
 import controller.Controller;
+import model.DbConnection;
 
 public class SetupPanel extends JPanel implements FocusListener, ActionListener {
 
@@ -30,18 +31,20 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
+	DbConnection conn;
 
 	public SetupPanel() {
 		
 	}
 	
-	public SetupPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr) {
+	public SetupPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
 
 		Utils u = new Utils();
 		this.u = u;
 		this.ctrl = ctrl;
 		this.cl = cl;
 		this.scrnMgr = scrnMgr;
+		this.conn = conn;
 		
 		setLayout(new BorderLayout());
 

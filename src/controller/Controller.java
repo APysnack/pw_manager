@@ -1,42 +1,62 @@
 package controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import model.DbConnection;
+import pw_manager.User;
 
 public class Controller {
-	
+
 	DbConnection conn;
-	
-	public Controller(DbConnection conn){
+
+	public Controller(DbConnection conn) {
 		this.conn = conn;
 	}
-	
-	// needs input validation
-	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission, boolean deletePermission) {
-		
-		boolean insertSuccessful = conn.addUserToDb(userName, password, addPermission, editPermission, deletePermission);
-		
-		if(insertSuccessful) {
+
+	// needs input validation. passwords should not be greater than char[64],
+	// username is a text type, but we should set limitations for number of
+	// characters/spaces/etc.
+	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
+			boolean deletePermission) {
+
+		boolean insertSuccessful = conn.addUserToDb(userName, password, addPermission, editPermission,
+				deletePermission);
+
+		if (insertSuccessful) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
-	
+
 	// needs encryption/decryption
 	public boolean authenticateUser(String userName, String password) {
-		
+
 		boolean userAuthenticated = conn.authenticateUserInDb(userName, password);
-		if(userAuthenticated == true) {
+		if (userAuthenticated == true) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
-	
-	public String getUserName() {
-		String userName = conn.getUserName();
-		return userName;
+
+	// I dont think this will need any arguments, but should generate a secure,
+	// randomized password
+	public String generateRandomPassword() {
+		String thisIsAStub = "";
+		return thisIsAStub;
 	}
+
+	// getUserPrivileges returns a boolean list for [Add, Edit, Delete] permission
+	// e.g. [true, true, false] for a user who can add and edit users, but cannot delete them
+	// 
+	public User getUserInfo(String username) {
+		List<Boolean> privilegeList = conn.getUserPrivileges(username);
+		String userPassword = conn.getUserPW(username);
+		User user = new User(username, userPassword, privilegeList);
+		System.out.println(user.toString());
+		return user;
+	}
+
 }
