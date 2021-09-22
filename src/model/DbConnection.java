@@ -143,4 +143,10 @@ public class DbConnection {
 		String tempPassword = "dummyPassword";
 		return tempPassword;
 	}
+	
+	// Still need to be written. currently there is no column in the database for password length
+	public int getUserPWLength(String username) {
+		int pwLength = 10;
+		return pwLength;
+	}
 }

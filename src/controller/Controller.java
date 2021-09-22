@@ -54,8 +54,9 @@ public class Controller {
 	public User getUserInfo(String username) {
 		List<Boolean> privilegeList = conn.getUserPrivileges(username);
 		String userPassword = conn.getUserPW(username);
+		int passwordLength = conn.getUserPWLength(username);
 		User user = new User(username, userPassword, privilegeList);
-		System.out.println(user.toString());
+		user.setPasswordLength(passwordLength);
 		return user;
 	}
 

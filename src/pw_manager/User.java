@@ -6,6 +6,7 @@ import java.util.List;
 public class User {
 
 	int userID;
+	int passwordLength;
 	String username;
 	String encryptedPassword;
 	boolean addPermission;
@@ -46,6 +47,10 @@ public class User {
 	public void setUserID(int userID) {
 		this.userID = userID;
 	}
+	
+	public void setPasswordLength(int passwordLength) {
+		this.passwordLength = passwordLength;
+	}
 
 	public void setUsername(String username) {
 		this.username = username;
@@ -77,6 +82,10 @@ public class User {
 		return userID;
 	}
 
+	public int getPasswordLength() {
+		return passwordLength;
+	}
+	
 	public String getUsername() {
 		return username;
 	}
