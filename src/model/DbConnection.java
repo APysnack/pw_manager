@@ -51,6 +51,7 @@ public class DbConnection {
 		try {
 			stmt = conn.createStatement();
 			result = stmt.executeQuery(new_query);
+			
 			while (result.next()) {
 				allUsers.add(result.getString(2));
 			}

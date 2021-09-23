@@ -23,6 +23,8 @@ public class Controller {
 		int pwLength = password.length();
 		User user = new User(userName, password, addPermission, editPermission, deletePermission, pwLength);
 		
+		System.out.println(user);
+		
 		boolean insertSuccessful = conn.addUserToDb(user);
 
 		if (insertSuccessful) {
@@ -36,6 +38,7 @@ public class Controller {
 	public boolean authenticateUser(String userName, String password) {
 
 		boolean userAuthenticated = conn.authenticateUserInDb(userName, password);
+		
 		if (userAuthenticated == true) {
 			return true;
 		} else {

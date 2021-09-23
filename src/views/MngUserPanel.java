@@ -9,6 +9,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -31,19 +32,27 @@ import pw_manager.User;
 
 public class MngUserPanel extends JPanel implements ActionListener, FocusListener, ComponentListener {
 
-	JTextField usrField;
-	JPasswordField pwField;
-	JButton createUserBtn;
-	JPanel scrnMgr;
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
 	DbConnection conn;
-	JComboBox<String> userComboBox;
-	JButton addUserBtn;
+	
 	List<JCheckBox> checkBoxes;
+	JComboBox<String> userComboBox;
+	JTextField usrField;
+	JPasswordField pwField;
+	JPasswordField confirmPWField;
+	JPanel scrnMgr;
+	JPanel checkBoxPnl;
+	JLabel titleLbl;
+	JLabel unameLbl;
+	JLabel pwLbl;
+	JLabel confirmPWLbl;
+	JLabel actionLbl;
+	JButton addUserBtn;
 	JButton backButton;
-
+	JButton createUsrBtn;
+	
 	public MngUserPanel() {
 
 	}
@@ -54,10 +63,12 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		this.cl = cl;
 		this.scrnMgr = scrnMgr;
 		this.ctrl = ctrl;
-
-		JLabel titleLbl = new JLabel("Manage Users");
-
-		JLabel modifyLbl = new JLabel("Select a user to modify");
+		initializeMngUserPanel();
+	}
+	
+	public void initializeMngUserPanel() {
+		titleLbl = new JLabel("Manage Users");
+		actionLbl = new JLabel("Select a user to modify");
 		userComboBox = new JComboBox<String>();
 		addUserBtn = new JButton("Add new user");
 
@@ -66,17 +77,20 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		JCheckBox deletePermission = new JCheckBox("Delete Users");
 		
 		Border checkBoxBorder = BorderFactory.createTitledBorder("User Privileges");
-		JPanel checkBoxPnl = new JPanel();
+		checkBoxPnl = new JPanel();
 		checkBoxPnl.add(addPermission);
 		checkBoxPnl.add(editPermission);
 		checkBoxPnl.add(deletePermission);
 		checkBoxPnl.setBorder(checkBoxBorder);
 
-		JLabel unameLbl = new JLabel("Username");
+		unameLbl = new JLabel("Username");
 		usrField = new JTextField("Enter Username", 15);
-		JLabel pwLbl = new JLabel("Password");
+		pwLbl = new JLabel("Password");
 		pwField = new JPasswordField("Enter Password", 15);
+		confirmPWLbl = new JLabel("Confirm Password");
+		confirmPWField = new JPasswordField("Confirm Password", 15);
 		backButton = new JButton("Back");
+		createUsrBtn = new JButton("Create User");
 
 		checkBoxes = new ArrayList<JCheckBox>();
 		checkBoxes.add(addPermission);
@@ -86,17 +100,21 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 
 		usrField.addFocusListener(this);
 		pwField.addFocusListener(this);
+		confirmPWField.addFocusListener(this);
 		userComboBox.addActionListener(this);
 		addUserBtn.addActionListener(this);
+		createUsrBtn.addActionListener(this);
 		backButton.addActionListener(this);
 		addComponentListener(this);
 
 		add(titleLbl);
-		add(modifyLbl);
+		add(actionLbl);
 		add(unameLbl);
 		add(usrField);
 		add(pwLbl);
 		add(pwField);
+		add(confirmPWLbl);
+		add(confirmPWField);
 		add(userComboBox);
 		add(addUserBtn);
 		add(checkBoxPnl);
@@ -113,6 +131,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			pwStr += "*";
 		}
 		pwField.setText(pwStr);
+		confirmPWField.setText(pwStr);
 		
 		List<Boolean> permissionList = user.getUserPermissions();
 		
@@ -128,9 +147,43 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		if (source == userComboBox) {
 			populateUserData();
 		} else if (source == addUserBtn) {
-			System.out.println("add user");
+			usrField.setText("");
+			pwField.setText("");
+			confirmPWField.setText("");
+			actionLbl.setText("Creating new user");
+			addUserBtn.setVisible(false);
+			userComboBox.setVisible(false);
+			for(int i = 0; i < checkBoxes.size(); i++) {
+				checkBoxes.get(i).setSelected(false);
+			}
+			add(createUsrBtn);
+			
 		} else if (source == backButton) {
+			removeAll();
+			repaint();
+			revalidate();
+			initializeMngUserPanel();
 			cl.show(scrnMgr, "User");
+		}
+		else if (source == createUsrBtn) {
+			String username = usrField.getText();
+			char[] password  = pwField.getPassword();
+			char[] passwordConfirm = confirmPWField.getPassword();
+			
+			if (Arrays.equals(password, passwordConfirm) == true) {
+				String stringPW = String.valueOf(password);
+				boolean addPermission = checkBoxes.get(0).isSelected();
+				boolean editPermission = checkBoxes.get(1).isSelected();
+				boolean deletePermission = checkBoxes.get(2).isSelected();
+				
+				boolean userAdded = ctrl.addUser(username, stringPW, addPermission, editPermission, deletePermission);
+				if(userAdded) {
+					//TODO: successful add.
+				}
+				else {
+					//TODO: unsuccessful add.
+				}
+			}
 		}
 
 	}
@@ -145,16 +198,11 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		}
 
 		else if (source == pwField) {
-			pwField.setEchoChar('*');
-			boolean allAsterisks = false;
-
-			if (String.valueOf(pwField.getPassword()).matches("[*]*")) {
-				allAsterisks = true;
-			}
-
-			if (String.valueOf(pwField.getPassword()).equals("Enter Password") || allAsterisks == true) {
-				pwField.setText("");
-			}
+			passwordFieldGainFocus(pwField);
+		}
+		
+		else if (source == confirmPWField) {
+			passwordFieldGainFocus(confirmPWField);
 		}
 	}
 
@@ -166,13 +214,45 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 				usrField.setText("Enter Username");
 			}
 		} else if (source == pwField) {
-			if (String.valueOf(pwField.getPassword()).equals("")) {
-				pwField.setText("Enter Password");
-				pwField.setEchoChar((char) 0);
-			}
+			passwordFieldLoseFocus(pwField);
+		}
+		else if (source == confirmPWField) {
+			passwordFieldLoseFocus(confirmPWField);
 		}
 	}
 
+	@Override
+	public void componentShown(ComponentEvent e) {
+		if (((Component) e.getSource()).getName() == "manageUserPanel") {
+			userComboBox.removeAllItems();
+			ArrayList<String> allUsers = conn.getAllUserNames();
+			for (int i = 0; i < allUsers.size(); i++) {
+				userComboBox.insertItemAt(allUsers.get(i), i);
+			}
+			userComboBox.setSelectedIndex(0);
+		}
+	}
+	
+	public void passwordFieldGainFocus(JPasswordField pwField) {
+		pwField.setEchoChar('*');
+		boolean allAsterisks = false;
+
+		if (String.valueOf(pwField.getPassword()).matches("[*]*")) {
+			allAsterisks = true;
+		}
+
+		if (String.valueOf(pwField.getPassword()).equals("Enter Password") || allAsterisks == true) {
+			pwField.setText("");
+		}
+	}
+	
+	public void passwordFieldLoseFocus(JPasswordField pwField) {
+		if (String.valueOf(pwField.getPassword()).equals("")) {
+			pwField.setText("Enter Password");
+			pwField.setEchoChar((char) 0);
+		}
+	}
+	
 	@Override
 	public void componentResized(ComponentEvent e) {
 		// TODO Auto-generated method stub
@@ -184,18 +264,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		// TODO Auto-generated method stub
 
 	}
-
-	@Override
-	public void componentShown(ComponentEvent e) {
-		if (((Component) e.getSource()).getName() == "manageUserPanel") {
-			ArrayList<String> allUsers = conn.getAllUserNames();
-			for (int i = 0; i < allUsers.size(); i++) {
-				userComboBox.insertItemAt(allUsers.get(i), i);
-			}
-			userComboBox.setSelectedIndex(0);
-		}
-	}
-
+	
 	@Override
 	public void componentHidden(ComponentEvent e) {
 		// TODO Auto-generated method stub

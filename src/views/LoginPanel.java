@@ -15,10 +15,12 @@ import java.awt.CardLayout;
 import java.awt.GridLayout;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyListener;
 
-public class LoginPanel extends JPanel implements FocusListener, ActionListener {
+public class LoginPanel extends JPanel implements FocusListener, ActionListener, KeyListener {
 	
 	JTextField usrField;
 	JPasswordField pwField;
@@ -75,6 +77,9 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 		midPanel.add(pad3, BorderLayout.NORTH);
 		midPanel.add(pad4, BorderLayout.SOUTH);
 		add(midPanel, BorderLayout.CENTER);
+		
+		usrField.addKeyListener(this);
+		pwField.addKeyListener(this);
 	}
 	
 	@Override
@@ -114,17 +119,41 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 		if(source == loginBtn) {
-			String userName = usrField.getText();
-			String password = String.valueOf(pwField.getPassword());
-			
-			boolean userAuthenticated = ctrl.authenticateUser(userName, password);
-			if(userAuthenticated == true) {
-				cl.show(scrnMgr, "User");
-			}
-			else {
-				cl.show(scrnMgr, "Error");
-			}
+			attemptLogin();
 		}
+	}
+
+	public void attemptLogin() {
+		String userName = usrField.getText();
+		String password = String.valueOf(pwField.getPassword());
+		
+		boolean userAuthenticated = ctrl.authenticateUser(userName, password);
+		if(userAuthenticated == true) {
+			cl.show(scrnMgr, "User");
+		}
+		else {
+			cl.show(scrnMgr, "Error");
+		}
+	}
+	
+	@Override
+	public void keyTyped(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		if(e.getKeyCode() == 10) {
+			attemptLogin();
+		}
+		
 	}
 	
 }
