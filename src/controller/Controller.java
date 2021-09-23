@@ -2,6 +2,7 @@ package controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import model.DbConnection;
 import pw_manager.User;
@@ -46,11 +47,12 @@ public class Controller {
 		}
 	}
 
-	// I dont think this will need any arguments, but should generate a secure,
-	// randomized password
+	// should generate a secure password (and as randomly as possible)
 	public String generateRandomPassword() {
-		String thisIsAStub = "";
-		return thisIsAStub;
+		Random rand = new Random();
+		int rand_int = rand.nextInt(1000);
+		String str = String.valueOf(rand_int);
+		return str;
 	}
 
 	// getUserPrivileges returns a boolean list for [Add, Edit, Delete] permission

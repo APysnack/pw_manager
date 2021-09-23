@@ -10,12 +10,20 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.concurrent.TimeUnit;
+import java.awt.Cursor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -27,14 +35,14 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import java.awt.GridLayout;
-
+import java.awt.Image;
 import java.awt.BorderLayout;
 
 import controller.Controller;
 import model.DbConnection;
 import pw_manager.User;
 
-public class MngUserPanel extends JPanel implements ActionListener, FocusListener, ComponentListener, KeyListener {
+public class MngUserPanel extends JPanel implements ActionListener, FocusListener, ComponentListener, KeyListener, MouseListener {
 
 	CardLayout cl;
 	Controller ctrl;
@@ -44,6 +52,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	List<JCheckBox> checkBoxes;
 	JComboBox<String> userComboBox;
 	JTextField usrField;
+	JTextField randomPWField;
 	JPasswordField pwField;
 	JPasswordField confirmPWField;
 	JPanel scrnMgr;
@@ -54,11 +63,13 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	JLabel pwLbl;
 	JLabel confirmPWLbl;
 	JLabel actionLbl;
+	JLabel clipboardLbl;
 	JButton addUserBtn;
 	JButton backButton;
 	JButton createUsrBtn;
 	JButton editUsrBtn;
 	JButton deleteUsrBtn;
+	JButton generatePWBtn;
 	boolean onAddUserPage;
 	
 	public MngUserPanel() {
@@ -74,7 +85,21 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		initializeMngUserPanel();
 	}
 	
+	public JLabel generateImage(String imgPath, int width, int height) {
+		ImageIcon imgIcon = new ImageIcon(imgPath);
+		Image image = imgIcon.getImage();
+		Image scaledImage = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
+		imgIcon = new ImageIcon(scaledImage);
+		JLabel imgLabel = new JLabel(imgIcon);
+		return imgLabel;
+	}
+	
 	public void initializeMngUserPanel() {
+		String clipboard = "images/clipboard.png";
+		clipboardLbl = generateImage(clipboard, 25, 25);
+		clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+		clipboardLbl.setToolTipText("Click the clipboard to copy the randomly generated password");
+		
 		onAddUserPage = false;
 		titleLbl = new JLabel("Manage Users");
 		actionLbl = new JLabel("Select a user to modify");
@@ -95,6 +120,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		flashLbl = new JLabel("");
 		unameLbl = new JLabel("Edit Username");
 		usrField = new JTextField("Enter Username", 15);
+		randomPWField = new JTextField("", 15);
 		pwLbl = new JLabel("Edit Password");
 		pwField = new JPasswordField("Enter Password", 15);
 		confirmPWLbl = new JLabel("Confirm Password");
@@ -103,6 +129,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		createUsrBtn = new JButton("Create User");
 		editUsrBtn = new JButton("Apply Changes To User");
 		deleteUsrBtn = new JButton("Delete User");
+		generatePWBtn = new JButton("Generate Random Password");
 		
 		checkBoxes = new ArrayList<JCheckBox>();
 		checkBoxes.add(addPermission);
@@ -110,6 +137,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		checkBoxes.add(deletePermission);
 		
 		flashLbl.setVisible(false);
+		randomPWField.setEditable(false);
 
 		usrField.addFocusListener(this);
 		pwField.addFocusListener(this);
@@ -120,6 +148,8 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		editUsrBtn.addActionListener(this);
 		backButton.addActionListener(this);
 		deleteUsrBtn.addActionListener(this);
+		generatePWBtn.addActionListener(this);
+		clipboardLbl.addMouseListener(this);
 		addComponentListener(this);
 		
 		add(flashLbl);
@@ -132,6 +162,9 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		add(pwField);
 		add(confirmPWLbl);
 		add(confirmPWField);
+		add(randomPWField);
+		add(clipboardLbl);
+		add(generatePWBtn);
 		add(checkBoxPnl);
 		add(editUsrBtn);
 		add(addUserBtn);
@@ -154,6 +187,9 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			
 			if(userAdded) {
 				flashLbl.setText("User added successfully!");
+				usrField.setText("");
+				pwField.setText("");
+				confirmPWField.setText("");
 			}
 			else {
 				flashLbl.setText("User could not be added. Please check your input and try again.");
@@ -240,6 +276,10 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 				}
 			}
 		}
+		else if (source == generatePWBtn) {
+			String randomPW = ctrl.generateRandomPassword();
+			randomPWField.setText(randomPW);
+		}
 
 	}
 
@@ -279,8 +319,6 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	public void initializeComboBox() {
 		userComboBox.removeAllItems();
 		ArrayList<String> allUsers = conn.getAllUserNames();
-		
-		System.out.println(allUsers);
 		
 		for (int i = 0; i < allUsers.size(); i++) {
 			userComboBox.insertItemAt(allUsers.get(i), i);
@@ -350,6 +388,53 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		if(e.getKeyCode() == 10) {
 			attemptUserCreation();
 		}
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		Object source = e.getSource();
+		if (source == clipboardLbl) {
+			String randomPW = randomPWField.getText();
+			StringSelection stringSel = new StringSelection(randomPW);
+			clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			try {
+				TimeUnit.MILLISECONDS.sleep(300);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if(randomPW.equals("")) {
+				JOptionPane.showMessageDialog(null, "Please generate a password first");
+			}
+			clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			clipboard.setContents(stringSel, null);
+		}
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
 		
 	}
 }
