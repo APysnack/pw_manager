@@ -162,10 +162,10 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		add(pwField);
 		add(confirmPWLbl);
 		add(confirmPWField);
+		add(checkBoxPnl);
 		add(randomPWField);
 		add(clipboardLbl);
 		add(generatePWBtn);
-		add(checkBoxPnl);
 		add(editUsrBtn);
 		add(addUserBtn);
 		add(deleteUsrBtn);
@@ -189,6 +189,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 				flashLbl.setText("User added successfully!");
 				usrField.setText("");
 				pwField.setText("");
+				randomPWField.setText("");
 				confirmPWField.setText("");
 			}
 			else {
@@ -263,7 +264,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		else if(source == deleteUsrBtn) {
 			String name = (String) userComboBox.getSelectedItem();
 			JFrame alert = new JFrame();
-			int response = JOptionPane.showConfirmDialog(alert, "This will delete all passwords for " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			int response = JOptionPane.showConfirmDialog(alert, "This will delete the user " + name + " and all of their passwords. Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(response == 0) {
 				boolean userDeleted = ctrl.deleteUser(name);
 				if (userDeleted == true) {
@@ -279,6 +280,22 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		else if (source == generatePWBtn) {
 			String randomPW = ctrl.generateRandomPassword();
 			randomPWField.setText(randomPW);
+		}
+		
+		else if (source == editUsrBtn) {
+			String name = (String) userComboBox.getSelectedItem();
+			int response = JOptionPane.showConfirmDialog(null, "You're about to make changes to " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(response == 0) {
+				boolean userDeleted = ctrl.deleteUser(name);
+				if (userDeleted == true) {
+					flashLbl.setText("User successfully modified!");
+					flashLbl.setVisible(true);
+				}
+				else {
+					flashLbl.setText("ERROR: User could not be modified");
+					flashLbl.setVisible(false);
+				}
+			}
 		}
 
 	}
@@ -399,7 +416,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			StringSelection stringSel = new StringSelection(randomPW);
 			clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			try {
-				TimeUnit.MILLISECONDS.sleep(300);
+				TimeUnit.MILLISECONDS.sleep(400);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
