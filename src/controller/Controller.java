@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import model.DbConnection;
+import pw_manager.Password;
 import pw_manager.User;
 
 public class Controller {
@@ -67,9 +68,19 @@ public class Controller {
 		return user;
 	}
 	
-	// any verification checks needed before making a call to conn.deleteUserFromDB(String deleteUser);
-	public boolean deleteUser(String deleteUser) {
+	public Password getPasswordInfo(String applicationName) {
+		Password password = new Password(2, 1, "facebook", "facebookPW", 10);
+		return password;
+	}
+	
+	// any verification checks needed before making a call to conn.deleteUserFromDB(String userName);
+	public boolean deleteUser(String userName) {
 		return true;
 	}
+	
+	// any verification checks needed before making a call to conn.deleteUserFromDB(String appName);
+		public boolean deletePassword(String appName) {
+			return true;
+		}
 
 }

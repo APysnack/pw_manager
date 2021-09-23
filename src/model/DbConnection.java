@@ -62,6 +62,32 @@ public class DbConnection {
 		}
 	}
 
+	// gets a list of all usernames in the username table. since there are no
+	// needs protection against sql injection and needs to only display apps for the
+	// logged in user
+	public ArrayList<String> getAllUserApps() {
+		openConnection();
+		new_query = "SELECT * FROM Passwords";
+
+		Statement stmt;
+		ArrayList<String> allUsers = new ArrayList<String>();
+
+		try {
+			stmt = conn.createStatement();
+			result = stmt.executeQuery(new_query);
+
+			while (result.next()) {
+				allUsers.add(result.getString(3));
+			}
+			return allUsers;
+		} catch (SQLException e) {
+			System.out.println(e);
+			return allUsers;
+		} finally {
+			closeConnection();
+		}
+	}
+
 	public void openConnection() {
 		try {
 			this.dbpath = "jdbc:sqlite:pwdb.db";
