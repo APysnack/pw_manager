@@ -101,9 +101,8 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 		disclaimerPnl.add(disclaimerLbl);
 		disclaimerPnl.add(disclaimerLbl2);
 		
-		JButton createUserBtn = new JButton("I understand. Create this user");
+		createUserBtn = new JButton("I understand. Create this user");
 		createUserBtn.addActionListener(this);
-		this.createUserBtn = createUserBtn;
 		disclaimerPnl.add(createUserBtn);
 		
 		return disclaimerPnl;

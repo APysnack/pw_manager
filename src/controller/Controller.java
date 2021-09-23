@@ -64,5 +64,10 @@ public class Controller {
 		user.setPasswordLength(passwordLength);
 		return user;
 	}
+	
+	// any verification checks needed before making a call to conn.deleteUserFromDB(String deleteUser);
+	public boolean deleteUser(String deleteUser) {
+		return true;
+	}
 
 }

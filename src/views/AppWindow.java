@@ -141,6 +141,7 @@ public class AppWindow extends JFrame {
 	
 	public void rebuildApp() {
 		this.dispose();
+		conn.closeConnection();
 		App application = new App();
 	}
 	
