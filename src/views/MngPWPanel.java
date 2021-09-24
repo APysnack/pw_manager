@@ -40,9 +40,9 @@ import java.awt.BorderLayout;
 
 import controller.Controller;
 import model.DbConnection;
-import pw_manager.Password;
-import pw_manager.PasswordSet;
-import pw_manager.User;
+import structures.Password;
+import structures.PasswordSet;
+import structures.User;
 
 public class MngPWPanel extends JPanel
 		implements ActionListener, FocusListener, ComponentListener, KeyListener, MouseListener {
@@ -422,12 +422,13 @@ public class MngPWPanel extends JPanel
 
 	public void attemptAddPassword() {
 		String appName = appField.getText();
+		String appUserName = appUsrNameField.getText();
 		char[] password = pwField.getPassword();
 		char[] passwordConfirm = confirmPWField.getPassword();
 
 		if (Arrays.equals(password, passwordConfirm) == true) {
 			String stringPW = String.valueOf(password);
-			boolean addSuccessful = ctrl.addNewPassword(appName, stringPW);
+			boolean addSuccessful = ctrl.addNewPassword(appName, appUserName, stringPW);
 			if (addSuccessful) {
 				flashLbl.setText("Password successfully added to database!");
 				appField.setText("Application Name");

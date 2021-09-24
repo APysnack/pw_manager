@@ -1,4 +1,4 @@
-package pw_manager;
+package structures;
 
 import java.util.ArrayList;
 import java.util.List;

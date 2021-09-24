@@ -1,4 +1,4 @@
-package pw_manager;
+package structures;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 public class User {
 
 	int userID;
-	int passwordLength;
 	String username;
 	String encryptedPassword;
+	int passwordLength;
 	boolean addPermission;
 	boolean editPermission;
 	boolean deletePermission;

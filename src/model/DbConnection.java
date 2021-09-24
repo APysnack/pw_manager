@@ -12,7 +12,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import pw_manager.User;
+import structures.Password;
+import structures.User;
 
 public class DbConnection {
 
@@ -213,5 +214,32 @@ public class DbConnection {
 	public int getUserPWLength(String username) {
 		int pwLength = 10;
 		return pwLength;
+	}
+	
+	public boolean addPasswordToDb(Password password) {
+		openConnection();
+
+		new_query = "INSERT INTO PASSWORDS (APPLICATION, USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?,?,?, ?)";
+
+		try {
+			PreparedStatement pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, password.getAppName());
+			pStmt.setString(2, password.getAppUserName());
+			pStmt.setString(3, password.getEncryptedPassword());
+			pStmt.setInt(4, password.getPasswordLength());
+
+			// if rowsAffected > 0, insert was successful
+			int rowsAffected = pStmt.executeUpdate();
+			conn.close();
+
+			return true;
+		} catch (SQLException e) {
+			System.out.println(e);
+			return false;
+		}
+
+		finally {
+			closeConnection();
+		}
 	}
 }

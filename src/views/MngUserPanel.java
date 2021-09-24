@@ -40,7 +40,7 @@ import java.awt.BorderLayout;
 
 import controller.Controller;
 import model.DbConnection;
-import pw_manager.User;
+import structures.User;
 
 public class MngUserPanel extends JPanel implements ActionListener, FocusListener, ComponentListener, KeyListener, MouseListener {
 
