@@ -48,7 +48,7 @@ public class Controller {
 		}
 	}
 
-	// should generate a secure password (and as randomly as possible)
+	// should generate a secure password (as randomly as possible)
 	public String generateRandomPassword() {
 		Random rand = new Random();
 		int rand_int = rand.nextInt(1000);

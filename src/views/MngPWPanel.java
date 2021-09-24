@@ -53,15 +53,18 @@ public class MngPWPanel extends JPanel
 
 	JComboBox<String> appComboBox;
 	JTextField appField;
+	JTextField appUsrNameField;
 	JTextField randomPWField;
 	JTextField displayPWField;
 	JPasswordField pwField;
 	JPasswordField confirmPWField;
 	JPanel scrnMgr;
+	JLabel appUsrNameLbl;
 	JLabel flashLbl;
 	JLabel titleLbl;
-	JLabel appNameLbl;
 	JLabel pwLbl;
+	JLabel appNameLbl;
+	JLabel editPWLbl;
 	JLabel confirmPWLbl;
 	JLabel actionLbl;
 	JLabel clipboardLbl;
@@ -96,13 +99,15 @@ public class MngPWPanel extends JPanel
 		titleLbl = new JLabel("Showing passwords for " + userName);
 
 		actionLbl = new JLabel("Select an application");
+		appUsrNameLbl = new JLabel("Username");
+		appUsrNameField = new JTextField("Enter Username", 15);
 		appComboBox = new JComboBox<String>();
 		addPWBtn = new JButton("Create New Password");
 		flashLbl = new JLabel("");
 		appNameLbl = new JLabel("Edit Application Name");
 		appField = new JTextField("Enter App", 15);
 		randomPWField = new JTextField("", 15);
-		pwLbl = new JLabel("Edit Password");
+		editPWLbl = new JLabel("Edit Password");
 		pwField = new JPasswordField("Enter Password", 15);
 		confirmPWLbl = new JLabel("Confirm Password");
 		confirmPWField = new JPasswordField("Enter Password", 15);
@@ -113,9 +118,11 @@ public class MngPWPanel extends JPanel
 		generatePWBtn = new JButton("Generate Random Password");
 		displayPWField = new JTextField("", 15);
 		applyChangesBtn = new JButton("Apply changes");
+		pwLbl = new JLabel("Password");
 
 		addPWBtn.addActionListener(this);
 		appField.addFocusListener(this);
+		appUsrNameField.addFocusListener(this);
 		pwField.addFocusListener(this);
 		confirmPWField.addFocusListener(this);
 		appComboBox.addActionListener(this);
@@ -133,10 +140,13 @@ public class MngPWPanel extends JPanel
 		add(titleLbl);
 		add(actionLbl);
 		add(appComboBox);
+		add(appUsrNameLbl);
+		add(appUsrNameField);
+		add(pwLbl);
 		add(displayPWField);
 		add(appNameLbl);
 		add(appField);
-		add(pwLbl);
+		add(editPWLbl);
 		add(pwField);
 		add(confirmPWLbl);
 		add(confirmPWField);
@@ -160,7 +170,7 @@ public class MngPWPanel extends JPanel
 		addPWBtn.setVisible(true);
 		editPWBtn.setVisible(true);
 		deletePWBtn.setVisible(true);
-		pwLbl.setVisible(false);
+		editPWLbl.setVisible(false);
 		pwField.setVisible(false);
 		confirmPWLbl.setVisible(false);
 		confirmPWField.setVisible(false);
@@ -171,6 +181,9 @@ public class MngPWPanel extends JPanel
 		appField.setVisible(false);
 		createNewPWBtn.setVisible(false);
 		applyChangesBtn.setVisible(false);
+		pwLbl.setVisible(true);
+		actionLbl.setVisible(false);
+		titleLbl.setVisible(true);
 	}
 
 	public void noPasswordsView() {
@@ -179,7 +192,7 @@ public class MngPWPanel extends JPanel
 		displayPWField.setVisible(false);
 		editPWBtn.setVisible(false);
 		deletePWBtn.setVisible(false);
-		pwLbl.setVisible(false);
+		editPWLbl.setVisible(false);
 		pwField.setVisible(false);
 		confirmPWLbl.setVisible(false);
 		confirmPWField.setVisible(false);
@@ -190,6 +203,9 @@ public class MngPWPanel extends JPanel
 		appField.setVisible(false);
 		createNewPWBtn.setVisible(false);
 		applyChangesBtn.setVisible(false);
+		pwLbl.setVisible(true);
+		actionLbl.setVisible(false);
+		titleLbl.setVisible(false);
 	}
 
 	// foo
@@ -205,7 +221,7 @@ public class MngPWPanel extends JPanel
 		editPWBtn.setVisible(false);
 		applyChangesBtn.setVisible(true);
 		deletePWBtn.setVisible(false);
-		pwLbl.setVisible(true);
+		editPWLbl.setVisible(true);
 		pwField.setVisible(true);
 		confirmPWLbl.setVisible(true);
 		confirmPWField.setVisible(true);
@@ -225,11 +241,13 @@ public class MngPWPanel extends JPanel
 		createNewPWBtn.setVisible(true);
 		displayPWField.setVisible(false);
 		actionLbl.setText("Creating a new password for " + userName);
+		appNameLbl.setText("App Name");
+		actionLbl.setVisible(true);
 		appField.setText("Application Name");
 		flashLbl.setVisible(false);
 		editPWBtn.setVisible(false);
 		deletePWBtn.setVisible(false);
-		pwLbl.setVisible(true);
+		editPWLbl.setVisible(true);
 		pwField.setVisible(true);
 		confirmPWLbl.setVisible(true);
 		applyChangesBtn.setVisible(false);
@@ -241,6 +259,7 @@ public class MngPWPanel extends JPanel
 		appField.setVisible(true);
 		appComboBox.setVisible(false);
 		titleLbl.setVisible(false);
+		pwLbl.setVisible(false);
 	}
 
 	public void initializeComboBox() {
@@ -331,6 +350,12 @@ public class MngPWPanel extends JPanel
 				appField.setText("");
 			}
 		}
+		
+		if (source == appUsrNameField) {
+			if (appUsrNameField.getText().equals("Enter Username")) {
+				appUsrNameField.setText("");
+			}
+		}
 
 		else if (source == pwField) {
 			passwordFieldGainFocus(pwField);
@@ -348,7 +373,14 @@ public class MngPWPanel extends JPanel
 			if (appField.getText().isEmpty()) {
 				appField.setText("Application Name");
 			}
-		} else if (source == pwField) {
+		}
+		else if (source == appUsrNameField) {
+			if (appUsrNameField.getText().isEmpty()) {
+				appUsrNameField.setText("Enter Username");
+			}
+		}
+		
+		else if (source == pwField) {
 			passwordFieldLoseFocus(pwField);
 		} else if (source == confirmPWField) {
 			passwordFieldLoseFocus(confirmPWField);
