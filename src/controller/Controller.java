@@ -24,9 +24,9 @@ public class Controller {
 
 		int pwLength = password.length();
 		User user = new User(userName, password, addPermission, editPermission, deletePermission, pwLength);
-		
+
 		System.out.println(user);
-		
+
 		boolean insertSuccessful = conn.addUserToDb(user);
 
 		if (insertSuccessful) {
@@ -40,7 +40,7 @@ public class Controller {
 	public boolean authenticateUser(String userName, String password) {
 
 		boolean userAuthenticated = conn.authenticateUserInDb(userName, password);
-		
+
 		if (userAuthenticated == true) {
 			return true;
 		} else {
@@ -57,8 +57,8 @@ public class Controller {
 	}
 
 	// getUserPrivileges returns a boolean list for [Add, Edit, Delete] permission
-	// e.g. [true, true, false] for a user who can add and edit users, but cannot delete them
-	// 
+	// e.g. [true, true, false] for a user who can add and edit users, but cannot
+	// delete them
 	public User getUserInfo(String username) {
 		List<Boolean> privilegeList = conn.getUserPrivileges(username);
 		String userPassword = conn.getUserPW(username);
@@ -67,20 +67,35 @@ public class Controller {
 		user.setPasswordLength(passwordLength);
 		return user;
 	}
-	
+
 	public Password getPasswordInfo(String applicationName) {
 		Password password = new Password(2, 1, "facebook", "facebookPW", 10);
 		return password;
 	}
-	
-	// any verification checks needed before making a call to conn.deleteUserFromDB(String userName);
+
+	// any verification checks needed before making a call to
+	// conn.deleteUserFromDB(String userName);
 	public boolean deleteUser(String userName) {
 		return true;
 	}
+
+	// any verification checks needed before making a call to
+	// conn.deleteUserFromDB(String appName);
+	public boolean deletePassword(String appName) {
+		return true;
+	}
 	
-	// any verification checks needed before making a call to conn.deleteUserFromDB(String appName);
-		public boolean deletePassword(String appName) {
-			return true;
-		}
+	// needs to do error checking then encrypt password and send it to the db
+	public boolean addNewPassword(String appName, String appPassword) {
+		return true;
+	}
+	
+	public String getDecryptedPassword(String appName) {
+		return "password";
+	}
+	
+	public boolean editPassword(String appName) {
+		return true;
+	}
 
 }
