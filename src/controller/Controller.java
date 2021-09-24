@@ -68,6 +68,7 @@ public class Controller {
 		return user;
 	}
 
+	// creates a password object (password id, user id, appName, encryptedPassword, passwordLengthBeforeDecryption)
 	public Password getPasswordInfo(String applicationName) {
 		Password password = new Password(2, 1, "facebook", "facebookPW", 10);
 		return password;
@@ -90,11 +91,14 @@ public class Controller {
 		return true;
 	}
 	
+	// retrieves encrypted password from the database, performs decrypted and returns the unencrypted password as a string
 	public String getDecryptedPassword(String appName) {
 		return "password";
 	}
 	
-	public boolean editPassword(String appName) {
+	
+	// modifies an existing password in the database (oldAppName is used to identify it)
+	public boolean editPassword(String oldAppName, String newAppName, String password) {
 		return true;
 	}
 

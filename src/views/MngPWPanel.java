@@ -43,13 +43,14 @@ import model.DbConnection;
 import pw_manager.Password;
 import pw_manager.User;
 
-public class MngPWPanel extends JPanel implements ActionListener, FocusListener, ComponentListener, KeyListener, MouseListener {
+public class MngPWPanel extends JPanel
+		implements ActionListener, FocusListener, ComponentListener, KeyListener, MouseListener {
 
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
 	DbConnection conn;
-	
+
 	JComboBox<String> appComboBox;
 	JTextField appField;
 	JTextField randomPWField;
@@ -73,7 +74,7 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 	JButton applyChangesBtn;
 	boolean onSecondaryPage;
 	String userName;
-	
+
 	public MngPWPanel() {
 	}
 
@@ -93,7 +94,7 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		clipboardLbl.setToolTipText("Click the clipboard to copy the randomly generated password");
 		titleLbl = new JLabel("Showing passwords for " + userName);
-		
+
 		actionLbl = new JLabel("Select an application");
 		appComboBox = new JComboBox<String>();
 		addPWBtn = new JButton("Create New Password");
@@ -112,7 +113,7 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		generatePWBtn = new JButton("Generate Random Password");
 		displayPWField = new JTextField("", 15);
 		applyChangesBtn = new JButton("Apply changes");
-		
+
 		addPWBtn.addActionListener(this);
 		appField.addFocusListener(this);
 		pwField.addFocusListener(this);
@@ -127,9 +128,7 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		clipboardLbl.addMouseListener(this);
 		applyChangesBtn.addActionListener(this);
 		addComponentListener(this);
-		
-		flashLbl.setVisible(false);
-		
+
 		add(flashLbl);
 		add(titleLbl);
 		add(actionLbl);
@@ -151,8 +150,9 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		add(deletePWBtn);
 		add(backButton);
 	}
-	
+
 	public void mainView() {
+		flashLbl.setVisible(false);
 		onSecondaryPage = false;
 		titleLbl.setText("Displaying passwords for " + userName);
 		displayPWField.setVisible(true);
@@ -172,8 +172,9 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		createNewPWBtn.setVisible(false);
 		applyChangesBtn.setVisible(false);
 	}
-	
+
 	public void noPasswordsView() {
+		flashLbl.setVisible(false);
 		onSecondaryPage = false;
 		displayPWField.setVisible(false);
 		editPWBtn.setVisible(false);
@@ -190,9 +191,10 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		createNewPWBtn.setVisible(false);
 		applyChangesBtn.setVisible(false);
 	}
-	
-	//foo 
+
+	// foo
 	public void editPWView(String appName) {
+		flashLbl.setVisible(false);
 		onSecondaryPage = true;
 		populatePasswordData(appName);
 		actionLbl.setVisible(false);
@@ -215,8 +217,9 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		appComboBox.setVisible(false);
 		titleLbl.setVisible(false);
 	}
-	
+
 	public void addPWView() {
+		flashLbl.setVisible(false);
 		onSecondaryPage = true;
 		addPWBtn.setVisible(false);
 		createNewPWBtn.setVisible(true);
@@ -239,24 +242,23 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		appComboBox.setVisible(false);
 		titleLbl.setVisible(false);
 	}
-	
+
 	public void initializeComboBox() {
 		appComboBox.removeAllItems();
 		ArrayList<String> allApps = conn.getAllUserApps();
-		if(allApps.size() > 0) {
+		if (allApps.size() > 0) {
 			for (int i = 0; i < allApps.size(); i++) {
 				appComboBox.insertItemAt(allApps.get(i), i);
 			}
 			appComboBox.setSelectedIndex(0);
 			mainView();
-		}
-		else {
+		} else {
 			flashLbl.setText("No passwords for this user. Please add one");
 			flashLbl.setVisible(true);
 			noPasswordsView();
 		}
 	}
-	
+
 	public JLabel generateImage(String imgPath, int width, int height) {
 		ImageIcon imgIcon = new ImageIcon(imgPath);
 		Image image = imgIcon.getImage();
@@ -265,12 +267,11 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		JLabel imgLabel = new JLabel(imgIcon);
 		return imgLabel;
 	}
-	
+
 	public void populatePasswordData(String selectedApp) {
-		if(onSecondaryPage == false) {
+		if (onSecondaryPage == false) {
 			displayPWField.setText(ctrl.getDecryptedPassword(selectedApp));
-		}
-		else {
+		} else {
 			Password pwData = ctrl.getPasswordInfo(selectedApp);
 			appField.setText(pwData.getAppName());
 			int pwLen = pwData.getPasswordLength();
@@ -282,9 +283,8 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 			confirmPWField.setText(pwStr);
 		}
 
-		
 	}
-	
+
 	public void passwordFieldGainFocus(JPasswordField pwField) {
 		pwField.setEchoChar('*');
 		boolean allAsterisks = false;
@@ -297,19 +297,18 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 			pwField.setText("");
 		}
 	}
-	
+
 	public void passwordFieldLoseFocus(JPasswordField pwField) {
 		if (String.valueOf(pwField.getPassword()).equals("")) {
 			pwField.setText("Enter Password");
 			pwField.setEchoChar((char) 0);
 		}
 	}
-	
+
 	public void backBtnBehavior() {
-		if(onSecondaryPage == true) {
+		if (onSecondaryPage == true) {
 			mainView();
-		}
-		else {
+		} else {
 			cl.show(scrnMgr, "User");
 		}
 	}
@@ -321,7 +320,7 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 			titleLbl.setText("Displaying passwords for " + userName);
 			initializeComboBox();
 		}
-		
+
 	}
 
 	@Override
@@ -336,7 +335,7 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		else if (source == pwField) {
 			passwordFieldGainFocus(pwField);
 		}
-		
+
 		else if (source == confirmPWField) {
 			passwordFieldGainFocus(confirmPWField);
 		}
@@ -351,35 +350,32 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 			}
 		} else if (source == pwField) {
 			passwordFieldLoseFocus(pwField);
-		}
-		else if (source == confirmPWField) {
+		} else if (source == confirmPWField) {
 			passwordFieldLoseFocus(confirmPWField);
 		}
-		
+
 	}
-	
+
 	public void attemptAddPassword() {
 		String appName = appField.getText();
-		char[] password  = pwField.getPassword();
+		char[] password = pwField.getPassword();
 		char[] passwordConfirm = confirmPWField.getPassword();
-		
+
 		if (Arrays.equals(password, passwordConfirm) == true) {
 			String stringPW = String.valueOf(password);
 			boolean addSuccessful = ctrl.addNewPassword(appName, stringPW);
-			if(addSuccessful) {
+			if (addSuccessful) {
 				flashLbl.setText("Password successfully added to database!");
 				appField.setText("Application Name");
 				pwField.setText("Enter Password");
 				confirmPWField.setText("Enter Password");
-			}
-			else {
+			} else {
 				flashLbl.setText("Error in user input, password could not be added");
 			}
-		}
-		else {
+		} else {
 			flashLbl.setText("Passwords do not match, please try again");
 		}
-		
+
 		flashLbl.setVisible(true);
 	}
 
@@ -388,70 +384,77 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 		Object source = e.getSource();
 		if (source == addPWBtn) {
 			addPWView();
-		}
-		else if (source == generatePWBtn) {
+		} else if (source == generatePWBtn) {
 			String randomPW = ctrl.generateRandomPassword();
 			randomPWField.setText(randomPW);
-		}
-		else if (source == backButton) {
+		} else if (source == backButton) {
 			backBtnBehavior();
-		}
-		else if (source == createNewPWBtn) {
+		} else if (source == createNewPWBtn) {
 			attemptAddPassword();
-			
-		}
-		else if (source == appComboBox) {
+
+		} else if (source == appComboBox) {
 			String selectedApp = (String) appComboBox.getSelectedItem();
 			populatePasswordData(selectedApp);
-		}
-		else if(source == deletePWBtn) {
+		} else if (source == deletePWBtn) {
 			String appName = (String) appComboBox.getSelectedItem();
 			JFrame alert = new JFrame();
-			int response = JOptionPane.showConfirmDialog(alert, "This will delete the password for " + appName + ". Do you still wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if(response == 0) {
+			int response = JOptionPane.showConfirmDialog(alert,
+					"This will delete the password for " + appName + ". Do you still wish to continue?", "WARNING!!!",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (response == 0) {
 				boolean pwDeleted = ctrl.deletePassword(appName);
 				if (pwDeleted == true) {
 					flashLbl.setText("Password successfully deleted!");
 					flashLbl.setVisible(true);
-				}
-				else {
+				} else {
 					flashLbl.setText("ERROR: Password could not be deleted");
 					flashLbl.setVisible(false);
 				}
 			}
-		}
-		else if (source == editPWBtn) {
+		} else if (source == editPWBtn) {
 			String selectedApp = (String) appComboBox.getSelectedItem();
 			editPWView(selectedApp);
 		}
-		
+
 		else if (source == applyChangesBtn) {
 			String name = (String) appComboBox.getSelectedItem();
-			int response = JOptionPane.showConfirmDialog(null, "You're about to make changes to " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if(response == 0) {
-				boolean pwEdited = ctrl.editPassword(name);
-				if (pwEdited == true) {
-					flashLbl.setText("Password successfully modified!");
-					flashLbl.setVisible(true);
+
+			int response = JOptionPane.showConfirmDialog(null,
+					"You're about to make changes to " + name + ". Do you wish to continue?", "WARNING!!!",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (response == 0) {
+				String newAppName = appField.getText();
+				char[] password = pwField.getPassword();
+				char[] passwordConfirm = confirmPWField.getPassword();
+
+				if (Arrays.equals(password, passwordConfirm) == true) {
+					String stringPW = String.valueOf(password);
+					boolean addSuccessful = ctrl.editPassword(name, newAppName, stringPW);
+					if (addSuccessful) {
+						flashLbl.setText("Password successfully modified!");
+						appField.setText("Application Name");
+						pwField.setText("Enter Password");
+						confirmPWField.setText("Enter Password");
+					} else {
+						flashLbl.setText("Error in user input, password could not be added");
+					}
 				}
-				else {
-					flashLbl.setText("ERROR: Password could not be modified");
-					flashLbl.setVisible(false);
-				}
+				
+				flashLbl.setVisible(true);
+
 			}
 		}
 	}
-	
+
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		Object source = e.getSource();
 		if (source == clipboardLbl) {
 			String textToCopy = "";
-			
-			if (onSecondaryPage == true){
+
+			if (onSecondaryPage == true) {
 				textToCopy = randomPWField.getText();
-			}
-			else {
+			} else {
 				textToCopy = displayPWField.getText();
 			}
 			StringSelection stringSel = new StringSelection(textToCopy);
@@ -462,12 +465,11 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			if(textToCopy.equals("")) {
+			if (textToCopy.equals("")) {
 				String message = "";
-				if(onSecondaryPage == true) {
+				if (onSecondaryPage == true) {
 					message = "Please generate a password first";
-				}
-				else {
+				} else {
 					message = "This field is empty";
 				}
 				JOptionPane.showMessageDialog(null, message);
@@ -476,68 +478,67 @@ public class MngPWPanel extends JPanel implements ActionListener, FocusListener,
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(stringSel, null);
 		}
-		
+
 	}
-	
+
 	@Override
 	public void componentHidden(ComponentEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void componentResized(ComponentEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void componentMoved(ComponentEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
 
 }
