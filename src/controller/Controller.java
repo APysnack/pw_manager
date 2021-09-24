@@ -6,6 +6,7 @@ import java.util.Random;
 
 import model.DbConnection;
 import pw_manager.Password;
+import pw_manager.PasswordSet;
 import pw_manager.User;
 
 public class Controller {
@@ -68,7 +69,8 @@ public class Controller {
 		return user;
 	}
 
-	// creates a password object (password id, user id, appName, encryptedPassword, passwordLengthBeforeDecryption)
+	// creates a password object (password id, user id, appName, encryptedPassword,
+	// passwordLengthBeforeDecryption)
 	public Password getPasswordInfo(String applicationName) {
 		Password password = new Password(2, 1, "facebook", "myusername", "facebookPW", 10);
 		return password;
@@ -85,37 +87,69 @@ public class Controller {
 	public boolean deletePassword(String appName) {
 		return true;
 	}
-	
+
 	// needs to do error checking then encrypt password and send it to the db
 	public boolean addNewPassword(String appName, String appPassword) {
 		return true;
 	}
-	
-	// retrieves encrypted password from the database, performs decrypted and returns the unencrypted password as a string
+
+	// retrieves encrypted password from the database, performs decrypted and
+	// returns the unencrypted password as a string
 	public String getDecryptedPassword(String appName, String username) {
 		return "password";
 	}
-	
-	
-	// modifies an existing password in the database (oldAppName is used to identify it)
-	public boolean editPassword(String oldAppName, String oldAppUsername, String newAppName, String newAppUsername, String password) {
+
+	// modifies an existing password in the database (oldAppName is used to identify
+	// it)
+	public boolean editPassword(String oldAppName, String oldAppUsername, String newAppName, String newAppUsername,
+			String password) {
 		return true;
 	}
-	
-	// should call conn function to get passwords from db and return an array of password objects
-	public ArrayList<Password> getAllPasswords(){
-		ArrayList<Password> passwordList = new ArrayList<Password>();
+
+	// should call conn function to get passwords from db. Need to develop an
+	// algorithm that will create a list of
+	// PasswordSet objects that have an applicationName (e.g. facebook) and an
+	// ArrayList<Password> containing all the Password objects that are associated
+	// with facebook
+	public ArrayList<PasswordSet> getAllPasswords() {
+		// assume this is the list of passwords received from the database
 		Password password1 = new Password(1, 1, "facebook", "myusername", "nfpassword", 10);
 		Password password2 = new Password(2, 1, "netflix", "nfusername", "fbpassword", 10);
 		Password password3 = new Password(3, 1, "gmail", "gmusername1", "gmpassword", 10);
 		Password password4 = new Password(4, 1, "gmail", "gmusername2", "gmpassword", 10);
+		Password password5 = new Password(5, 1, "netflix", "nfusername2", "nfpassword", 10);
+		Password password6 = new Password(6, 1, "gmail", "gmusername3", "gmpassword", 10);
+
+		// an algorithm needs to be written to sort these into ArrayList<Password> type. Example shown below:
+		ArrayList<Password> gmailPasswordList = new ArrayList<Password>();
+		gmailPasswordList.add(password3);
+		gmailPasswordList.add(password4);
+		gmailPasswordList.add(password6);
 		
-		passwordList.add(password1);
-		passwordList.add(password2);
-		passwordList.add(password3);
-		passwordList.add(password4);
-	
-		return passwordList;
+		// for each of these, they should be saved as a password set object
+		PasswordSet gmailPasswordSet = new PasswordSet("gmail", gmailPasswordList);
+		
+		
+		ArrayList<Password> netflixPasswordList = new ArrayList<Password>();
+		netflixPasswordList.add(password2);
+		netflixPasswordList.add(password5);
+		
+		PasswordSet netflixPasswordSet = new PasswordSet("netflix", netflixPasswordList);
+		
+		ArrayList<Password> facebookPasswordList = new ArrayList<Password>();
+		facebookPasswordList.add(password1);
+		
+		PasswordSet facebookPasswordSet = new PasswordSet("facebook", facebookPasswordList);
+		
+		
+		// afterwards, all of these password sets should be saved in an array of password sets
+		ArrayList<PasswordSet> passwordSetList = new ArrayList<PasswordSet>();
+		passwordSetList.add(gmailPasswordSet);
+		passwordSetList.add(netflixPasswordSet);
+		passwordSetList.add(facebookPasswordSet);
+		
+		
+		return passwordSetList;
 	}
 
 }

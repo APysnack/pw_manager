@@ -41,6 +41,7 @@ import java.awt.BorderLayout;
 import controller.Controller;
 import model.DbConnection;
 import pw_manager.Password;
+import pw_manager.PasswordSet;
 import pw_manager.User;
 
 public class MngPWPanel extends JPanel
@@ -282,18 +283,30 @@ public class MngPWPanel extends JPanel
 	public void initializeComboBox() {
 		appComboBox.removeAllItems();
 		userNameComboBox.removeAllItems();
-		ArrayList<Password> allPasswords = ctrl.getAllPasswords();
+		ArrayList<PasswordSet> allPasswords = ctrl.getAllPasswords();
 		if (allPasswords.size() > 0) {
 			for (int i = 0; i < allPasswords.size(); i++) {
 				appComboBox.insertItemAt(allPasswords.get(i).getAppName(), i);
-				userNameComboBox.insertItemAt(allPasswords.get(i).getAppUserName(), i);
 			}
+			
+			populateAppUsersFor(allPasswords.get(0));
 			appComboBox.setSelectedIndex(0);
-			userNameComboBox.setSelectedIndex(0);
 			mainView();
 		} else {
 			noPasswordsView();
 		}
+	}
+	
+	public void populateAppUsersFor(PasswordSet passwordSet){
+		userNameComboBox.removeAllItems();
+		
+		ArrayList<Password> passwordList = passwordSet.getPasswordList();
+		
+		for (int i = 0; i < passwordList.size(); i++) {
+			userNameComboBox.insertItemAt(passwordList.get(i).getAppUserName(), i);
+		}
+		
+		userNameComboBox.setSelectedIndex(0);
 	}
 
 	public JLabel generateImage(String imgPath, int width, int height) {
@@ -445,9 +458,24 @@ public class MngPWPanel extends JPanel
 
 		} else if (source == appComboBox) {
 			String selectedApp = (String) appComboBox.getSelectedItem();
-			String selectedUsername = (String) userNameComboBox.getSelectedItem();
-			populatePasswordData(selectedApp, selectedUsername);
-		} else if (source == deletePWBtn) {
+			ArrayList<PasswordSet> allPasswords = ctrl.getAllPasswords();
+			
+			for(int i = 0; i < allPasswords.size(); i++) {
+				if (allPasswords.get(i).getAppName().equals(selectedApp)) {
+					populateAppUsersFor(allPasswords.get(i));
+				}
+			}
+			
+			String selectedUserName = (String) userNameComboBox.getSelectedItem();
+			populatePasswordData(selectedApp, selectedUserName);
+		} 
+		else if (source == userNameComboBox) {
+			String selectedApp = (String) appComboBox.getSelectedItem();
+			String selectedUserName = (String) userNameComboBox.getSelectedItem();
+			populatePasswordData(selectedApp, selectedUserName);
+		}
+		
+		else if (source == deletePWBtn) {
 			String appName = (String) appComboBox.getSelectedItem();
 			JFrame alert = new JFrame();
 			int response = JOptionPane.showConfirmDialog(alert,
