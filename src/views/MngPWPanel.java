@@ -52,6 +52,7 @@ public class MngPWPanel extends JPanel
 	DbConnection conn;
 
 	JComboBox<String> appComboBox;
+	JComboBox<String> userNameComboBox;
 	JTextField appField;
 	JTextField appUsrNameField;
 	JTextField randomPWField;
@@ -66,7 +67,6 @@ public class MngPWPanel extends JPanel
 	JLabel appNameLbl;
 	JLabel editPWLbl;
 	JLabel confirmPWLbl;
-	JLabel actionLbl;
 	JLabel clipboardLbl;
 	JButton addPWBtn;
 	JButton backButton;
@@ -98,7 +98,6 @@ public class MngPWPanel extends JPanel
 		clipboardLbl.setToolTipText("Click the clipboard to copy the randomly generated password");
 		titleLbl = new JLabel("Showing passwords for " + userName);
 
-		actionLbl = new JLabel("Select an application");
 		appUsrNameLbl = new JLabel("Username");
 		appUsrNameField = new JTextField("Enter Username", 15);
 		appComboBox = new JComboBox<String>();
@@ -119,6 +118,7 @@ public class MngPWPanel extends JPanel
 		displayPWField = new JTextField("", 15);
 		applyChangesBtn = new JButton("Apply changes");
 		pwLbl = new JLabel("Password");
+		userNameComboBox = new JComboBox();
 
 		addPWBtn.addActionListener(this);
 		appField.addFocusListener(this);
@@ -134,18 +134,19 @@ public class MngPWPanel extends JPanel
 		generatePWBtn.addActionListener(this);
 		clipboardLbl.addMouseListener(this);
 		applyChangesBtn.addActionListener(this);
+		userNameComboBox.addActionListener(this);
 		addComponentListener(this);
 
 		add(flashLbl);
 		add(titleLbl);
-		add(actionLbl);
 		add(appComboBox);
+		add(userNameComboBox);
+		add(appNameLbl);
+		add(appField);
 		add(appUsrNameLbl);
 		add(appUsrNameField);
 		add(pwLbl);
 		add(displayPWField);
-		add(appNameLbl);
-		add(appField);
 		add(editPWLbl);
 		add(pwField);
 		add(confirmPWLbl);
@@ -162,118 +163,135 @@ public class MngPWPanel extends JPanel
 	}
 
 	public void mainView() {
-		flashLbl.setVisible(false);
-		onSecondaryPage = false;
 		titleLbl.setText("Displaying passwords for " + userName);
-		displayPWField.setVisible(true);
-		appComboBox.setVisible(true);
+		onSecondaryPage = false;
+
 		addPWBtn.setVisible(true);
-		editPWBtn.setVisible(true);
-		deletePWBtn.setVisible(true);
-		editPWLbl.setVisible(false);
-		pwField.setVisible(false);
+		appComboBox.setVisible(true);
+		appField.setVisible(false);
+		applyChangesBtn.setVisible(false);
+		appNameLbl.setVisible(false);
+		appUsrNameField.setVisible(false);
+		appUsrNameLbl.setVisible(false);
+		clipboardLbl.setVisible(true);
 		confirmPWLbl.setVisible(false);
 		confirmPWField.setVisible(false);
-		randomPWField.setVisible(false);
-		generatePWBtn.setVisible(false);
-		clipboardLbl.setVisible(true);
-		appNameLbl.setVisible(false);
-		appField.setVisible(false);
 		createNewPWBtn.setVisible(false);
-		applyChangesBtn.setVisible(false);
+		editPWBtn.setVisible(true);
+		editPWLbl.setVisible(false);
+		generatePWBtn.setVisible(false);
+		deletePWBtn.setVisible(true);
+		displayPWField.setVisible(true);
+		flashLbl.setVisible(false);
+		pwField.setVisible(false);
 		pwLbl.setVisible(true);
-		actionLbl.setVisible(false);
+		randomPWField.setVisible(false);
 		titleLbl.setVisible(true);
+		userNameComboBox.setVisible(true);
 	}
 
 	public void noPasswordsView() {
-		flashLbl.setVisible(false);
+		titleLbl.setText("No passwords for this user. Please add one");
 		onSecondaryPage = false;
-		displayPWField.setVisible(false);
-		editPWBtn.setVisible(false);
-		deletePWBtn.setVisible(false);
-		editPWLbl.setVisible(false);
-		pwField.setVisible(false);
+
+		addPWBtn.setVisible(true);
+		appComboBox.setVisible(true);
+		appField.setVisible(false);
+		applyChangesBtn.setVisible(false);
+		appNameLbl.setVisible(false);
+		appUsrNameField.setVisible(false);
+		appUsrNameLbl.setVisible(false);
+		clipboardLbl.setVisible(false);
 		confirmPWLbl.setVisible(false);
 		confirmPWField.setVisible(false);
-		randomPWField.setVisible(false);
-		generatePWBtn.setVisible(false);
-		clipboardLbl.setVisible(false);
-		appNameLbl.setVisible(false);
-		appField.setVisible(false);
 		createNewPWBtn.setVisible(false);
-		applyChangesBtn.setVisible(false);
-		pwLbl.setVisible(true);
-		actionLbl.setVisible(false);
-		titleLbl.setVisible(false);
+		editPWBtn.setVisible(false);
+		editPWLbl.setVisible(false);
+		generatePWBtn.setVisible(false);
+		deletePWBtn.setVisible(false);
+		displayPWField.setVisible(false);
+		appField.setVisible(false);
+		flashLbl.setVisible(false);
+		pwField.setVisible(false);
+		pwLbl.setVisible(false);
+		randomPWField.setVisible(false);
+		titleLbl.setVisible(true);
+		userNameComboBox.setVisible(false);
 	}
 
-	// foo
-	public void editPWView(String appName) {
-		flashLbl.setVisible(false);
+	public void editPWView(String appName, String username) {
+		titleLbl.setText("Editing password for " + appName);
 		onSecondaryPage = true;
-		populatePasswordData(appName);
-		actionLbl.setVisible(false);
+
+		populatePasswordData(appName, username);
+
 		addPWBtn.setVisible(false);
-		createNewPWBtn.setVisible(false);
-		displayPWField.setVisible(false);
-		flashLbl.setVisible(false);
-		editPWBtn.setVisible(false);
+		appComboBox.setVisible(false);
+		appField.setVisible(true);
 		applyChangesBtn.setVisible(true);
-		deletePWBtn.setVisible(false);
-		editPWLbl.setVisible(true);
-		pwField.setVisible(true);
+		appNameLbl.setVisible(true);
+		appUsrNameField.setVisible(true);
+		appUsrNameLbl.setVisible(true);
+		clipboardLbl.setVisible(true);
 		confirmPWLbl.setVisible(true);
 		confirmPWField.setVisible(true);
-		randomPWField.setVisible(true);
+		createNewPWBtn.setVisible(false);
+		editPWBtn.setVisible(false);
+		editPWLbl.setVisible(true);
 		generatePWBtn.setVisible(true);
-		clipboardLbl.setVisible(true);
-		appNameLbl.setVisible(true);
-		appField.setVisible(true);
-		appComboBox.setVisible(false);
-		titleLbl.setVisible(false);
+		deletePWBtn.setVisible(false);
+		displayPWField.setVisible(false);
+		flashLbl.setVisible(false);
+		pwField.setVisible(true);
+		pwLbl.setVisible(false);
+		randomPWField.setVisible(true);
+		titleLbl.setVisible(true);
+		userNameComboBox.setVisible(false);
 	}
 
 	public void addPWView() {
-		flashLbl.setVisible(false);
+		titleLbl.setText("Creating a new password for " + userName);
 		onSecondaryPage = true;
-		addPWBtn.setVisible(false);
-		createNewPWBtn.setVisible(true);
-		displayPWField.setVisible(false);
-		actionLbl.setText("Creating a new password for " + userName);
 		appNameLbl.setText("App Name");
-		actionLbl.setVisible(true);
 		appField.setText("Application Name");
-		flashLbl.setVisible(false);
-		editPWBtn.setVisible(false);
-		deletePWBtn.setVisible(false);
-		editPWLbl.setVisible(true);
-		pwField.setVisible(true);
-		confirmPWLbl.setVisible(true);
-		applyChangesBtn.setVisible(false);
-		confirmPWField.setVisible(true);
-		randomPWField.setVisible(true);
-		generatePWBtn.setVisible(true);
-		clipboardLbl.setVisible(true);
-		appNameLbl.setVisible(true);
-		appField.setVisible(true);
+
+		addPWBtn.setVisible(false);
 		appComboBox.setVisible(false);
-		titleLbl.setVisible(false);
+		appField.setVisible(true);
+		applyChangesBtn.setVisible(false);
+		appNameLbl.setVisible(true);
+		appUsrNameField.setVisible(true);
+		appUsrNameLbl.setVisible(true);
+		clipboardLbl.setVisible(true);
+		confirmPWLbl.setVisible(true);
+		confirmPWField.setVisible(true);
+		createNewPWBtn.setVisible(true);
+		editPWBtn.setVisible(false);
+		editPWLbl.setVisible(false);
+		generatePWBtn.setVisible(true);
+		deletePWBtn.setVisible(false);
+		displayPWField.setVisible(false);
+		flashLbl.setVisible(false);
+		pwField.setVisible(true);
 		pwLbl.setVisible(false);
+		randomPWField.setVisible(true);
+		titleLbl.setVisible(true);
+		userNameComboBox.setVisible(false);
 	}
 
 	public void initializeComboBox() {
 		appComboBox.removeAllItems();
-		ArrayList<String> allApps = conn.getAllUserApps();
-		if (allApps.size() > 0) {
-			for (int i = 0; i < allApps.size(); i++) {
-				appComboBox.insertItemAt(allApps.get(i), i);
+		userNameComboBox.removeAllItems();
+		ArrayList<Password> allPasswords = ctrl.getAllPasswords();
+		if (allPasswords.size() > 0) {
+			for (int i = 0; i < allPasswords.size(); i++) {
+				appComboBox.insertItemAt(allPasswords.get(i).getAppName(), i);
+				userNameComboBox.insertItemAt(allPasswords.get(i).getAppUserName(), i);
 			}
 			appComboBox.setSelectedIndex(0);
+			userNameComboBox.setSelectedIndex(0);
 			mainView();
 		} else {
-			flashLbl.setText("No passwords for this user. Please add one");
-			flashLbl.setVisible(true);
 			noPasswordsView();
 		}
 	}
@@ -287,12 +305,13 @@ public class MngPWPanel extends JPanel
 		return imgLabel;
 	}
 
-	public void populatePasswordData(String selectedApp) {
+	public void populatePasswordData(String selectedApp, String username) {
 		if (onSecondaryPage == false) {
-			displayPWField.setText(ctrl.getDecryptedPassword(selectedApp));
+			displayPWField.setText(ctrl.getDecryptedPassword(selectedApp, username));
 		} else {
 			Password pwData = ctrl.getPasswordInfo(selectedApp);
 			appField.setText(pwData.getAppName());
+			appUsrNameField.setText(pwData.getAppUserName());
 			int pwLen = pwData.getPasswordLength();
 			String pwStr = "";
 			for (int i = 0; i < pwLen; i++) {
@@ -326,7 +345,8 @@ public class MngPWPanel extends JPanel
 
 	public void backBtnBehavior() {
 		if (onSecondaryPage == true) {
-			mainView();
+			titleLbl.setText("Displaying passwords for " + userName);
+			initializeComboBox();
 		} else {
 			cl.show(scrnMgr, "User");
 		}
@@ -350,7 +370,7 @@ public class MngPWPanel extends JPanel
 				appField.setText("");
 			}
 		}
-		
+
 		if (source == appUsrNameField) {
 			if (appUsrNameField.getText().equals("Enter Username")) {
 				appUsrNameField.setText("");
@@ -373,13 +393,12 @@ public class MngPWPanel extends JPanel
 			if (appField.getText().isEmpty()) {
 				appField.setText("Application Name");
 			}
-		}
-		else if (source == appUsrNameField) {
+		} else if (source == appUsrNameField) {
 			if (appUsrNameField.getText().isEmpty()) {
 				appUsrNameField.setText("Enter Username");
 			}
 		}
-		
+
 		else if (source == pwField) {
 			passwordFieldLoseFocus(pwField);
 		} else if (source == confirmPWField) {
@@ -426,7 +445,8 @@ public class MngPWPanel extends JPanel
 
 		} else if (source == appComboBox) {
 			String selectedApp = (String) appComboBox.getSelectedItem();
-			populatePasswordData(selectedApp);
+			String selectedUsername = (String) userNameComboBox.getSelectedItem();
+			populatePasswordData(selectedApp, selectedUsername);
 		} else if (source == deletePWBtn) {
 			String appName = (String) appComboBox.getSelectedItem();
 			JFrame alert = new JFrame();
@@ -445,36 +465,43 @@ public class MngPWPanel extends JPanel
 			}
 		} else if (source == editPWBtn) {
 			String selectedApp = (String) appComboBox.getSelectedItem();
-			editPWView(selectedApp);
+			String selectedUsername = (String) userNameComboBox.getSelectedItem();
+			editPWView(selectedApp, selectedUsername);
 		}
 
 		else if (source == applyChangesBtn) {
-			String name = (String) appComboBox.getSelectedItem();
+			attemptPWUpdate();
+		}
+	}
+	
+	public void attemptPWUpdate() {
+		String oldAppName = (String) appComboBox.getSelectedItem();
+		String oldAppUsername = "foo";
 
-			int response = JOptionPane.showConfirmDialog(null,
-					"You're about to make changes to " + name + ". Do you wish to continue?", "WARNING!!!",
-					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (response == 0) {
-				String newAppName = appField.getText();
-				char[] password = pwField.getPassword();
-				char[] passwordConfirm = confirmPWField.getPassword();
+		int response = JOptionPane.showConfirmDialog(null,
+				"You're about to make changes to " + oldAppName + ". Do you wish to continue?", "WARNING!!!",
+				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+		if (response == 0) {
+			String newAppName = appField.getText();
+			String newAppUsername = appUsrNameField.getText();
+			char[] password = pwField.getPassword();
+			char[] passwordConfirm = confirmPWField.getPassword();
 
-				if (Arrays.equals(password, passwordConfirm) == true) {
-					String stringPW = String.valueOf(password);
-					boolean addSuccessful = ctrl.editPassword(name, newAppName, stringPW);
-					if (addSuccessful) {
-						flashLbl.setText("Password successfully modified!");
-						appField.setText("Application Name");
-						pwField.setText("Enter Password");
-						confirmPWField.setText("Enter Password");
-					} else {
-						flashLbl.setText("Error in user input, password could not be added");
-					}
+			if (Arrays.equals(password, passwordConfirm) == true) {
+				String stringPW = String.valueOf(password);
+				boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUsername, newAppName, newAppUsername, stringPW);
+				if (addSuccessful) {
+					flashLbl.setText("Password successfully modified!");
+					appField.setText("Application Name");
+					pwField.setText("Enter Password");
+					confirmPWField.setText("Enter Password");
+				} else {
+					flashLbl.setText("Error in user input, password could not be added");
 				}
-				
-				flashLbl.setVisible(true);
-
 			}
+
+			flashLbl.setVisible(true);
+
 		}
 	}
 

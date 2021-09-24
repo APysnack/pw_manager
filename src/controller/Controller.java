@@ -70,7 +70,7 @@ public class Controller {
 
 	// creates a password object (password id, user id, appName, encryptedPassword, passwordLengthBeforeDecryption)
 	public Password getPasswordInfo(String applicationName) {
-		Password password = new Password(2, 1, "facebook", "facebookPW", 10);
+		Password password = new Password(2, 1, "facebook", "myusername", "facebookPW", 10);
 		return password;
 	}
 
@@ -92,14 +92,30 @@ public class Controller {
 	}
 	
 	// retrieves encrypted password from the database, performs decrypted and returns the unencrypted password as a string
-	public String getDecryptedPassword(String appName) {
+	public String getDecryptedPassword(String appName, String username) {
 		return "password";
 	}
 	
 	
 	// modifies an existing password in the database (oldAppName is used to identify it)
-	public boolean editPassword(String oldAppName, String newAppName, String password) {
+	public boolean editPassword(String oldAppName, String oldAppUsername, String newAppName, String newAppUsername, String password) {
 		return true;
+	}
+	
+	// should call conn function to get passwords from db and return an array of password objects
+	public ArrayList<Password> getAllPasswords(){
+		ArrayList<Password> passwordList = new ArrayList<Password>();
+		Password password1 = new Password(1, 1, "facebook", "myusername", "nfpassword", 10);
+		Password password2 = new Password(2, 1, "netflix", "nfusername", "fbpassword", 10);
+		Password password3 = new Password(3, 1, "gmail", "gmusername1", "gmpassword", 10);
+		Password password4 = new Password(4, 1, "gmail", "gmusername2", "gmpassword", 10);
+		
+		passwordList.add(password1);
+		passwordList.add(password2);
+		passwordList.add(password3);
+		passwordList.add(password4);
+	
+		return passwordList;
 	}
 
 }

@@ -5,42 +5,52 @@ import java.util.List;
 
 public class Password {
 
-	int userID;
 	int pwID;
-	int passwordLength;
+	int userID;
 	String appName;
+	String appUserName;
 	String encryptedPassword;
+	int passwordLength;
 
 	public Password() {
 
 	}
 
-	public Password(int pwID, int userID, String appName, String encryptedPassword) {
-		this.userID = userID;
+	public Password(int pwID, int userID, String appName, String appUserName, String encryptedPassword) {
 		this.pwID = pwID;
+		this.userID = userID;
 		this.appName = appName;
+		this.appUserName = appUserName;
 		this.encryptedPassword = encryptedPassword;
 	}
 
-	public Password(int pwID, String appName, String encryptedPassword) {
+	public Password(int pwID, String appName, String appUserName, String encryptedPassword) {
+		this.pwID = pwID;
 		this.appName = appName;
+		this.appUserName = appUserName;
 		this.encryptedPassword = encryptedPassword;
 	}
 	
-	public Password(String appName, String encryptedPassword, int pwLength) {
+	public Password(String appName, String appUserName, String encryptedPassword, int pwLength) {
 		this.appName = appName;
+		this.appUserName = appUserName;
 		this.encryptedPassword = encryptedPassword;
 		this.passwordLength = pwLength;
 	}
 
-	public Password(int pwID, int userID, String appName, String encryptedPassword, int pwLength) {
+	public Password(int pwID, int userID, String appName, String appUserName, String encryptedPassword, int pwLength) {
 		this.pwID = pwID;
 		this.userID = userID;
 		this.appName = appName;
+		this.appUserName = appUserName;
 		this.encryptedPassword = encryptedPassword;
 		this.passwordLength = pwLength;
 	}
 
+	public void setAppUserName(String appUserName) {
+		this.appUserName = appUserName;
+	}
+	
 	public void setUserID(int userID) {
 		this.pwID = userID;
 	}
@@ -77,5 +87,9 @@ public class Password {
 	public String toString() {
 		String pwInfo = "temporaryStringInNeedOfReplacement";
 		return pwInfo;
+	}
+	
+	public String getAppUserName() {
+		return appUserName;
 	}
 }
