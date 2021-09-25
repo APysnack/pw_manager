@@ -58,6 +58,10 @@ public class Password {
 	public void setPasswordLength(int passwordLength) {
 		this.passwordLength = passwordLength;
 	}
+	
+	public void setPasswordID(int pwID) {
+		this.pwID = pwID;
+	}
 
 	public void setAppName(String appName) {
 		this.appName = appName;
@@ -66,9 +70,13 @@ public class Password {
 	public void setEncryptedPassword(String encryptedPassword) {
 		this.encryptedPassword = encryptedPassword;
 	}
+	
+	public int getPasswordID() {
+		return pwID;
+	}
 
 	public int getUserID() {
-		return pwID;
+		return userID;
 	}
 
 	public int getPasswordLength() {
@@ -85,7 +93,7 @@ public class Password {
 
 	@Override
 	public String toString() {
-		String pwInfo = "temporaryStringInNeedOfReplacement";
+		String pwInfo = "{PID: + " + pwID + ", App Name: " + appName + "}";
 		return pwInfo;
 	}
 	

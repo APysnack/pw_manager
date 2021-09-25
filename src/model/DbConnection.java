@@ -31,7 +31,7 @@ public class DbConnection {
 	public DbConnection() {
 		this.dbpath = "jdbc:sqlite:pwdb.db";
 	}
-	
+
 	public void openConnection() {
 		try {
 			Connection conn = DriverManager.getConnection(dbpath);
@@ -48,7 +48,7 @@ public class DbConnection {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// returns the user object for the user that is currently logged in
 	public User getCurrentUser() {
 		return this.currentUser;
@@ -96,13 +96,12 @@ public class DbConnection {
 			pStmt.setBoolean(4, user.getAddPermission());
 			pStmt.setBoolean(5, user.getEditPermission());
 			pStmt.setBoolean(6, user.getDeletePermission());
-			
+
 			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
-			if(rowsAffected == 1) {
+			if (rowsAffected == 1) {
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
 		} catch (SQLException e) {
@@ -113,7 +112,7 @@ public class DbConnection {
 		finally {
 			closeConnection();
 		}
-		
+
 	}
 
 	// gets the number of rows in the designated table
@@ -135,26 +134,26 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-	
+
 	// sets the current user for the database object as the designated user
 	public void setCurrentUser(User user) {
 		this.currentUser = user;
 	}
-	
+
 	// returns the user object for the user with the name username
 	public User getUser(String userName) {
 		openConnection();
-		
+
 		new_query = "SELECT * FROM USERS WHERE USERNAME=?";
 		User user = new User();
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, userName);
 			ResultSet result = pStmt.executeQuery();
-			
-			while(result.next()) {
+
+			while (result.next()) {
 				user.setUserID(result.getInt(1));
 				user.setUsername(result.getString(2));
 				user.setEncryptedPassword(result.getString(3));
@@ -163,7 +162,7 @@ public class DbConnection {
 				user.setEditPermission(result.getBoolean(6));
 				user.setDeletePermission(result.getBoolean(7));
 			}
-			
+
 			return user;
 		} catch (SQLException e) {
 			System.out.println(e);
@@ -179,36 +178,33 @@ public class DbConnection {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM USERS WHERE USERNAME=? AND PASSWORD=?";
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, userName);
 			pStmt.setString(2, password);
 			ResultSet result = pStmt.executeQuery();
 			int numRows = result.getInt(1);
-			
-			if(numRows == 1) {
+
+			if (numRows == 1) {
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
-		}
-		catch(SQLException e) {
+		} catch (SQLException e) {
 			System.out.println(e);
 			return false;
-		}
-		finally{
+		} finally {
 			closeConnection();
 		}
 	}
-	
+
 	// inserts the data from a password object into the database
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
 		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setInt(1, currentUser.getUserID());
@@ -219,10 +215,9 @@ public class DbConnection {
 
 			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
-			if(rowsAffected == 1) {
+			if (rowsAffected == 1) {
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
 		} catch (SQLException e) {
@@ -233,5 +228,41 @@ public class DbConnection {
 		finally {
 			closeConnection();
 		}
+	}
+
+	public ArrayList<Password> getAllPasswords() {
+		ArrayList<Password> passwordList = new ArrayList<Password>();
+		openConnection();
+		new_query = "SELECT * FROM PASSWORDS WHERE UID=?";
+		PreparedStatement pStmt;
+
+		int uid = currentUser.getUserID();
+
+		if (currentUser.getUserID() > 0) {
+			try {
+				pStmt = conn.prepareStatement(new_query);
+				pStmt.setInt(1, uid);
+				ResultSet result = pStmt.executeQuery();
+				
+				Password tempPass = new Password();
+				
+				// currently adding item by reference, needs to be adjusted
+				while (result.next()) {
+					tempPass.setPasswordID(result.getInt(1));
+					tempPass.setUserID(result.getInt(2));
+					tempPass.setAppName(result.getString(3));
+					tempPass.setAppUserName(result.getString(4));
+					tempPass.setEncryptedPassword(result.getString(5));
+					tempPass.setPasswordLength(result.getInt(6));
+					passwordList.add(tempPass);
+				}
+				
+				System.out.println(passwordList.toString());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return passwordList;
 	}
 }

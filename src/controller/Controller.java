@@ -119,41 +119,42 @@ public class Controller {
 
 		// creation of the list object to be returned
 		ArrayList<PasswordSet> passwordSetList = new ArrayList<PasswordSet>();
-
-		// assume this is the list of passwords received from the database
-		Password password1 = new Password(1, 1, "facebook", "myusername", "nfpassword", 10);
-		Password password2 = new Password(2, 1, "netflix", "nfusername", "fbpassword", 10);
-		Password password3 = new Password(3, 1, "gmail", "gmusername1", "gmpassword", 10);
-		Password password4 = new Password(4, 1, "gmail", "gmusername2", "gmpassword", 10);
-		Password password5 = new Password(5, 1, "netflix", "nfusername2", "nfpassword", 10);
-		Password password6 = new Password(6, 1, "gmail", "gmusername3", "gmpassword", 10);
-
-		// an algorithm needs to be written to sort these into ArrayList<Password> type.
-		// Example shown below:
-		ArrayList<Password> gmailPasswordList = new ArrayList<Password>();
-		gmailPasswordList.add(password3);
-		gmailPasswordList.add(password4);
-		gmailPasswordList.add(password6);
-
-		// for each of these, they should be saved as a password set object
-		PasswordSet gmailPasswordSet = new PasswordSet("gmail", gmailPasswordList);
-
-		ArrayList<Password> netflixPasswordList = new ArrayList<Password>();
-		netflixPasswordList.add(password2);
-		netflixPasswordList.add(password5);
-
-		PasswordSet netflixPasswordSet = new PasswordSet("netflix", netflixPasswordList);
-
-		ArrayList<Password> facebookPasswordList = new ArrayList<Password>();
-		facebookPasswordList.add(password1);
-
-		PasswordSet facebookPasswordSet = new PasswordSet("facebook", facebookPasswordList);
-
-		// afterwards, all of these password sets should be saved in an array of
-		// password sets
-		passwordSetList.add(gmailPasswordSet);
-		passwordSetList.add(netflixPasswordSet);
-		passwordSetList.add(facebookPasswordSet);
+		conn.getAllPasswords();
+		
+//		// assume this is the list of passwords received from the database
+//		Password password1 = new Password(1, 1, "facebook", "myusername", "nfpassword", 10);
+//		Password password2 = new Password(2, 1, "netflix", "nfusername", "fbpassword", 10);
+//		Password password3 = new Password(3, 1, "gmail", "gmusername1", "gmpassword", 10);
+//		Password password4 = new Password(4, 1, "gmail", "gmusername2", "gmpassword", 10);
+//		Password password5 = new Password(5, 1, "netflix", "nfusername2", "nfpassword", 10);
+//		Password password6 = new Password(6, 1, "gmail", "gmusername3", "gmpassword", 10);
+//
+//		// an algorithm needs to be written to sort these into ArrayList<Password> type.
+//		// Example shown below:
+//		ArrayList<Password> gmailPasswordList = new ArrayList<Password>();
+//		gmailPasswordList.add(password3);
+//		gmailPasswordList.add(password4);
+//		gmailPasswordList.add(password6);
+//
+//		// for each of these, they should be saved as a password set object
+//		PasswordSet gmailPasswordSet = new PasswordSet("gmail", gmailPasswordList);
+//
+//		ArrayList<Password> netflixPasswordList = new ArrayList<Password>();
+//		netflixPasswordList.add(password2);
+//		netflixPasswordList.add(password5);
+//
+//		PasswordSet netflixPasswordSet = new PasswordSet("netflix", netflixPasswordList);
+//
+//		ArrayList<Password> facebookPasswordList = new ArrayList<Password>();
+//		facebookPasswordList.add(password1);
+//
+//		PasswordSet facebookPasswordSet = new PasswordSet("facebook", facebookPasswordList);
+//
+//		// afterwards, all of these password sets should be saved in an array of
+//		// password sets
+//		passwordSetList.add(gmailPasswordSet);
+//		passwordSetList.add(netflixPasswordSet);
+//		passwordSetList.add(facebookPasswordSet);
 
 		return passwordSetList;
 	}
