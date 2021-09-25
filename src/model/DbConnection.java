@@ -21,7 +21,7 @@ public class DbConnection {
 	String new_query;
 	ResultSet result;
 	Connection conn;
-	public String userName;
+	public User currentUser;
 
 	/*******************************
 	 * THINGS YOU CAN MODIFY IF YOU WANT BUT MAY NOT NEED TO
@@ -29,12 +29,11 @@ public class DbConnection {
 
 	// tries to connect to the database, prints out an error if unsuccessful
 	public DbConnection() {
-		openConnection();
+		this.dbpath = "jdbc:sqlite:pwdb.db";
 	}
-
-	// gets the username of the currently logged in user
-	public String getCurrentUserName() {
-		return userName;
+	
+	public User getCurrentUser() {
+		return this.currentUser;
 	}
 
 	// gets a list of all usernames in the username table. since there are no
@@ -61,6 +60,14 @@ public class DbConnection {
 		} finally {
 			closeConnection();
 		}
+	}
+	
+	public ArrayList<String> getAllPWData(){
+		openConnection();
+		ArrayList<String> temp = new ArrayList<String>();
+		new_query = "SELECT * FROM PASSWORDS";
+		closeConnection();
+		return temp;
 	}
 
 	// gets a list of all usernames in the username table. since there are no
@@ -91,7 +98,6 @@ public class DbConnection {
 
 	public void openConnection() {
 		try {
-			this.dbpath = "jdbc:sqlite:pwdb.db";
 			Connection conn = DriverManager.getConnection(dbpath);
 			this.conn = conn;
 		} catch (SQLException e) {
@@ -116,19 +122,22 @@ public class DbConnection {
 	// still needs to handle the user's permissions to add/edit/remove from db
 	public boolean addUserToDb(User user) {
 		openConnection();
-
-		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?,?,?)";
-
+		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?)";
+		PreparedStatement pStmt;
 		try {
-			PreparedStatement pStmt = conn.prepareStatement(new_query);
+			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, user.getUsername());
 			pStmt.setString(2, user.getEncryptedPassword());
 			pStmt.setInt(3, user.getPasswordLength());
-
+			pStmt.setBoolean(4, user.getAddPermission());
+			pStmt.setBoolean(5, user.getEditPermission());
+			pStmt.setBoolean(6, user.getDeletePermission());
+			
 			// if rowsAffected > 0, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
-			conn.close();
 
+	
+			
 			return true;
 		} catch (SQLException e) {
 			System.out.println(e);
@@ -138,6 +147,7 @@ public class DbConnection {
 		finally {
 			closeConnection();
 		}
+		
 	}
 
 	// note: this should probably be changed into a prepared statement since an
@@ -160,77 +170,87 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
+	
+	public void setCurrentUser(User user) {
+		this.currentUser = user;
+	}
+	
+	public User getUser(String userName) {
+		openConnection();
+		
+		new_query = "SELECT * FROM USERS WHERE USERNAME=?";
+		User user = new User();
+		PreparedStatement pStmt;
+		
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, userName);
+			ResultSet result = pStmt.executeQuery();
+			
+			while(result.next()) {
+				user.setUserID(result.getInt(1));
+				user.setUsername(result.getString(2));
+				user.setEncryptedPassword(result.getString(3));
+				user.setPasswordLength(result.getInt(4));
+				user.setAddPermission(result.getBoolean(5));
+				user.setEditPermission(result.getBoolean(6));
+				user.setDeletePermission(result.getBoolean(7));
+			}
+			
+			return user;
+		} catch (SQLException e) {
+			System.out.println(e);
+			return user;
+		} finally {
+			closeConnection();
+		}
+	}
 
 	// when user tries to log in, checks to confirm that the username and password
 	// are correct
 	public boolean authenticateUserInDb(String userName, String password) {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM USERS WHERE USERNAME=? AND PASSWORD=?";
-
+		PreparedStatement pStmt;
+		
 		try {
-			PreparedStatement pStmt = conn.prepareStatement(new_query);
+			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, userName);
 			pStmt.setString(2, password);
 			ResultSet result = pStmt.executeQuery();
-			int userCount = result.getInt(1);
-
-			if (userCount > 0) {
-				this.userName = userName;
+			int numRows = result.getInt(1);
+			
+			if(numRows == 1) {
 				return true;
-			} else {
+			}
+			else {
 				return false;
 			}
-		} catch (SQLException e) {
+		}
+		catch(SQLException e) {
 			System.out.println(e);
 			return false;
-		} finally {
+		}
+		finally{
 			closeConnection();
 		}
-	}
-
-	// Still needs to be written. Function should check the "privileges" table for
-	// the privileges associated with the user that has the username in the string
-	// argument. (Note: the privilege table has the foreign key UID)
-	// should return a boolean list for the user's permission to add, edit, and
-	// delete users
-	// e.g. if the user can add/edit but not delete, the list should return [true,
-	// true, false]
-	public List<Boolean> getUserPrivileges(String username) {
-		List<Boolean> privilegeList = new ArrayList<Boolean>(Arrays.asList(new Boolean[3]));
-		Collections.fill(privilegeList, Boolean.TRUE);
-		return privilegeList;
-	}
-
-	// Still needs to be written. Function should query the database for username's
-	// password then return the password
-	public String getUserPW(String username) {
-		List<String> nameAndPassword = new ArrayList<String>();
-		String tempPassword = "dummyPassword";
-		return tempPassword;
-	}
-
-	// Still need to be written. currently there is no column in the database for
-	// password length
-	public int getUserPWLength(String username) {
-		int pwLength = 10;
-		return pwLength;
 	}
 	
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
-
-		new_query = "INSERT INTO PASSWORDS (APPLICATION, USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?,?,?, ?)";
-
+		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
+		PreparedStatement pStmt;
+		
 		try {
-			PreparedStatement pStmt = conn.prepareStatement(new_query);
-			pStmt.setString(1, password.getAppName());
-			pStmt.setString(2, password.getAppUserName());
-			pStmt.setString(3, password.getEncryptedPassword());
-			pStmt.setInt(4, password.getPasswordLength());
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setInt(1, currentUser.getUserID());
+			pStmt.setString(2, password.getAppName());
+			pStmt.setString(3, password.getAppUserName());
+			pStmt.setString(4, password.getEncryptedPassword());
+			pStmt.setInt(5, password.getPasswordLength());
 
 			// if rowsAffected > 0, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
-			conn.close();
 
 			return true;
 		} catch (SQLException e) {

@@ -322,7 +322,7 @@ public class MngPWPanel extends JPanel
 		if (onSecondaryPage == false) {
 			displayPWField.setText(ctrl.getDecryptedPassword(selectedApp, username));
 		} else {
-			Password pwData = ctrl.getPasswordInfo(selectedApp);
+			Password pwData = ctrl.getPasswordInfo(selectedApp, username);
 			appField.setText(pwData.getAppName());
 			appUsrNameField.setText(pwData.getAppUserName());
 			int pwLen = pwData.getPasswordLength();
@@ -368,7 +368,8 @@ public class MngPWPanel extends JPanel
 	@Override
 	public void componentShown(ComponentEvent e) {
 		if (((Component) e.getSource()).getName() == "managePWPanel") {
-			this.userName = conn.getCurrentUserName();
+			User user = conn.getCurrentUser();
+			this.userName = user.getUsername();
 			titleLbl.setText("Displaying passwords for " + userName);
 			initializeComboBox();
 		}
@@ -432,6 +433,7 @@ public class MngPWPanel extends JPanel
 			if (addSuccessful) {
 				flashLbl.setText("Password successfully added to database!");
 				appField.setText("Application Name");
+				appUsrNameField.setText("Enter Username");
 				pwField.setText("Enter Password");
 				confirmPWField.setText("Enter Password");
 			} else {

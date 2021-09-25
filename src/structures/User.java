@@ -26,6 +26,17 @@ public class User {
 		this.editPermission = editPermission;
 		this.deletePermission = deletePermission;
 	}
+	
+	public User(int userID, String username, String encryptedPassword, int passwordLength, boolean addPermission, boolean editPermission,
+			boolean deletePermission) {
+		this.userID = userID;
+		this.username = username;
+		this.encryptedPassword = encryptedPassword;
+		this.passwordLength = passwordLength;
+		this.addPermission = addPermission;
+		this.editPermission = editPermission;
+		this.deletePermission = deletePermission;
+	}
 
 	public User(String username, String encryptedPassword, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
@@ -49,6 +60,15 @@ public class User {
 	public User(String username, String encryptedPassword, List<Boolean> privilegeList) {
 		this.username = username;
 		this.encryptedPassword = encryptedPassword;
+		this.addPermission = privilegeList.get(0);
+		this.editPermission = privilegeList.get(1);
+		this.deletePermission = privilegeList.get(2);
+	}
+	
+	public User(String username, String encryptedPassword, int passwordLength, List<Boolean> privilegeList) {
+		this.username = username;
+		this.encryptedPassword = encryptedPassword;
+		this.passwordLength = passwordLength;
 		this.addPermission = privilegeList.get(0);
 		this.editPermission = privilegeList.get(1);
 		this.deletePermission = privilegeList.get(2);

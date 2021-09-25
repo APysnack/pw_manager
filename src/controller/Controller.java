@@ -12,6 +12,7 @@ import structures.User;
 public class Controller {
 
 	DbConnection conn;
+	User currentUser;
 
 	public Controller(DbConnection conn) {
 		this.conn = conn;
@@ -35,12 +36,16 @@ public class Controller {
 		}
 	}
 
-	// needs encryption/decryption
+	// needs encryption/decryption. currently uses authenticateUserInDb to verify
+	// that a user with userName + password is found. returns boolean true if user
+	// count == 1. Then gets the user's information from the database and sets it as
+	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
-
 		boolean userAuthenticated = conn.authenticateUserInDb(userName, password);
-
-		if (userAuthenticated == true) {
+		if (userAuthenticated) {
+			User user = conn.getUser(userName);
+			conn.setCurrentUser(user);
+			this.currentUser = user;
 			return true;
 		} else {
 			return false;
@@ -55,21 +60,16 @@ public class Controller {
 		return str;
 	}
 
-	// getUserPrivileges returns a boolean list for [Add, Edit, Delete] permission
-	// e.g. [true, true, false] for a user who can add and edit users, but cannot
-	// delete them
 	public User getUserInfo(String username) {
-		List<Boolean> privilegeList = conn.getUserPrivileges(username);
-		String userPassword = conn.getUserPW(username);
-		int passwordLength = conn.getUserPWLength(username);
-		User user = new User(username, userPassword, privilegeList);
-		user.setPasswordLength(passwordLength);
+		User user = conn.getUser(username);
 		return user;
 	}
 
-	// creates a password object (password id, user id, appName, encryptedPassword,
+	// needs to get the password associated with applicationName, username from the
+	// db and creates a password object (password id, user id, appName,
+	// encryptedPassword,
 	// passwordLengthBeforeDecryption)
-	public Password getPasswordInfo(String applicationName) {
+	public Password getPasswordInfo(String applicationName, String appUserName) {
 		Password password = new Password(2, 1, "facebook", "myusername", "facebookPW", 10);
 		return password;
 	}
@@ -113,10 +113,10 @@ public class Controller {
 	// ArrayList<Password> containing all the Password objects that are associated
 	// with facebook
 	public ArrayList<PasswordSet> getAllPasswords() {
-		
+
 		// creation of the list object to be returned
 		ArrayList<PasswordSet> passwordSetList = new ArrayList<PasswordSet>();
-		
+
 //		// assume this is the list of passwords received from the database
 //		Password password1 = new Password(1, 1, "facebook", "myusername", "nfpassword", 10);
 //		Password password2 = new Password(2, 1, "netflix", "nfusername", "fbpassword", 10);
@@ -151,8 +151,7 @@ public class Controller {
 //		passwordSetList.add(gmailPasswordSet);
 //		passwordSetList.add(netflixPasswordSet);
 //		passwordSetList.add(facebookPasswordSet);
-		
-		
+
 		return passwordSetList;
 	}
 

@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 
 import controller.Controller;
 import model.DbConnection;
+import structures.User;
 
 public class UserPanel extends JPanel implements ComponentListener, ActionListener {
 
@@ -85,7 +86,8 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 	@Override
 	public void componentShown(ComponentEvent e) {
 		if(((Component) e.getSource()).getName() == "userPanel") {
-			this.userName = conn.getCurrentUserName();
+			User currentUser = conn.getCurrentUser();
+			this.userName = currentUser.getUsername();
 			userPnlLbl.setText("Welcome " + userName);
 		}
 	}
