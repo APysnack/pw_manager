@@ -32,70 +32,6 @@ public class DbConnection {
 		this.dbpath = "jdbc:sqlite:pwdb.db";
 	}
 	
-	public User getCurrentUser() {
-		return this.currentUser;
-	}
-
-	// gets a list of all usernames in the username table. since there are no
-	// arguments passed in, this shouldn't need
-	// protection against SQL injection
-	public ArrayList<String> getAllUserNames() {
-		openConnection();
-		new_query = "SELECT * FROM USERS";
-
-		Statement stmt;
-		ArrayList<String> allUsers = new ArrayList<String>();
-
-		try {
-			stmt = conn.createStatement();
-			result = stmt.executeQuery(new_query);
-
-			while (result.next()) {
-				allUsers.add(result.getString(2));
-			}
-			return allUsers;
-		} catch (SQLException e) {
-			System.out.println(e);
-			return allUsers;
-		} finally {
-			closeConnection();
-		}
-	}
-	
-	public ArrayList<String> getAllPWData(){
-		openConnection();
-		ArrayList<String> temp = new ArrayList<String>();
-		new_query = "SELECT * FROM PASSWORDS";
-		closeConnection();
-		return temp;
-	}
-
-	// gets a list of all usernames in the username table. since there are no
-	// needs protection against sql injection and needs to only display apps for the
-	// logged in user
-	public ArrayList<String> getAllUserApps() {
-		openConnection();
-		new_query = "SELECT * FROM Passwords";
-
-		Statement stmt;
-		ArrayList<String> allUsers = new ArrayList<String>();
-
-		try {
-			stmt = conn.createStatement();
-			result = stmt.executeQuery(new_query);
-
-			while (result.next()) {
-				allUsers.add(result.getString(3));
-			}
-			return allUsers;
-		} catch (SQLException e) {
-			System.out.println(e);
-			return allUsers;
-		} finally {
-			closeConnection();
-		}
-	}
-
 	public void openConnection() {
 		try {
 			Connection conn = DriverManager.getConnection(dbpath);
@@ -112,6 +48,35 @@ public class DbConnection {
 			e.printStackTrace();
 		}
 	}
+	
+	// returns the user object for the user that is currently logged in
+	public User getCurrentUser() {
+		return this.currentUser;
+	}
+
+	// returns a list of all usernames in the users table
+	public ArrayList<String> getAllUserNames() {
+		openConnection();
+		new_query = "SELECT * FROM USERS";
+
+		PreparedStatement pStmt;
+		ArrayList<String> allUsers = new ArrayList<String>();
+
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			result = pStmt.executeQuery();
+
+			while (result.next()) {
+				allUsers.add(result.getString(2));
+			}
+			return allUsers;
+		} catch (SQLException e) {
+			System.out.println(e);
+			return allUsers;
+		} finally {
+			closeConnection();
+		}
+	}
 
 	/**********************************
 	 * THINGS THAT NEED TO BE REWRITTEN OR MODIFIED
@@ -119,7 +84,6 @@ public class DbConnection {
 
 	// tries to add user to the database. returns true if successful. Uses prepared
 	// statement to prevent SQL injection
-	// still needs to handle the user's permissions to add/edit/remove from db
 	public boolean addUserToDb(User user) {
 		openConnection();
 		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?)";
@@ -133,12 +97,14 @@ public class DbConnection {
 			pStmt.setBoolean(5, user.getEditPermission());
 			pStmt.setBoolean(6, user.getDeletePermission());
 			
-			// if rowsAffected > 0, insert was successful
+			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
-
-	
-			
-			return true;
+			if(rowsAffected == 1) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		} catch (SQLException e) {
 			System.out.println(e);
 			return false;
@@ -150,17 +116,16 @@ public class DbConnection {
 		
 	}
 
-	// note: this should probably be changed into a prepared statement since an
-	// argument is being passed in
+	// gets the number of rows in the designated table
 	public int getRowCountFromTable(String tableName) {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM " + tableName;
 
-		Statement stmt;
+		PreparedStatement pStmt;
 
 		try {
-			stmt = conn.createStatement();
-			result = stmt.executeQuery(new_query);
+			pStmt = conn.prepareStatement(new_query);
+			result = pStmt.executeQuery();
 			int numRows = result.getInt(1);
 			return numRows;
 		} catch (SQLException e) {
@@ -171,10 +136,12 @@ public class DbConnection {
 		}
 	}
 	
+	// sets the current user for the database object as the designated user
 	public void setCurrentUser(User user) {
 		this.currentUser = user;
 	}
 	
+	// returns the user object for the user with the name username
 	public User getUser(String userName) {
 		openConnection();
 		
@@ -207,7 +174,7 @@ public class DbConnection {
 	}
 
 	// when user tries to log in, checks to confirm that the username and password
-	// are correct
+	// are correct. if rows returned == 1, authentication was successful
 	public boolean authenticateUserInDb(String userName, String password) {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM USERS WHERE USERNAME=? AND PASSWORD=?";
@@ -236,6 +203,7 @@ public class DbConnection {
 		}
 	}
 	
+	// inserts the data from a password object into the database
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
 		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
@@ -249,10 +217,14 @@ public class DbConnection {
 			pStmt.setString(4, password.getEncryptedPassword());
 			pStmt.setInt(5, password.getPasswordLength());
 
-			// if rowsAffected > 0, insert was successful
+			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
-
-			return true;
+			if(rowsAffected == 1) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		} catch (SQLException e) {
 			System.out.println(e);
 			return false;
