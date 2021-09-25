@@ -24,13 +24,13 @@ public class Main {
 	
 	public static void main(String args[]) {
 		App application = new App();
-		
+//		
 //		for(LookAndFeelInfo lafInfo : UIManager.getInstalledLookAndFeels()) {
 //			System.out.println(lafInfo.getClassName());
 //		}
 //		
 		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
