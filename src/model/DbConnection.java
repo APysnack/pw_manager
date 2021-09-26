@@ -202,7 +202,7 @@ public class DbConnection {
 	// inserts the data from a password object into the database
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
-		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, USERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
+		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, APPUSERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
 		PreparedStatement pStmt;
 
 		try {
@@ -232,6 +232,7 @@ public class DbConnection {
 
 	public ArrayList<Password> getAllPasswords() {
 		ArrayList<Password> passwordList = new ArrayList<Password>();
+		ArrayList<String> applicationList = new ArrayList<String>();
 		openConnection();
 		new_query = "SELECT * FROM PASSWORDS WHERE UID=?";
 		PreparedStatement pStmt;
@@ -244,10 +245,8 @@ public class DbConnection {
 				pStmt.setInt(1, uid);
 				ResultSet result = pStmt.executeQuery();
 				
-				Password tempPass = new Password();
-				
-				// currently adding item by reference, needs to be adjusted
 				while (result.next()) {
+					Password tempPass = new Password();
 					tempPass.setPasswordID(result.getInt(1));
 					tempPass.setUserID(result.getInt(2));
 					tempPass.setAppName(result.getString(3));
@@ -256,8 +255,6 @@ public class DbConnection {
 					tempPass.setPasswordLength(result.getInt(6));
 					passwordList.add(tempPass);
 				}
-				
-				System.out.println(passwordList.toString());
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}

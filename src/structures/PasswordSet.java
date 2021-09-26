@@ -16,6 +16,12 @@ public class PasswordSet {
 		this.passwordList = passwordList;
 	}
 	
+	public PasswordSet(String applicationName) {
+		this.applicationName = applicationName;
+		passwordList = new ArrayList<Password>();
+	}
+	
+	
 	public void setPasswordList(ArrayList<Password> passwordList){
 		this.passwordList = passwordList;
 	}
@@ -30,5 +36,9 @@ public class PasswordSet {
 	
 	public String getAppName() {
 		return this.applicationName;
+	}
+	
+	public void addPassword(Password password) {
+		passwordList.add(password);
 	}
 }
