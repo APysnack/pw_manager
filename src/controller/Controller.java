@@ -98,7 +98,9 @@ public class Controller {
 	// retrieves encrypted password from the database, performs decrypted and
 	// returns the unencrypted password as a string
 	public String getDecryptedPassword(String appName, String username) {
-		return "password";
+		String returnString = "";
+		returnString = conn.getPasswordFor(appName, username);
+		return returnString;
 	}
 
 	// modifies an existing password in the database (oldAppName is used to identify

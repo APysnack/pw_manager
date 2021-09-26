@@ -229,10 +229,36 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
+	
+	public String getPasswordFor(String applicationName, String appUserName) {
+		openConnection();
+		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
+		PreparedStatement pStmt;
+		String returnString = "";
+		
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, applicationName);
+			pStmt.setString(2, appUserName);
+			ResultSet result = pStmt.executeQuery();
+			while(result.next()) {
+				returnString = result.getString(5);
+			}
+			return returnString;
+		}
+		catch(SQLException e){
+			System.out.println(e);
+			return returnString;
+
+		}
+		finally {
+			closeConnection();
+		}
+	}
 
 	public ArrayList<Password> getAllPasswords() {
+		openConnection();
 		ArrayList<Password> passwordList = new ArrayList<Password>();
-		ArrayList<String> applicationList = new ArrayList<String>();
 		openConnection();
 		new_query = "SELECT * FROM PASSWORDS WHERE UID=?";
 		PreparedStatement pStmt;
@@ -259,7 +285,7 @@ public class DbConnection {
 				e.printStackTrace();
 			}
 		}
-
+		closeConnection();
 		return passwordList;
 	}
 }

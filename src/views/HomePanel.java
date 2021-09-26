@@ -2,12 +2,18 @@ package views;
 
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.font.TextAttribute;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -21,19 +27,20 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.GridLayout;
-
+import java.awt.Insets;
 import java.awt.BorderLayout;
 
 import controller.Controller;
 import model.DbConnection;
 import structures.User;
 
-public class UserPanel extends JPanel implements ComponentListener, ActionListener {
+public class HomePanel extends JPanel implements ComponentListener, ActionListener {
 
 	JTextField usrField;
 	JPasswordField pwField;
 	JButton createUserBtn;
 	JPanel scrnMgr;
+	JPanel optionsPanel;
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
@@ -43,34 +50,65 @@ public class UserPanel extends JPanel implements ComponentListener, ActionListen
 	JButton manageUsrBtn;
 	JButton logOutButton;
 	DbConnection conn;
-
-	public UserPanel() {
+	JLabel logoLbl;
+	JLabel logoTxt;
+	JLabel subLbl;
+	LogoPanel logoPanel;
+	
+	public HomePanel() {
 
 	}
 	
-	public UserPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
+	public HomePanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
 		setName("userPanel");
 		this.ctrl = ctrl;
 		this.cl = cl;
 		this.scrnMgr = scrnMgr;
 		this.conn = conn;
-		
 		addComponentListener(this);
+		
 		userPnlLbl = new JLabel("Welcome " + userName);
 		logOutButton = new JButton("Log Out");
 		manageUsrBtn = new JButton("Manage Users");
 		managePWBtn = new JButton("Manage Passwords");
+		logoPanel = new LogoPanel("ADMINISTRATIVE DASHBOARD", 170);
 		
 		manageUsrBtn.addActionListener(this);
 		managePWBtn.addActionListener(this);
 		logOutButton.addActionListener(this);
 		
-		add(userPnlLbl);
-		add(manageUsrBtn);
-		add(managePWBtn);
-		add(logOutButton);
+		homePanelLayout();
 	}
 
+	public void homePanelLayout() {
+		setLayout(new GridBagLayout());
+		GridBagConstraints grid = new GridBagConstraints();
+		
+		grid.gridx = 3;
+		grid.gridy = 1;
+		add(logoPanel, grid);
+
+		
+		grid.insets = new Insets(0,0,20,0);
+		grid.gridx = 3;
+		grid.gridy = 3;
+		add(userPnlLbl, grid);
+
+		grid.insets = new Insets(0,0,10,0);
+		grid.gridx = 3;
+		grid.gridy = 4;
+		add(managePWBtn, grid);
+		
+		grid.insets = new Insets(0,0,70,0);
+		grid.gridx = 3;
+		grid.gridy = 5;
+		add(manageUsrBtn, grid);
+		
+		grid.gridx = 3;
+		grid.gridy = 6;
+		add(logOutButton, grid);
+	}
+	
 	@Override
 	public void componentResized(ComponentEvent e) {
 		// TODO Auto-generated method stub

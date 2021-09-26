@@ -10,76 +10,102 @@ import javax.swing.border.EmptyBorder;
 import controller.Controller;
 import model.DbConnection;
 
-import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import java.awt.CardLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.awt.font.TextAttribute;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+
+
+
 
 public class LoginPanel extends JPanel implements FocusListener, ActionListener, KeyListener {
 	
-	JTextField usrField;
-	JPasswordField pwField;
-	JButton loginBtn;
 	JPanel scrnMgr;
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
 	DbConnection conn;
 	
+	JLabel logoLbl;
+	JLabel logoTxt;
+	JLabel lgnLbl;
+	JLabel usrLbl;
+	JLabel pwLbl;
+	JTextField usrField;
+	JPasswordField pwField;
+	JButton lgnBtn;
+	LogoPanel logoPanel;
+	JPanel userPanel;
+	JPanel pwPanel;
+	
 	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn){
-		
-		setLayout(new BorderLayout());
-		
-		JButton lgnBtn = new JButton("Log In");
-		JLabel lgnLbl = new JLabel("Please Enter your Login Information");
-		JTextField usrField = new JTextField("Enter Username", 15);
-		JPasswordField pwField = new JPasswordField("Enter Password", 15);
-		JPanel ctrLblPnl = new JPanel();
-		
-		Utils u = new Utils();
+		u = new Utils();
 		
 		this.conn = conn;
-		this.u = u;
 		this.ctrl = ctrl;
 		this.scrnMgr = scrnMgr;
 		this.cl = cl;
-		this.loginBtn = lgnBtn;
-		this.usrField = usrField;
-		this.pwField = pwField;
 		
-		JPanel innerPanel = new JPanel(new GridLayout(4, 1, 2, 2));
-		innerPanel.add(lgnBtn);
-		add(ctrLblPnl);
-		innerPanel.add(ctrLblPnl);
-		innerPanel.add(usrField);
-		innerPanel.add(pwField);
-		innerPanel.add(lgnBtn);
+		logoPanel = new LogoPanel("PLEASE LOG IN", 270);
 		
-		usrField.addFocusListener(this);
-		pwField.addFocusListener(this);
-		lgnBtn.addActionListener(this);
+		lgnBtn = new JButton("Log In");
+		usrField = new JTextField("Enter Username", 15);
+		usrLbl = new JLabel("Username");
+		pwField = new JPasswordField("Enter Password", 15);
+		pwLbl = new JLabel("Password");
+		userPanel = new JPanel();
+		pwPanel = new JPanel();
 		
-		
-		JPanel midPanel = new JPanel(new BorderLayout());
-		JPanel pad = u.pad(140, 140, 140, 140);
-		JPanel pad2 = u.pad(140, 140, 140, 140);
-		JPanel pad3 = u.pad(95, 95, 95, 95);
-		JPanel pad4 = u.pad(95, 95, 95, 95);
-
-		midPanel.add(innerPanel, BorderLayout.CENTER);
-		midPanel.add(pad, BorderLayout.WEST);
-		midPanel.add(pad2, BorderLayout.EAST);
-		midPanel.add(pad3, BorderLayout.NORTH);
-		midPanel.add(pad4, BorderLayout.SOUTH);
-		add(midPanel, BorderLayout.CENTER);
+		loginPanelLayout();
 		
 		usrField.addKeyListener(this);
 		pwField.addKeyListener(this);
+		usrField.addFocusListener(this);
+		pwField.addFocusListener(this);
+		lgnBtn.addActionListener(this);
+	}
+	
+	public void loginPanelLayout() {
+		setLayout(new GridBagLayout());
+		GridBagConstraints grid = new GridBagConstraints();
+		
+		grid.gridx = 3;
+		grid.gridy = 1;
+		add(logoPanel, grid);
+		
+		userPanel.add(usrLbl);
+		userPanel.add(usrField);
+		
+		grid.gridx = 3;
+		grid.gridy = 2;
+		add(userPanel, grid);
+		
+		pwPanel.add(pwLbl);
+		pwPanel.add(pwField);
+		
+		grid.gridx = 3;
+		grid.gridy = 3;
+		add(pwPanel, grid);
+		
+		grid.insets = new Insets(50,165,0,0);
+		grid.gridx = 3;
+		grid.gridy = 4;
+		add(lgnBtn, grid);
 	}
 	
 	@Override
@@ -118,7 +144,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if(source == loginBtn) {
+		if(source == lgnBtn) {
 			attemptLogin();
 		}
 	}

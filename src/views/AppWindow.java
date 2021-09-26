@@ -124,7 +124,7 @@ public class AppWindow extends JFrame {
 	}
 	
 	public JPanel buildUserPanel() {
-		UserPanel userPnl = new UserPanel(ctrl, cl, scrnMgr, conn);
+		HomePanel userPnl = new HomePanel(ctrl, cl, scrnMgr, conn);
 		return userPnl;
 	}
 	

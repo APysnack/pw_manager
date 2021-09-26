@@ -1,6 +1,8 @@
 package views;
 
 import java.awt.CardLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -17,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import java.awt.GridLayout;
-
+import java.awt.Insets;
 import java.awt.BorderLayout;
 
 import controller.Controller;
@@ -29,10 +31,15 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 	JPasswordField pwField;
 	JButton createUserBtn;
 	JPanel scrnMgr;
+	JPanel welcomePnl;
+	JPanel disclaimerPnl;
+	JPanel checkBoxPnl;
+	JPanel userInfoPnl;
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
 	DbConnection conn;
+	LogoPanel logoPanel;
 
 	public SetupPanel() {
 		
@@ -46,35 +53,42 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 		this.cl = cl;
 		this.scrnMgr = scrnMgr;
 		this.conn = conn;
-		
-		setLayout(new BorderLayout());
 
-		JPanel welcomePnl = buildWelcomePanel();
-		JPanel disclaimerPnl = buildDisclaimerPanel();
-		JPanel checkBoxPnl = buildCheckBoxPanel();
-		JPanel userInfoPnl = buildUserInfoPanel();
-
-		JPanel innerPnl = new JPanel(new GridLayout(4, 1, 0, 3));
+		logoPanel = new LogoPanel("SETTING UP YOUR FIRST ACCOUNT", 140);
+		welcomePnl = buildWelcomePanel();
+		disclaimerPnl = buildDisclaimerPanel();
+		checkBoxPnl = buildCheckBoxPanel();
+		userInfoPnl = buildUserInfoPanel();
 		
-		innerPnl.add(welcomePnl);
-		innerPnl.add(userInfoPnl);
-		innerPnl.add(checkBoxPnl);
-		innerPnl.add(disclaimerPnl);
-		
-		JPanel mainPnl = new JPanel(new BorderLayout());
-		
-		JPanel padN = u.pad(30, 30, 30, 30);
-		JPanel padW = u.pad(70, 70, 70, 70);
-		JPanel padE = u.pad(70, 70, 70, 70);
-		JPanel padS = u.pad(30, 30, 30, 30);
-		
-		mainPnl.add(padN, BorderLayout.NORTH);
-		mainPnl.add(padW, BorderLayout.WEST);
-		mainPnl.add(padE, BorderLayout.EAST);
-		mainPnl.add(padS, BorderLayout.SOUTH);
-		mainPnl.add(innerPnl, BorderLayout.CENTER);
-		
-		add(mainPnl);
+		buildLayout();
+	}
+	
+	public void buildLayout() {
+		setLayout(new GridBagLayout());
+		GridBagConstraints grid = new GridBagConstraints();
+		grid.weightx=1.;
+	    grid.fill=GridBagConstraints.HORIZONTAL;
+	    
+		grid.insets = new Insets(120,0,0,0);
+		grid.gridx = 1;
+		grid.gridy = 1;
+		add(logoPanel, grid);
+		grid.insets = new Insets(0,50,20,50);
+		grid.gridx = 1;
+		grid.gridy = 2;
+		add(welcomePnl, grid);
+		grid.insets = new Insets(0,220,0,220);
+		grid.gridx = 1;
+		grid.gridy = 3;
+		add(userInfoPnl, grid);
+		grid.insets = new Insets(0,70,30,70);
+		grid.gridx = 1;
+		grid.gridy = 4;
+		add(checkBoxPnl, grid);
+		grid.gridx = 1;
+		grid.gridy = 5;
+		grid.insets = new Insets(0,120,100,120);
+		add(disclaimerPnl, grid);
 	}
 
 	public JPanel buildWelcomePanel() {
@@ -82,9 +96,7 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 		JLabel welcomeLbl = new JLabel(
 				"Welcome! Since this is your first time using this app, you must create a username and password");
 		welcomeLbl.setHorizontalAlignment(JLabel.CENTER);
-		JPanel welcomePnl = new JPanel(new GridLayout(4, 1, 0, 3));
-		JPanel welcomePnlPad = u.pad(10, 10, 10, 10);
-		welcomePnl.add(welcomePnlPad);
+		JPanel welcomePnl = new JPanel();
 		welcomePnl.add(welcomeLbl);
 
 		return welcomePnl;

@@ -82,21 +82,13 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		this.cl = cl;
 		this.scrnMgr = scrnMgr;
 		this.ctrl = ctrl;
+		u = new Utils();
 		initializeMngUserPanel();
-	}
-	
-	public JLabel generateImage(String imgPath, int width, int height) {
-		ImageIcon imgIcon = new ImageIcon(imgPath);
-		Image image = imgIcon.getImage();
-		Image scaledImage = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-		imgIcon = new ImageIcon(scaledImage);
-		JLabel imgLabel = new JLabel(imgIcon);
-		return imgLabel;
 	}
 	
 	public void initializeMngUserPanel() {
 		String clipboard = "images/clipboard.png";
-		clipboardLbl = generateImage(clipboard, 25, 25);
+		clipboardLbl = u.generateImage(clipboard, 25, 25);
 		clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		clipboardLbl.setToolTipText("Click the clipboard to copy the randomly generated password");
 		
