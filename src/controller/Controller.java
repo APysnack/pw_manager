@@ -104,16 +104,16 @@ public class Controller {
 		return returnString;
 	}
 
-	// modifies an existing password in the database (oldAppName is used to identify
-	// it)
+	// modifies an existing password in the database. needs validation checking, and
+	// particular do not allow spaces or any password that looks like *****
 	public boolean editPassword(String oldAppName, String oldAppUserName, String newAppName, String newAppUserName,
 			String password) {
-		
+
 		int pwLen = password.length();
-		
+
 		Password pw = new Password(newAppName, newAppUserName, password, pwLen);
 		boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, pw);
-		
+
 		return true;
 	}
 

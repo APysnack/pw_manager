@@ -36,8 +36,10 @@ import javax.swing.JTextField;
 import javax.swing.border.Border;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.BorderLayout;
-
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
 import controller.Controller;
 import model.DbConnection;
 import structures.User;
@@ -71,6 +73,8 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	JButton deleteUsrBtn;
 	JButton generatePWBtn;
 	boolean onAddUserPage;
+	GridBagConstraints gr;
+	LogoPanel logoPanel;
 	
 	public MngUserPanel() {
 
@@ -94,7 +98,6 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		
 		onAddUserPage = false;
 		titleLbl = new JLabel("Manage Users");
-		actionLbl = new JLabel("Select a user to modify");
 		userComboBox = new JComboBox<String>();
 		addUserBtn = new JButton("Add New User");
 
@@ -115,7 +118,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		randomPWField = new JTextField("", 15);
 		pwLbl = new JLabel("Edit Password");
 		pwField = new JPasswordField("Enter Password", 15);
-		confirmPWLbl = new JLabel("Confirm Password");
+		confirmPWLbl = new JLabel("Confirm New Password");
 		confirmPWField = new JPasswordField("Confirm Password", 15);
 		backButton = new JButton("Back");
 		createUsrBtn = new JButton("Create User");
@@ -144,26 +147,81 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		clipboardLbl.addMouseListener(this);
 		addComponentListener(this);
 		
-		add(flashLbl);
-		add(titleLbl);
-		add(actionLbl);
-		add(userComboBox);
-		add(unameLbl);
-		add(usrField);
-		add(pwLbl);
-		add(pwField);
-		add(confirmPWLbl);
-		add(confirmPWField);
-		add(checkBoxPnl);
-		add(randomPWField);
-		add(clipboardLbl);
-		add(generatePWBtn);
-		add(editUsrBtn);
-		add(addUserBtn);
-		add(deleteUsrBtn);
-		add(backButton);
+		setLayout(new GridBagLayout());
+		gr = new GridBagConstraints();
+		logoPanel = new LogoPanel("User Management", 240);
+		
+		updateLayout("main");
+
 	}
 
+	public void updateLayout(String layoutName) {
+		JPanel userPanel = new JPanel();
+		JPanel pwPanel = new JPanel();
+		JPanel confirmPWPanel = new JPanel();
+		JPanel randomGenPanel = new JPanel();
+		JPanel actionPanel = new JPanel();
+		
+		randomGenPanel.add(randomPWField);
+		randomGenPanel.add(clipboardLbl);
+		randomGenPanel.add(generatePWBtn);
+		
+		userPanel.add(userComboBox);
+		userPanel.add(unameLbl);
+		userPanel.add(usrField);
+		
+		pwPanel.add(pwLbl);
+		pwPanel.add(pwField);
+		
+		confirmPWPanel.add(confirmPWLbl);
+		confirmPWPanel.add(confirmPWField);
+		
+		if(layoutName == "main") {
+			actionPanel.add(addUserBtn);
+			actionPanel.add(editUsrBtn);
+			actionPanel.add(deleteUsrBtn);
+		}
+		else {
+			actionPanel.add(createUsrBtn);
+		}
+		
+		actionPanel.add(backButton);
+		
+		gr.gridx = 1;
+		gr.gridy = 1;
+		gr.insets = new Insets(10,0,0,0);
+		add(flashLbl, gr);
+		gr.gridx = 1;
+		gr.gridy = 2;
+		gr.insets = new Insets(0,0,0,0);
+		add(logoPanel, gr);
+		gr.gridx = 1;
+		gr.gridy = 3;
+		gr.insets = new Insets(0,0,10,0);
+		add(randomGenPanel, gr);
+		gr.gridx = 1;
+		gr.gridy = 4;
+		gr.insets = new Insets(0,0,10,0);
+		add(userPanel, gr);
+		gr.gridx = 1;
+		gr.gridy = 5;
+		gr.insets = new Insets(0,0,10,0);
+		add(pwPanel, gr);
+		gr.gridx = 1;
+		gr.gridy = 6;
+		gr.insets = new Insets(0,0,10,0);
+		add(confirmPWPanel, gr);
+		gr.gridx = 1;
+		gr.gridy = 7;
+		gr.insets = new Insets(0,0,10,0);
+		add(checkBoxPnl, gr);
+		gr.gridx = 1;
+		gr.gridy = 8;
+		gr.insets = new Insets(0,0,10,0);
+		add(actionPanel, gr);
+		
+	}
+	
 	public void attemptUserCreation() {
 		String username = usrField.getText();
 		char[] password  = pwField.getPassword();
@@ -228,13 +286,12 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			usrField.setText("");
 			pwField.setText("");
 			confirmPWField.setText("");
-			actionLbl.setText("Creating new user");
 			addUserBtn.setVisible(false);
 			userComboBox.setVisible(false);
 			for(int i = 0; i < checkBoxes.size(); i++) {
 				checkBoxes.get(i).setSelected(false);
 			}
-			add(createUsrBtn);
+			updateLayout("addUser");
 			
 		} else if (source == backButton) {
 			removeAll();

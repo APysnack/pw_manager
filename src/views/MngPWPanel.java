@@ -560,10 +560,15 @@ public class MngPWPanel extends JPanel
 					flashLbl.setText("Password successfully modified!");
 					appField.setText("Application Name");
 					pwField.setText("Enter Password");
+					appUsrNameField.setText("Enter Username");
+					// foo
 					confirmPWField.setText("Enter Password");
 				} else {
 					flashLbl.setText("Error in user input, password could not be added");
 				}
+			}
+			else {
+				flashLbl.setText("The passwords you entered do not match. Please try again");
 			}
 
 			flashLbl.setVisible(true);
