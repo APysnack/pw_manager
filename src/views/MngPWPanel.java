@@ -284,6 +284,10 @@ public class MngPWPanel extends JPanel
 	}
 
 	public void mainView() {
+		String selectedApp = (String) appComboBox.getSelectedItem();
+		String selectedUserName = (String) userNameComboBox.getSelectedItem();
+		populatePasswordData(selectedApp, selectedUserName);
+		
 		titleLbl.setText("Displaying all passwords for " + userName);
 		onSecondaryPage = false;
 		updateLayout("main", false);
@@ -388,6 +392,7 @@ public class MngPWPanel extends JPanel
 		if (onSecondaryPage == true) {
 			titleLbl.setText("Displaying passwords for " + userName);
 			initializeComboBox();
+			mainView();
 		} else {
 			cl.show(scrnMgr, "User");
 		}
