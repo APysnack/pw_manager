@@ -283,18 +283,25 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		if (source == userComboBox) {
 			populateUserData();
 		} else if (source == addUserBtn) {
-			onAddUserPage = true;
-			editUsrBtn.setVisible(false);
-			deleteUsrBtn.setVisible(false);
-			usrField.setText("");
-			pwField.setText("");
-			confirmPWField.setText("");
-			addUserBtn.setVisible(false);
-			userComboBox.setVisible(false);
-			for(int i = 0; i < checkBoxes.size(); i++) {
-				checkBoxes.get(i).setSelected(false);
+			User user = conn.getCurrentUser();
+			if(user.getAddPermission() == true) {
+				onAddUserPage = true;
+				editUsrBtn.setVisible(false);
+				deleteUsrBtn.setVisible(false);
+				usrField.setText("");
+				pwField.setText("");
+				confirmPWField.setText("");
+				addUserBtn.setVisible(false);
+				userComboBox.setVisible(false);
+				for(int i = 0; i < checkBoxes.size(); i++) {
+					checkBoxes.get(i).setSelected(false);
+				}
+				updateLayout("addUser");
 			}
-			updateLayout("addUser");
+			else {
+				JOptionPane.showMessageDialog(null, "This user does not have permission to add users to the database");
+			}
+
 			
 		} else if (source == backButton) {
 			removeAll();
@@ -302,7 +309,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			revalidate();
 			if(onAddUserPage == false) {
 				initializeMngUserPanel();
-				cl.show(scrnMgr, "User");
+				cl.show(scrnMgr, "Home");
 			}
 			else {
 				initializeMngUserPanel();
@@ -314,27 +321,35 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			attemptUserCreation();
 		}
 		else if(source == deleteUsrBtn) {
-			int numUsers = conn.getRowCountFromTable("users");
-			if (numUsers < 2){
-				JOptionPane.showMessageDialog(null, "User cannot be deleted. There must be at least one user with add permissions in the database");
-			}
-			else {
-				String name = (String) userComboBox.getSelectedItem();
-				int response = JOptionPane.showConfirmDialog(null, "This will delete the user " + name + " and all of their passwords. Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if(response == 0) {
-					boolean userDeleted = ctrl.deleteUser(name);
-					if (userDeleted == true) {
-						flashLbl.setText("User successfully deleted!");
-						flashLbl.setVisible(true);
-						initializeComboBox();
-						updateLayout("main");
-					}
-					else {
-						flashLbl.setText("ERROR: User could not be deleted");
-						flashLbl.setVisible(false);
+			
+			User user = conn.getCurrentUser();
+			if(user.getDeletePermission() == true) {
+				int numUsers = conn.getRowCountFromTable("users");
+				if (numUsers < 2){
+					JOptionPane.showMessageDialog(null, "User cannot be deleted. There must be at least one user with add permissions in the database");
+				}
+				else {
+					String name = (String) userComboBox.getSelectedItem();
+					int response = JOptionPane.showConfirmDialog(null, "This will delete the user " + name + " and all of their passwords. Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+					if(response == 0) {
+						boolean userDeleted = ctrl.deleteUser(name);
+						if (userDeleted == true) {
+							flashLbl.setText("User successfully deleted!");
+							flashLbl.setVisible(true);
+							initializeComboBox();
+							updateLayout("main");
+						}
+						else {
+							flashLbl.setText("ERROR: User could not be deleted");
+							flashLbl.setVisible(false);
+						}
 					}
 				}
 			}
+			else {
+				JOptionPane.showMessageDialog(null, "This user does not have permission to delete users from the database");
+			}
+			
 		}
 		else if (source == generatePWBtn) {
 			String randomPW = ctrl.generateRandomPassword();
@@ -342,33 +357,39 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		}
 		
 		else if (source == editUsrBtn) {
-			String name = (String) userComboBox.getSelectedItem();
-			int response = JOptionPane.showConfirmDialog(null, "You're about to make changes to " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if(response == 0) {
-				String newUserName = usrField.getText();
+			User user = conn.getCurrentUser();
+			if(user.getEditPermission() == true) {
+				String name = (String) userComboBox.getSelectedItem();
+				int response = JOptionPane.showConfirmDialog(null, "You're about to make changes to " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if(response == 0) {
+					String newUserName = usrField.getText();
 
-				boolean canAdd = addPermission.isSelected();
-				boolean canEdit = editPermission.isSelected();
-				boolean canDelete = deletePermission.isSelected();
-				char[] password = pwField.getPassword();
-				char[] passwordConfirm = confirmPWField.getPassword();
+					boolean canAdd = addPermission.isSelected();
+					boolean canEdit = editPermission.isSelected();
+					boolean canDelete = deletePermission.isSelected();
+					char[] password = pwField.getPassword();
+					char[] passwordConfirm = confirmPWField.getPassword();
 
-				if (Arrays.equals(password, passwordConfirm) == true) {
-					String stringPW = String.valueOf(password);
-					boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete);
-					if (userEdited == true) {
-						flashLbl.setText("User successfully modified!");
+					if (Arrays.equals(password, passwordConfirm) == true) {
+						String stringPW = String.valueOf(password);
+						boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete);
+						if (userEdited == true) {
+							flashLbl.setText("User successfully modified!");
+						}
+						else {
+							flashLbl.setText("ERROR: User could not be modified");
+						}
 					}
 					else {
-						flashLbl.setText("ERROR: User could not be modified");
+						flashLbl.setText("The passwords you entered do not match.");
 					}
+					flashLbl.setVisible(true);
+					initializeComboBox();
+					updateLayout("main");
 				}
-				else {
-					flashLbl.setText("The passwords you entered do not match.");
-				}
-				flashLbl.setVisible(true);
-				initializeComboBox();
-				updateLayout("main");
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "This user does not have permission to modify users");
 			}
 		}
 

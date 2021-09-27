@@ -136,8 +136,8 @@ public class User {
 		return deletePermission;
 	}
 
-	public List<Boolean> getUserPermissions() {
-		List<Boolean> permissionList = new ArrayList<>();
+	public ArrayList<Boolean> getUserPermissions() {
+		ArrayList<Boolean> permissionList = new ArrayList<>();
 		permissionList.add(addPermission);
 		permissionList.add(editPermission);
 		permissionList.add(deletePermission);

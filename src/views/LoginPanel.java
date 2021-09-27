@@ -24,6 +24,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.awt.font.TextAttribute;
@@ -155,7 +156,8 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 		
 		boolean userAuthenticated = ctrl.authenticateUser(userName, password);
 		if(userAuthenticated == true) {
-			cl.show(scrnMgr, "User");
+			cl.show(scrnMgr, "Home");
+
 		}
 		else {
 			cl.show(scrnMgr, "Error");

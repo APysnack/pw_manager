@@ -394,7 +394,7 @@ public class MngPWPanel extends JPanel
 			initializeComboBox();
 			mainView();
 		} else {
-			cl.show(scrnMgr, "User");
+			cl.show(scrnMgr, "Home");
 		}
 	}
 

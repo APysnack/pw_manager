@@ -34,8 +34,6 @@ public class AppWindow extends JFrame {
 	DbConnection conn;
 	String userName;
 	Controller ctrl;
-	
-	
 	JPanel loginPanel;
 	JPanel mngUsrPnl;
 	
@@ -103,7 +101,7 @@ public class AppWindow extends JFrame {
 		scrnMgr.add(errorPanel, "Error");
 		scrnMgr.add(setupPanel, "Setup");
 		scrnMgr.add(loginPanel, "Login");
-		scrnMgr.add(userPanel, "User");
+		scrnMgr.add(userPanel, "Home");
 		
 		this.add(scrnMgr);
 	}

@@ -12,6 +12,7 @@ import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.font.TextAttribute;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,17 +67,13 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
 		this.scrnMgr = scrnMgr;
 		this.conn = conn;
 		addComponentListener(this);
-		
 		userPnlLbl = new JLabel("Welcome " + userName);
 		logOutButton = new JButton("Log Out");
 		manageUsrBtn = new JButton("Manage Users");
 		managePWBtn = new JButton("Manage Passwords");
 		logoPanel = new LogoPanel("ADMINISTRATIVE DASHBOARD", 170);
-		
-		manageUsrBtn.addActionListener(this);
 		managePWBtn.addActionListener(this);
 		logOutButton.addActionListener(this);
-		
 		homePanelLayout();
 	}
 
@@ -127,6 +124,23 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
 			User currentUser = conn.getCurrentUser();
 			this.userName = currentUser.getUsername();
 			userPnlLbl.setText("Welcome " + userName);
+			boolean userIsAdmin = false;
+			ArrayList<Boolean> userPermissions = currentUser.getUserPermissions();
+			if(userPermissions.size() > 0) {
+				for(int i = 0; i < userPermissions.size(); i++) {
+					if(userPermissions.get(i) == true) {
+						userIsAdmin = true;
+						break;
+					}
+				}
+				if(userIsAdmin == true) {
+					manageUsrBtn.setVisible(true);
+					manageUsrBtn.addActionListener(this);
+				}
+				else {
+						manageUsrBtn.setVisible(false);
+				}
+			}
 		}
 	}
 
