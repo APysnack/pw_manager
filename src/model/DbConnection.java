@@ -12,6 +12,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.sqlite.SQLiteConfig;
+
 import structures.Password;
 import structures.User;
 
@@ -34,8 +36,11 @@ public class DbConnection {
 
 	public void openConnection() {
 		try {
-			Connection conn = DriverManager.getConnection(dbpath);
+			SQLiteConfig config = new SQLiteConfig();  
+	        config.enforceForeignKeys(true);  
+			Connection conn = DriverManager.getConnection(dbpath, config.toProperties());
 			this.conn = conn;
+			
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
@@ -260,6 +265,37 @@ public class DbConnection {
 		return true;
 	}
 	
+	public boolean editUser(String oldUserName, User user) {
+		openConnection();
+		new_query = "update users set username=?, password=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=? where username=?";
+		PreparedStatement pStmt;
+		
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, user.getUsername());
+			pStmt.setString(2, user.getEncryptedPassword());
+			pStmt.setInt(3, user.getPasswordLength());
+			pStmt.setBoolean(4, user.getAddPermission());
+			pStmt.setBoolean(5, user.getEditPermission());
+			pStmt.setBoolean(6, user.getDeletePermission());
+			pStmt.setString(7, oldUserName);
+			int rowsAffected = pStmt.executeUpdate();
+			if (rowsAffected == 1) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		}
+		catch(SQLException e) {
+			System.out.println(e);
+			return false;
+		}
+		finally {
+			closeConnection();
+		}
+	}
+	
 	public Password getPasswordInfo(String appName, String appUserName) {
 		Password pw = new Password();
 		openConnection();
@@ -346,6 +382,31 @@ public class DbConnection {
 		}
 		closeConnection();
 		return passwordList;
+	}
+	
+	public boolean deleteUserFromDb(String userName) {
+		openConnection();
+		new_query = "DELETE FROM USERS WHERE USERNAME=?";
+		PreparedStatement pStmt;
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, userName);
+			int rowsAffected = pStmt.executeUpdate();
+			if(rowsAffected == 1) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		catch(SQLException e) {
+			System.out.println(e);
+			return false;
+		}
+		finally {
+			closeConnection();
+		}
+		
 	}
 	
 	public boolean deletePWFromDb(String appName, String userName) {

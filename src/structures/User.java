@@ -47,8 +47,8 @@ public class User {
 		this.deletePermission = deletePermission;
 	}
 	
-	public User(String username, String encryptedPassword, boolean addPermission, boolean editPermission,
-			boolean deletePermission, int pwLength) {
+	public User(String username, String encryptedPassword, int pwLength, boolean addPermission, boolean editPermission,
+			boolean deletePermission) {
 		this.username = username;
 		this.encryptedPassword = encryptedPassword;
 		this.addPermission = addPermission;

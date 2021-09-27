@@ -514,25 +514,37 @@ public class MngPWPanel extends JPanel
 		else if (source == deletePWBtn) {
 			String appName = (String) appComboBox.getSelectedItem();
 			String userName = (String) userNameComboBox.getSelectedItem();
-			JFrame alert = new JFrame();
-			int response = JOptionPane.showConfirmDialog(alert,
-					"This will delete the password for " + appName + " with the username " + userName + ". Do you still wish to continue?", "WARNING!!!",
-					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (response == 0) {
-				boolean pwDeleted = ctrl.deletePassword(appName, userName);
-				if (pwDeleted == true) {
-					flashLbl.setText("Password successfully deleted!");
-					initializeComboBox();
-					updateLayout("main", true);
-					
-				} else {
-					flashLbl.setText("ERROR: Password could not be deleted");
+			
+			if(appName == null || userName == null) {
+				JOptionPane.showMessageDialog(null,
+						"There are currently no passwords to delete, please add one", "WARNING!!!", JOptionPane.WARNING_MESSAGE);
+			}
+			else {
+				int response = JOptionPane.showConfirmDialog(null,
+						"This will delete the password for " + appName + " with the username " + userName + ". Do you still wish to continue?", "WARNING!!!",
+						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (response == 0) {
+					boolean pwDeleted = ctrl.deletePassword(appName, userName);
+					if (pwDeleted == true) {
+						flashLbl.setText("Password successfully deleted!");
+						initializeComboBox();
+						updateLayout("main", true);
+						
+					} else {
+						flashLbl.setText("ERROR: Password could not be deleted");
+					}
 				}
 			}
 		} else if (source == editPWBtn) {
 			String selectedApp = (String) appComboBox.getSelectedItem();
 			String selectedUsername = (String) userNameComboBox.getSelectedItem();
-			editPWView(selectedApp, selectedUsername);
+			if(selectedApp == null || selectedUsername == null) {
+				JOptionPane.showMessageDialog(null,
+						"There are currently no passwords to edit, please add one", "WARNING!!!", JOptionPane.WARNING_MESSAGE);
+			}
+			else {
+				editPWView(selectedApp, selectedUsername);
+			}
 		}
 
 		else if (source == applyChangesBtn) {
@@ -561,7 +573,6 @@ public class MngPWPanel extends JPanel
 					appField.setText("Application Name");
 					pwField.setText("Enter Password");
 					appUsrNameField.setText("Enter Username");
-					// foo
 					confirmPWField.setText("Enter Password");
 				} else {
 					flashLbl.setText("Error in user input, password could not be added");

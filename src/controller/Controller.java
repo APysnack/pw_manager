@@ -26,7 +26,7 @@ public class Controller {
 			boolean deletePermission) {
 
 		int pwLength = password.length();
-		User user = new User(userName, password, addPermission, editPermission, deletePermission, pwLength);
+		User user = new User(userName, password, pwLength, addPermission, editPermission, deletePermission);
 
 		boolean insertSuccessful = conn.addUserToDb(user);
 
@@ -75,9 +75,10 @@ public class Controller {
 		return password;
 	}
 
-	// any verification checks needed before making a call to
-	// conn.deleteUserFromDB(String userName);
+	// validation needed
 	public boolean deleteUser(String userName) {
+		
+		conn.deleteUserFromDb(userName);
 		return true;
 	}
 
@@ -140,6 +141,18 @@ public class Controller {
 		}
 
 		return passwordSetList;
+	}
+	
+	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission, boolean editPermission, boolean deletePermission) {
+		int pwLen = newPassword.length();
+		User newUserInfo = new User(newUserName, newPassword, pwLen, addPermission, editPermission, deletePermission);
+		boolean userEdited = conn.editUser(oldUserName, newUserInfo);
+		if(userEdited == true) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }

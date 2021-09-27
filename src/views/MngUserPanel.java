@@ -53,6 +53,9 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	
 	List<JCheckBox> checkBoxes;
 	JComboBox<String> userComboBox;
+	JCheckBox addPermission;
+	JCheckBox editPermission;
+	JCheckBox deletePermission;
 	JTextField usrField;
 	JTextField randomPWField;
 	JPasswordField pwField;
@@ -101,9 +104,9 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		userComboBox = new JComboBox<String>();
 		addUserBtn = new JButton("Add New User");
 
-		JCheckBox addPermission = new JCheckBox("Add Users");
-		JCheckBox editPermission = new JCheckBox("Edit Users");
-		JCheckBox deletePermission = new JCheckBox("Delete Users");
+		addPermission = new JCheckBox("Add Users");
+		editPermission = new JCheckBox("Edit Users");
+		deletePermission = new JCheckBox("Delete Users");
 		
 		Border checkBoxBorder = BorderFactory.createTitledBorder("User Privileges");
 		checkBoxPnl = new JPanel();
@@ -313,7 +316,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		else if(source == deleteUsrBtn) {
 			int numUsers = conn.getRowCountFromTable("users");
 			if (numUsers < 2){
-				JOptionPane.showMessageDialog(null, "There must be at least one user in the database");
+				JOptionPane.showMessageDialog(null, "User cannot be deleted. There must be at least one user with add permissions in the database");
 			}
 			else {
 				String name = (String) userComboBox.getSelectedItem();
@@ -323,6 +326,8 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 					if (userDeleted == true) {
 						flashLbl.setText("User successfully deleted!");
 						flashLbl.setVisible(true);
+						initializeComboBox();
+						updateLayout("main");
 					}
 					else {
 						flashLbl.setText("ERROR: User could not be deleted");
@@ -340,15 +345,30 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			String name = (String) userComboBox.getSelectedItem();
 			int response = JOptionPane.showConfirmDialog(null, "You're about to make changes to " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if(response == 0) {
-				boolean userDeleted = ctrl.deleteUser(name);
-				if (userDeleted == true) {
-					flashLbl.setText("User successfully modified!");
-					flashLbl.setVisible(true);
+				String newUserName = usrField.getText();
+
+				boolean canAdd = addPermission.isSelected();
+				boolean canEdit = editPermission.isSelected();
+				boolean canDelete = deletePermission.isSelected();
+				char[] password = pwField.getPassword();
+				char[] passwordConfirm = confirmPWField.getPassword();
+
+				if (Arrays.equals(password, passwordConfirm) == true) {
+					String stringPW = String.valueOf(password);
+					boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete);
+					if (userEdited == true) {
+						flashLbl.setText("User successfully modified!");
+					}
+					else {
+						flashLbl.setText("ERROR: User could not be modified");
+					}
 				}
 				else {
-					flashLbl.setText("ERROR: User could not be modified");
-					flashLbl.setVisible(false);
+					flashLbl.setText("The passwords you entered do not match.");
 				}
+				flashLbl.setVisible(true);
+				initializeComboBox();
+				updateLayout("main");
 			}
 		}
 
