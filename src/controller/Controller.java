@@ -71,7 +71,7 @@ public class Controller {
 	// encryptedPassword,
 	// passwordLengthBeforeDecryption)
 	public Password getPasswordInfo(String applicationName, String appUserName) {
-		Password password = new Password(2, 1, "facebook", "myusername", "facebookPW", 10);
+		Password password = conn.getPasswordInfo(applicationName, appUserName);
 		return password;
 	}
 
@@ -83,8 +83,9 @@ public class Controller {
 
 	// any verification checks needed before making a call to
 	// conn.deleteUserFromDB(String appName);
-	public boolean deletePassword(String appName) {
-		return true;
+	public boolean deletePassword(String appName, String userName) {
+		boolean pwDeleted = conn.deletePWFromDb(appName, userName);
+		return pwDeleted;
 	}
 
 	// needs to do error checking then encrypt password and send it to the db
@@ -99,14 +100,20 @@ public class Controller {
 	// returns the unencrypted password as a string
 	public String getDecryptedPassword(String appName, String username) {
 		String returnString = "";
-		returnString = conn.getPasswordFor(appName, username);
+		returnString = conn.getEncryptedPasswordFor(appName, username);
 		return returnString;
 	}
 
 	// modifies an existing password in the database (oldAppName is used to identify
 	// it)
-	public boolean editPassword(String oldAppName, String oldAppUsername, String newAppName, String newAppUsername,
+	public boolean editPassword(String oldAppName, String oldAppUserName, String newAppName, String newAppUserName,
 			String password) {
+		
+		int pwLen = password.length();
+		
+		Password pw = new Password(newAppName, newAppUserName, password, pwLen);
+		boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, pw);
+		
 		return true;
 	}
 

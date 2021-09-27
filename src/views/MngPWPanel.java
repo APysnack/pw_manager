@@ -174,23 +174,25 @@ public class MngPWPanel extends JPanel
 		addComponentListener(this);
 	}
 	
-	public void updateLayout(String layoutName){
+	public void updateLayout(String layoutName, boolean showFlash){
 		removeAll();
+		flashLbl.setVisible(showFlash);
 		
 		gr.gridx = 1;
 		gr.gridy = 1;
-		gr.insets = new Insets(20,0,0,0);
+		gr.insets = new Insets(10,0,0,0);
 		add(flashLbl, gr);
 		gr.gridx = 1;
 		gr.gridy = 2;
 		gr.insets = new Insets(0,0,0,0);
 		add(logoPanel, gr);
+		gr.gridx = 1;
+		gr.gridy = 3;
+		gr.insets = new Insets(0,0,10,0);
+		add(titleLbl, gr);
+
 		
 		if(layoutName == "noPasswords") {
-			gr.gridx = 1;
-			gr.gridy = 3;
-			gr.insets = new Insets(0,0,30,0);
-			add(titleLbl, gr);
 			gr.gridx = 1;
 			gr.gridy = 4;
 			gr.insets = new Insets(0,0,70,0);
@@ -200,11 +202,10 @@ public class MngPWPanel extends JPanel
 			add(backButton, gr);
 		}
 		
-		else if(layoutName == "addPW") {
+		else if(layoutName == "addPW" || layoutName == "editPW") {
 			gr.gridx = 1;
 			gr.gridy = 4;
 			gr.insets = new Insets(0,0,10,0);
-
 			JPanel randomGenPanel = new JPanel();
 			randomGenPanel.add(randomPWField);
 			randomGenPanel.add(clipboardLbl);
@@ -213,7 +214,7 @@ public class MngPWPanel extends JPanel
 			add(randomGenPanel, gr);
 			
 			gr.insets = new Insets(0,0,10,0);
-			add(titleLbl, gr);
+			add(randomGenPanel, gr);
 			
 			gr.gridx = 1;
 			gr.gridy = 5;
@@ -236,12 +237,18 @@ public class MngPWPanel extends JPanel
 			add(confirmPWPanel, gr);
 			
 			JPanel actionPanel = new JPanel();
-			actionPanel.add(createNewPWBtn);
+			if(layoutName == "editPW") {
+				actionPanel.add(applyChangesBtn);
+			}
+			else {
+				actionPanel.add(createNewPWBtn);
+			}
+	
 			actionPanel.add(backButton);
 			
 			gr.gridx = 1;
 			gr.gridy = 9;
-			gr.insets = new Insets(0,0,100,0);
+			gr.insets = new Insets(0,0,30,0);
 			add(actionPanel, gr);
 			
 		}
@@ -279,50 +286,28 @@ public class MngPWPanel extends JPanel
 	public void mainView() {
 		titleLbl.setText("Displaying all passwords for " + userName);
 		onSecondaryPage = false;
-		updateLayout("main");
+		updateLayout("main", false);
 	}
 
 	public void noPasswordsView() {
 		titleLbl.setText("No passwords for this user. Please add one");
 		onSecondaryPage = false;
-		updateLayout("noPasswords");
+		updateLayout("noPasswords", false);
 	}
 
 	public void editPWView(String appName, String username) {
 		titleLbl.setText("Editing password for " + appName);
 		onSecondaryPage = true;
-
 		populatePasswordData(appName, username);
-
-//		addPWBtn.setVisible(false);
-//		appComboBox.setVisible(false);
-//		appField.setVisible(true);
-//		applyChangesBtn.setVisible(true);
-//		appNameLbl.setVisible(true);
-//		appUsrNameField.setVisible(true);
-//		appUsrNameLbl.setVisible(true);
-//		clipboardLbl.setVisible(true);
-//		confirmPWLbl.setVisible(true);
-//		confirmPWField.setVisible(true);
-//		createNewPWBtn.setVisible(false);
-//		editPWBtn.setVisible(false);
-//		generatePWBtn.setVisible(true);
-//		deletePWBtn.setVisible(false);
-//		displayPWField.setVisible(false);
-//		flashLbl.setVisible(false);
-//		pwField.setVisible(true);
-//		pwLbl.setVisible(false);
-//		randomPWField.setVisible(true);
-//		titleLbl.setVisible(true);
-//		userNameComboBox.setVisible(false);
+		updateLayout("editPW", false);
 	}
 
 	public void addPWView() {
 		titleLbl.setText("Creating a new password for " + userName);
 		onSecondaryPage = true;
 		appNameLbl.setText("App Name");
-		appField.setText("Application Name");
-		updateLayout("addPW");
+		clearPasswordData();
+		updateLayout("addPW", false);
 	}
 
 	public void initializeComboBox() {
@@ -352,6 +337,13 @@ public class MngPWPanel extends JPanel
 		}
 		
 		userNameComboBox.setSelectedIndex(0);
+	}
+	
+	public void clearPasswordData() {
+		appField.setText("Application Name");
+		appUsrNameField.setText("Enter Username");
+		pwField.setText("Enter Password");
+		confirmPWField.setText("Enter Password");
 	}
 
 	public void populatePasswordData(String selectedApp, String username) {
@@ -522,13 +514,14 @@ public class MngPWPanel extends JPanel
 					"This will delete the password for " + appName + " with the username " + userName + ". Do you still wish to continue?", "WARNING!!!",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (response == 0) {
-				boolean pwDeleted = ctrl.deletePassword(appName);
+				boolean pwDeleted = ctrl.deletePassword(appName, userName);
 				if (pwDeleted == true) {
 					flashLbl.setText("Password successfully deleted!");
-					flashLbl.setVisible(true);
+					initializeComboBox();
+					updateLayout("main", true);
+					
 				} else {
 					flashLbl.setText("ERROR: Password could not be deleted");
-					flashLbl.setVisible(false);
 				}
 			}
 		} else if (source == editPWBtn) {
@@ -544,7 +537,7 @@ public class MngPWPanel extends JPanel
 	
 	public void attemptPWUpdate() {
 		String oldAppName = (String) appComboBox.getSelectedItem();
-		String oldAppUsername = "foo";
+		String oldAppUserName = (String) userNameComboBox.getSelectedItem();
 
 		int response = JOptionPane.showConfirmDialog(null,
 				"You're about to make changes to " + oldAppName + ". Do you wish to continue?", "WARNING!!!",
@@ -557,7 +550,7 @@ public class MngPWPanel extends JPanel
 
 			if (Arrays.equals(password, passwordConfirm) == true) {
 				String stringPW = String.valueOf(password);
-				boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUsername, newAppName, newAppUsername, stringPW);
+				boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUserName, newAppName, newAppUsername, stringPW);
 				if (addSuccessful) {
 					flashLbl.setText("Password successfully modified!");
 					appField.setText("Application Name");

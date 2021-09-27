@@ -93,7 +93,7 @@ public class Password {
 
 	@Override
 	public String toString() {
-		String pwInfo = "{pwID: + " + pwID + ", appName: " + appName + ", appUserName: " + appUserName + ", passwordLength: " + passwordLength + "}";
+		String pwInfo = "{pwID: " + pwID + ", appName: " + appName + ", appUserName: " + appUserName + ", passwordLength: " + passwordLength + "}";
 		return pwInfo;
 	}
 	

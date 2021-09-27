@@ -230,7 +230,66 @@ public class DbConnection {
 		}
 	}
 	
-	public String getPasswordFor(String applicationName, String appUserName) {
+	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW) {
+		openConnection();
+		new_query = "update passwords set application=?, appUserName=?, password=?, passwordLength=? where application=? and appUserName=?";
+		PreparedStatement pStmt;
+		
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, newPW.getAppName());
+			pStmt.setString(2, newPW.getAppUserName());
+			pStmt.setString(3, newPW.getEncryptedPassword());
+			pStmt.setInt(4, newPW.getPasswordLength());
+			pStmt.setString(5, oldAppName);
+			pStmt.setString(6, oldAppUserName);
+			
+			int rowsAffected = pStmt.executeUpdate();
+			if (rowsAffected == 1) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		}
+		catch(SQLException e) {
+			System.out.println(e);
+		}
+		
+		
+		return true;
+	}
+	
+	public Password getPasswordInfo(String appName, String appUserName) {
+		Password pw = new Password();
+		openConnection();
+		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
+		PreparedStatement pStmt;
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, appName);
+			pStmt.setString(2, appUserName);
+			
+			ResultSet result = pStmt.executeQuery();
+			while (result.next()) {
+				pw.setUserID(result.getInt(1));
+				pw.setAppName(result.getString(3));
+				pw.setAppUserName(result.getString(4));
+				pw.setEncryptedPassword(result.getString(5));
+				pw.setPasswordLength(result.getInt(6));
+			}
+		}
+		catch(SQLException e) {
+			System.out.println(e);
+		}
+		finally {
+			closeConnection();
+		}
+		
+		return pw;
+	}
+	
+	public String getEncryptedPasswordFor(String applicationName, String appUserName) {
 		openConnection();
 		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
 		PreparedStatement pStmt;
@@ -287,5 +346,31 @@ public class DbConnection {
 		}
 		closeConnection();
 		return passwordList;
+	}
+	
+	public boolean deletePWFromDb(String appName, String userName) {
+		openConnection();
+		new_query = "DELETE FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
+		PreparedStatement pStmt;
+		
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, appName);
+			pStmt.setString(2, userName);
+			int rowsAffected = pStmt.executeUpdate();
+			if(rowsAffected == 1) {
+				return true;
+			}
+			else {
+				return false;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+		finally {
+			closeConnection();
+		}
 	}
 }
