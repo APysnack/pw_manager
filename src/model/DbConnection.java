@@ -32,20 +32,22 @@ public class DbConnection {
 	// tries to connect to the database, prints out an error if unsuccessful
 	public DbConnection() {
 		this.dbpath = "jdbc:sqlite:pwdb.db";
+		this.conn = null;
 	}
 
+	// opens a connection to the database before a query, foreign keys must be enforced for cascading delete to work
 	public void openConnection() {
 		try {
 			SQLiteConfig config = new SQLiteConfig();  
 	        config.enforceForeignKeys(true);  
-			Connection conn = DriverManager.getConnection(dbpath, config.toProperties());
-			this.conn = conn;
+			conn = DriverManager.getConnection(dbpath, config.toProperties());
 			
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
 	}
 
+	// closes sql connection after a query
 	public void closeConnection() {
 		try {
 			conn.close();
@@ -54,7 +56,7 @@ public class DbConnection {
 		}
 	}
 
-	// returns the user object for the user that is currently logged in
+	// all the user information is stored a user object, this returns that information to the caller
 	public User getCurrentUser() {
 		return this.currentUser;
 	}
@@ -82,10 +84,6 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-
-	/**********************************
-	 * THINGS THAT NEED TO BE REWRITTEN OR MODIFIED
-	 *********************************/
 
 	// tries to add user to the database. returns true if successful. Uses prepared
 	// statement to prevent SQL injection
@@ -140,12 +138,12 @@ public class DbConnection {
 		}
 	}
 
-	// sets the current user for the database object as the designated user
+	// accepts a user object from the called and sets it the currently logged in user
 	public void setCurrentUser(User user) {
 		this.currentUser = user;
 	}
 
-	// returns the user object for the user with the name username
+	// returns the user object for the user with the name {userName}
 	public User getUser(String userName) {
 		openConnection();
 
@@ -204,7 +202,7 @@ public class DbConnection {
 		}
 	}
 
-	// inserts the data from a password object into the database
+	// inserts the data from a password object received by the caller into the database
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
 		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, APPUSERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
@@ -235,6 +233,7 @@ public class DbConnection {
 		}
 	}
 	
+	// updates the db entry with {oldAppName} and {oldAppUserName} and modifies their user info with the new data stored in the {newPW} Password object
 	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW) {
 		openConnection();
 		new_query = "update passwords set application=?, appUserName=?, password=?, passwordLength=? where application=? and appUserName=?";
@@ -265,6 +264,7 @@ public class DbConnection {
 		return true;
 	}
 	
+	// updates the db entry with {oldUserName} and modifies their user info with the new data stored in the {user} User object
 	public boolean editUser(String oldUserName, User user) {
 		openConnection();
 		new_query = "update users set username=?, password=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=? where username=?";
@@ -296,6 +296,8 @@ public class DbConnection {
 		}
 	}
 	
+	
+	// returns all the password information for the password that has both {appName} and {appUserName}
 	public Password getPasswordInfo(String appName, String appUserName) {
 		Password pw = new Password();
 		openConnection();
@@ -325,6 +327,8 @@ public class DbConnection {
 		return pw;
 	}
 	
+	
+	// retrieves the encrypted password from the database associated with both {applicationName} and {appUserName}
 	public String getEncryptedPasswordFor(String applicationName, String appUserName) {
 		openConnection();
 		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
@@ -351,6 +355,7 @@ public class DbConnection {
 		}
 	}
 
+	// retrieves all passwords from the database for the logged in user
 	public ArrayList<Password> getAllPasswords() {
 		openConnection();
 		ArrayList<Password> passwordList = new ArrayList<Password>();
@@ -384,6 +389,7 @@ public class DbConnection {
 		return passwordList;
 	}
 	
+	// deletes a user with {userName} from the database
 	public boolean deleteUserFromDb(String userName) {
 		openConnection();
 		new_query = "DELETE FROM USERS WHERE USERNAME=?";
@@ -409,7 +415,8 @@ public class DbConnection {
 		
 	}
 	
-	public boolean deletePWFromDb(String appName, String userName) {
+	// deletes a password with both {appName} and {appUserName}
+	public boolean deletePWFromDb(String appName, String appUserName) {
 		openConnection();
 		new_query = "DELETE FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
 		PreparedStatement pStmt;
@@ -417,7 +424,7 @@ public class DbConnection {
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, appName);
-			pStmt.setString(2, userName);
+			pStmt.setString(2, appUserName);
 			int rowsAffected = pStmt.executeUpdate();
 			if(rowsAffected == 1) {
 				return true;

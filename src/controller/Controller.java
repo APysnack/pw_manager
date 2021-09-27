@@ -21,7 +21,8 @@ public class Controller {
 
 	// still needs input validation. passwords should not be greater than char[64],
 	// username is a text type, but we should set limitations for number of
-	// characters/spaces/etc.
+	// characters/no spaces should be allowed in usernames or passwords/etc. (no
+	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
 
@@ -61,15 +62,15 @@ public class Controller {
 		return str;
 	}
 
+	// gets the user information from the database for the user with the name
+	// {username}
 	public User getUserInfo(String username) {
 		User user = conn.getUser(username);
 		return user;
 	}
 
-	// needs to get the password associated with applicationName, username from the
-	// db and creates a password object (password id, user id, appName,
-	// encryptedPassword,
-	// passwordLengthBeforeDecryption)
+	// gets the password object associated with {applicationName} and {appUserName}
+	// from the db
 	public Password getPasswordInfo(String applicationName, String appUserName) {
 		Password password = conn.getPasswordInfo(applicationName, appUserName);
 		return password;
@@ -77,13 +78,12 @@ public class Controller {
 
 	// validation needed
 	public boolean deleteUser(String userName) {
-		
+
 		conn.deleteUserFromDb(userName);
 		return true;
 	}
 
-	// any verification checks needed before making a call to
-	// conn.deleteUserFromDB(String appName);
+	// may need validation/error checking
 	public boolean deletePassword(String appName, String userName) {
 		boolean pwDeleted = conn.deletePWFromDb(appName, userName);
 		return pwDeleted;
@@ -97,8 +97,9 @@ public class Controller {
 		return true;
 	}
 
-	// retrieves encrypted password from the database, performs decrypted and
-	// returns the unencrypted password as a string
+	// retrieves encrypted password from the database. needs to performs decryption
+	// and
+	// return the unencrypted password as a string
 	public String getDecryptedPassword(String appName, String username) {
 		String returnString = "";
 		returnString = conn.getEncryptedPasswordFor(appName, username);
@@ -118,9 +119,9 @@ public class Controller {
 		return true;
 	}
 
-	// this function get all the passwords from database and stores them in a
+	// this function gets all the passwords from database and stores them in a
 	// "password set" which groups all usernames by application name (e.g. if you
-	// have multiple gmail accounts, they're all stored on the same object).
+	// have multiple gmail accounts, they're all grouped together as a password set).
 	public ArrayList<PasswordSet> getAllPasswords() {
 
 		// creation of the list object to be returned
@@ -142,15 +143,17 @@ public class Controller {
 
 		return passwordSetList;
 	}
+
 	
-	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission, boolean editPermission, boolean deletePermission) {
+	// needs encrpytion before storing the password in the database
+	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
+			boolean editPermission, boolean deletePermission) {
 		int pwLen = newPassword.length();
 		User newUserInfo = new User(newUserName, newPassword, pwLen, addPermission, editPermission, deletePermission);
 		boolean userEdited = conn.editUser(oldUserName, newUserInfo);
-		if(userEdited == true) {
+		if (userEdited == true) {
 			return true;
-		}
-		else {
+		} else {
 			return false;
 		}
 	}
