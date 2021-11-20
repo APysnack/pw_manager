@@ -35,11 +35,11 @@ public class CUtils {
 		}
 	}
 	
-	public void setPassword(String originalPassword) {
+	public void setPrimaryPassword(String originalPassword) {
 		this.hashedPassword = sha256(originalPassword);
 	}
 	
-	public String getPassword() {
+	public String getPrimaryPassword() {
 		return this.hashedPassword;
 	}
 	

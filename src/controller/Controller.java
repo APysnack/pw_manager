@@ -27,19 +27,24 @@ public class Controller {
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
 		CUtils c = new CUtils();
-		c.setPassword(password);
-		password = "";
-		String hashedPassword = c.getPassword();
+		c.setPrimaryPassword(password);
 		int pwLength = password.length();
-		
-		User user = new User(userName, hashedPassword, pwLength, addPermission, editPermission, deletePermission);
-
-		boolean insertSuccessful = conn.addUserToDb(user);
-
-		if (insertSuccessful) {
-			return true;
-		} else {
+		password = "";
+		String hashedPassword = c.getPrimaryPassword();
+		if(hashedPassword == "invalid") {
 			return false;
+		}
+		else {
+			User user = new User(userName, hashedPassword, pwLength, addPermission, editPermission, deletePermission);
+
+			boolean insertSuccessful = conn.addUserToDb(user);
+
+			if (insertSuccessful) {
+				return true;
+			} else {
+				return false;
+			}
+			
 		}
 	}
 
@@ -49,16 +54,21 @@ public class Controller {
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
 		CUtils c = new CUtils();
-		c.setPassword(password);
-		String hashedPassword = c.getPassword();
-		boolean userAuthenticated = conn.authenticateUserInDb(userName, hashedPassword);
-		if (userAuthenticated) {
-			User user = conn.getUser(userName);
-			conn.setCurrentUser(user);
-			this.currentUser = user;
-			return true;
-		} else {
+		c.setPrimaryPassword(password);
+		String hashedPassword = c.getPrimaryPassword();
+		if(hashedPassword == "invalid") {
 			return false;
+		}
+		else {
+			boolean userAuthenticated = conn.authenticateUserInDb(userName, hashedPassword);
+			if (userAuthenticated) {
+				User user = conn.getUser(userName);
+				conn.setCurrentUser(user);
+				this.currentUser = user;
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 
