@@ -8,6 +8,7 @@ import model.DbConnection;
 import structures.Password;
 import structures.PasswordSet;
 import structures.User;
+import controller.CUtils;
 
 public class Controller {
 
@@ -25,9 +26,13 @@ public class Controller {
 	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
-
+		CUtils c = new CUtils();
+		c.setPassword(password);
+		password = "";
+		String hashedPassword = c.getPassword();
 		int pwLength = password.length();
-		User user = new User(userName, password, pwLength, addPermission, editPermission, deletePermission);
+		
+		User user = new User(userName, hashedPassword, pwLength, addPermission, editPermission, deletePermission);
 
 		boolean insertSuccessful = conn.addUserToDb(user);
 
@@ -38,12 +43,15 @@ public class Controller {
 		}
 	}
 
-	// needs encryption/decryption. currently uses authenticateUserInDb to verify
+	// needs input validation currently uses authenticateUserInDb to verify
 	// that a user with userName + password is found. returns boolean true if user
 	// count == 1. Then gets the user's information from the database and sets it as
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
-		boolean userAuthenticated = conn.authenticateUserInDb(userName, password);
+		CUtils c = new CUtils();
+		c.setPassword(password);
+		String hashedPassword = c.getPassword();
+		boolean userAuthenticated = conn.authenticateUserInDb(userName, hashedPassword);
 		if (userAuthenticated) {
 			User user = conn.getUser(userName);
 			conn.setCurrentUser(user);
@@ -145,7 +153,7 @@ public class Controller {
 	}
 
 	
-	// needs encrpytion before storing the password in the database
+	// needs encryption before storing the password in the database
 	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
 			boolean editPermission, boolean deletePermission) {
 		int pwLen = newPassword.length();
