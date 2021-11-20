@@ -14,10 +14,12 @@ public class Controller {
 
 	DbConnection conn;
 	User currentUser;
+	CUtils utils;
 
 	// needed to make calls to the database
 	public Controller(DbConnection conn) {
 		this.conn = conn;
+		this.utils = new CUtils();
 	}
 
 	// still needs input validation. passwords should not be greater than char[64],
@@ -26,16 +28,14 @@ public class Controller {
 	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
-		CUtils c = new CUtils();
-		c.setPrimaryPassword(password);
+		String encryptedPW = utils.encrypt(password);
 		int pwLength = password.length();
 		password = "";
-		String hashedPassword = c.getPrimaryPassword();
-		if(hashedPassword == "invalid") {
+		if(encryptedPW == "invalid") {
 			return false;
 		}
 		else {
-			User user = new User(userName, hashedPassword, pwLength, addPermission, editPermission, deletePermission);
+			User user = new User(userName, encryptedPW, pwLength, addPermission, editPermission, deletePermission);
 
 			boolean insertSuccessful = conn.addUserToDb(user);
 
@@ -53,14 +53,12 @@ public class Controller {
 	// count == 1. Then gets the user's information from the database and sets it as
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
-		CUtils c = new CUtils();
-		c.setPrimaryPassword(password);
-		String hashedPassword = c.getPrimaryPassword();
-		if(hashedPassword == "invalid") {
+		String encryptedPW = utils.encrypt(password);
+		if(encryptedPW == "invalid") {
 			return false;
 		}
 		else {
-			boolean userAuthenticated = conn.authenticateUserInDb(userName, hashedPassword);
+			boolean userAuthenticated = conn.authenticateUserInDb(userName, encryptedPW);
 			if (userAuthenticated) {
 				User user = conn.getUser(userName);
 				conn.setCurrentUser(user);
