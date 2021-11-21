@@ -10,6 +10,7 @@ public class Password {
 	String appName;
 	String appUserName;
 	String encryptedPassword;
+	String saltVal;
 	int passwordLength;
 
 	public Password() {
@@ -38,6 +39,14 @@ public class Password {
 		this.passwordLength = pwLength;
 	}
 
+	public Password(String appName, String appUserName, String encryptedPassword, String saltVal, int pwLength) {
+		this.appName = appName;
+		this.appUserName = appUserName;
+		this.encryptedPassword = encryptedPassword;
+		this.saltVal = saltVal;
+		this.passwordLength = pwLength;
+	}
+	
 	public Password(int pwID, int userID, String appName, String appUserName, String encryptedPassword, int pwLength) {
 		this.pwID = pwID;
 		this.userID = userID;
@@ -71,6 +80,10 @@ public class Password {
 		this.encryptedPassword = encryptedPassword;
 	}
 	
+	public void setSaltVal(String saltVal) {
+		this.saltVal = saltVal;
+	}
+	
 	public int getPasswordID() {
 		return pwID;
 	}
@@ -89,6 +102,10 @@ public class Password {
 
 	public String getEncryptedPassword() {
 		return encryptedPassword;
+	}
+	
+	public String getSaltVal() {
+		return saltVal;
 	}
 
 	@Override

@@ -177,17 +177,16 @@ public class DbConnection {
 		}
 	}
 
-	// when user tries to log in, checks to confirm that the username and password
-	// are correct. if rows returned == 1, authentication was successful
-	public boolean authenticateUserInDb(String userName, String password) {
+	// when user tries to log in, checks to confirm that the username exists in db
+	// if rows returned == 1, user was found
+	public boolean confirmUserExists(String userName) {
 		openConnection();
-		new_query = "SELECT COUNT(*) FROM USERS WHERE USERNAME=? AND PASSWORD=?";
+		new_query = "SELECT COUNT(*) FROM USERS WHERE USERNAME=?";
 		PreparedStatement pStmt;
 
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, userName);
-			pStmt.setString(2, password);
 			ResultSet result = pStmt.executeQuery();
 			int numRows = result.getInt(1);
 
@@ -207,7 +206,7 @@ public class DbConnection {
 	// inserts the data from a password object received by the caller into the database
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
-		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, APPUSERNAME, PASSWORD, PASSWORDLENGTH) VALUES (?, ?,?,?,?)";
+		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, APPUSERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH) VALUES (?,?,?,?,?, ?)";
 		PreparedStatement pStmt;
 
 		try {
@@ -216,7 +215,8 @@ public class DbConnection {
 			pStmt.setString(2, password.getAppName());
 			pStmt.setString(3, password.getAppUserName());
 			pStmt.setString(4, password.getEncryptedPassword());
-			pStmt.setInt(5, password.getPasswordLength());
+			pStmt.setString(5, password.getSaltVal());
+			pStmt.setInt(6, password.getPasswordLength());
 
 			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
@@ -312,11 +312,12 @@ public class DbConnection {
 			
 			ResultSet result = pStmt.executeQuery();
 			while (result.next()) {
-				pw.setUserID(result.getInt(1));
+				pw.setUserID(result.getInt(2));
 				pw.setAppName(result.getString(3));
 				pw.setAppUserName(result.getString(4));
 				pw.setEncryptedPassword(result.getString(5));
-				pw.setPasswordLength(result.getInt(6));
+				pw.setSaltVal(result.getString(6));
+				pw.setPasswordLength(result.getInt(7));
 			}
 		}
 		catch(SQLException e) {
@@ -327,34 +328,6 @@ public class DbConnection {
 		}
 		
 		return pw;
-	}
-	
-	
-	// retrieves the encrypted password from the database associated with both {applicationName} and {appUserName}
-	public String getEncryptedPasswordFor(String applicationName, String appUserName) {
-		openConnection();
-		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
-		PreparedStatement pStmt;
-		String returnString = "";
-		
-		try {
-			pStmt = conn.prepareStatement(new_query);
-			pStmt.setString(1, applicationName);
-			pStmt.setString(2, appUserName);
-			ResultSet result = pStmt.executeQuery();
-			while(result.next()) {
-				returnString = result.getString(5);
-			}
-			return returnString;
-		}
-		catch(SQLException e){
-			System.out.println(e);
-			return returnString;
-
-		}
-		finally {
-			closeConnection();
-		}
 	}
 
 	// retrieves all passwords from the database for the logged in user

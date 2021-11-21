@@ -15,6 +15,7 @@ public class Controller {
 	DbConnection conn;
 	User currentUser;
 	CUtils utils;
+	String input;
 
 	// needed to make calls to the database
 	public Controller(DbConnection conn) {
@@ -28,24 +29,16 @@ public class Controller {
 	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
-		utils.encryptPassword(password);
-		String encryptedPW = utils.getEncryptedPassword();
-		String saltVal = utils.getSaltVal();
+		String hashedPassword = utils.generateKey(password);
+		String saltValue = utils.getSaltVal();
 		int pwLength = password.length();
 		password = "";
-		if(encryptedPW == "invalid") {
-			return false;
-		}
-		else {
-			User user = new User(userName, encryptedPW, saltVal, pwLength, addPermission, editPermission, deletePermission);
-			boolean insertSuccessful = conn.addUserToDb(user);
-
-			if (insertSuccessful) {
+		User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission, deletePermission);
+		boolean insertSuccessful = conn.addUserToDb(user);
+		if (insertSuccessful) {
 				return true;
-			} else {
+		} else {
 				return false;
-			}
-			
 		}
 	}
 
@@ -54,17 +47,21 @@ public class Controller {
 	// count == 1. Then gets the user's information from the database and sets it as
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
-			User user = conn.getUser(userName);
-			String encPassword = user.getEncryptedPassword();
-			String saltVal = user.getSaltVal();
-			boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
-			if (userAuthenticated) {
-				conn.setCurrentUser(user);
-				this.currentUser = user;
-				return true;
-			} else {
-				return false;
+			boolean userExists = conn.confirmUserExists(userName);
+			if(userExists) {
+				User user = conn.getUser(userName);
+				String encPassword = user.getEncryptedPassword();
+				String saltVal = user.getSaltVal();
+				boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
+				if (userAuthenticated) {
+					conn.setCurrentUser(user);
+					this.currentUser = user;
+					this.input = password;
+					return true;
+				}
+				
 			}
+			return false;
 	}
 
 	// should generate a secure password (as randomly as possible)
@@ -91,7 +88,6 @@ public class Controller {
 
 	// validation needed
 	public boolean deleteUser(String userName) {
-
 		conn.deleteUserFromDb(userName);
 		return true;
 	}
@@ -102,20 +98,22 @@ public class Controller {
 		return pwDeleted;
 	}
 
-	// needs to do error checking then encrypt password and send it to the db
+	// needs input validation
 	public boolean addNewPassword(String appName, String appUserName, String appPassword) {
+		String encryptedPassword = utils.encrypt(input, appPassword);
+		String saltVal = utils.getSaltVal();
 		int pwLen = appPassword.length();
-		Password newPassword = new Password(appName, appUserName, appPassword, pwLen);
+		Password newPassword = new Password(appName, appUserName, encryptedPassword, saltVal, pwLen);
 		conn.addPasswordToDb(newPassword);
 		return true;
 	}
 
-	// retrieves encrypted password from the database. needs to performs decryption
-	// and
-	// return the unencrypted password as a string
-	public String getDecryptedPassword(String appName, String username) {
-		String returnString = "";
-		returnString = conn.getEncryptedPasswordFor(appName, username);
+	// retrieves encrypted password from the database and decrypts
+	public String getDecryptedPassword(String appName, String userName) {
+		Password password = conn.getPasswordInfo(appName, userName);
+		String encryptedPassword = password.getEncryptedPassword();
+		String passwordSalt = password.getSaltVal();
+		String returnString = utils.decrypt(input, encryptedPassword, passwordSalt);
 		return returnString;
 	}
 
