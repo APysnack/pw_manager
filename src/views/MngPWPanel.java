@@ -56,13 +56,20 @@ public class MngPWPanel extends JPanel
 
 	JComboBox<String> appComboBox;
 	JComboBox<String> userNameComboBox;
+	JComboBox<Integer> randGenLength;
 	JTextField appField;
 	JTextField appUsrNameField;
 	JTextField randomPWField;
 	JTextField displayPWField;
 	JPasswordField pwField;
 	JPasswordField confirmPWField;
+	JCheckBox randGenUpper;
+	JCheckBox randGenLower;
+	JCheckBox randGenNumber;
+	JCheckBox randGenSymbol;
+	JPanel randGenChkPnl;
 	JPanel scrnMgr;
+	JLabel lengthLbl;
 	JLabel appUsrNameLbl;
 	JLabel flashLbl;
 	JLabel titleLbl;
@@ -136,6 +143,35 @@ public class MngPWPanel extends JPanel
 		confirmPWPanel.add(confirmPWLbl);
 		confirmPWPanel.add(confirmPWField);
 		
+		randGenLower = new JCheckBox("a-z");
+		randGenUpper = new JCheckBox("A-Z");
+		randGenNumber = new JCheckBox("0-9");
+		randGenSymbol = new JCheckBox("@!%$...");
+		lengthLbl = new JLabel("Length");
+		randGenLength = new JComboBox<Integer>();
+		
+		int minPasswordLen = 12;
+		int maxPasswordLen = 128;
+		int k = minPasswordLen;
+		
+		for(int i = 0; i <= (maxPasswordLen - minPasswordLen); i++) {
+			randGenLength.insertItemAt(k, i);
+			k++;
+		}
+		
+		randGenLength.setSelectedIndex(4);
+		
+		
+		Border rgBorder = BorderFactory.createTitledBorder("Randomization Settings");
+		randGenChkPnl = new JPanel();
+		randGenChkPnl.add(randGenLower);
+		randGenChkPnl.add(randGenUpper);
+		randGenChkPnl.add(randGenNumber);
+		randGenChkPnl.add(randGenSymbol);
+		randGenChkPnl.add(lengthLbl);
+		randGenChkPnl.add(randGenLength);
+		randGenChkPnl.setBorder(rgBorder);
+		
 		randomPWField = new JTextField("", 15);
 		generatePWBtn = new JButton("Generate Random Password");
 		
@@ -147,7 +183,6 @@ public class MngPWPanel extends JPanel
 		addPWBtn = new JButton("Create New Password");
 		editPWBtn = new JButton("Edit Password");
 		deletePWBtn = new JButton("Delete Password");
-		
 		
 		
 		flashLbl = new JLabel("");
@@ -205,6 +240,11 @@ public class MngPWPanel extends JPanel
 		else if(layoutName == "addPW" || layoutName == "editPW") {
 			gr.gridx = 1;
 			gr.gridy = 4;
+			gr.insets = new Insets(0,0,5,0);
+			add(randGenChkPnl, gr);
+			
+			gr.gridx = 1;
+			gr.gridy = 5;
 			gr.insets = new Insets(0,0,10,0);
 			JPanel randomGenPanel = new JPanel();
 			randomGenPanel.add(randomPWField);
@@ -217,23 +257,23 @@ public class MngPWPanel extends JPanel
 			add(randomGenPanel, gr);
 			
 			gr.gridx = 1;
-			gr.gridy = 5;
-			gr.insets = new Insets(0,0,10,0);
+			gr.gridy = 6;
+			gr.insets = new Insets(0,0,5,0);
 			
 			add(appNamePanel, gr);
 			gr.gridx = 1;
-			gr.gridy = 6;
-			gr.insets = new Insets(0,0,10,0);
+			gr.gridy = 7;
+			gr.insets = new Insets(0,0,5,0);
 			
 			add(appUsrNamePanel, gr);
 			gr.gridx = 1;
-			gr.gridy = 7;
-			gr.insets = new Insets(0,0,10,0);
+			gr.gridy = 8;
+			gr.insets = new Insets(0,0,5,0);
 			add(pwPanel, gr);
 			
 			gr.gridx = 1;
-			gr.gridy = 8;
-			gr.insets = new Insets(0,0,10,0);
+			gr.gridy = 9;
+			gr.insets = new Insets(0,0,5,0);
 			add(confirmPWPanel, gr);
 			
 			JPanel actionPanel = new JPanel();
@@ -247,8 +287,8 @@ public class MngPWPanel extends JPanel
 			actionPanel.add(backButton);
 			
 			gr.gridx = 1;
-			gr.gridy = 9;
-			gr.insets = new Insets(0,0,30,0);
+			gr.gridy = 10;
+			gr.insets = new Insets(0,0,10,0);
 			add(actionPanel, gr);
 			
 		}
@@ -487,8 +527,18 @@ public class MngPWPanel extends JPanel
 		if (source == addPWBtn) {
 			addPWView();
 		} else if (source == generatePWBtn) {
-			String randomPW = ctrl.generateRandomPassword();
-			randomPWField.setText(randomPW);
+			boolean lowercase = randGenLower.isSelected();
+			boolean uppercase = randGenUpper.isSelected();
+			boolean numeric = randGenNumber.isSelected();
+			boolean symbols = randGenSymbol.isSelected();
+			int length = (int) randGenLength.getSelectedItem();
+			if(lowercase || uppercase || numeric || symbols) {
+				String randomPW = ctrl.generateRandomPassword(lowercase, uppercase, numeric, symbols, length);
+				randomPWField.setText(randomPW);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "At least one checkbox must be selected for password generation");
+			}
 		} else if (source == backButton) {
 			backBtnBehavior();
 		} else if (source == createNewPWBtn) {

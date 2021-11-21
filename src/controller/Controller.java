@@ -80,8 +80,9 @@ public class Controller {
 			return false;
 	}
 
-	// should generate a secure password (as randomly as possible)
-	public String generateRandomPassword() {
+	// Still needs to be written: should generate a random password of length = length and according to the boolean rules
+	// for whether the user wishes to generate a password using a-z, A-Z, 0-9, and/or with symbols (@!#$ etc.)
+	public String generateRandomPassword(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols, int length) {
 		Random rand = new Random();
 		int rand_int = rand.nextInt(1000);
 		String str = String.valueOf(rand_int);

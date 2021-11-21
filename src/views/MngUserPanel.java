@@ -53,17 +53,24 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	
 	List<JCheckBox> checkBoxes;
 	JComboBox<String> userComboBox;
+	JComboBox<Integer> randGenLength;
 	JCheckBox addPermission;
 	JCheckBox editPermission;
 	JCheckBox deletePermission;
+	JCheckBox randGenUpper;
+	JCheckBox randGenLower;
+	JCheckBox randGenNumber;
+	JCheckBox randGenSymbol;
 	JTextField usrField;
 	JTextField randomPWField;
 	JPasswordField pwField;
 	JPasswordField confirmPWField;
+	JPanel randGenChkPnl;
 	JPanel scrnMgr;
 	JPanel checkBoxPnl;
 	JLabel flashLbl;
 	JLabel titleLbl;
+	JLabel lengthLbl;
 	JLabel unameLbl;
 	JLabel pwLbl;
 	JLabel confirmPWLbl;
@@ -114,6 +121,35 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		checkBoxPnl.add(editPermission);
 		checkBoxPnl.add(deletePermission);
 		checkBoxPnl.setBorder(checkBoxBorder);
+		
+		randGenLower = new JCheckBox("a-z");
+		randGenUpper = new JCheckBox("A-Z");
+		randGenNumber = new JCheckBox("0-9");
+		randGenSymbol = new JCheckBox("@!%$...");
+		lengthLbl = new JLabel("Length");
+		randGenLength = new JComboBox<Integer>();
+		
+		int minPasswordLen = 12;
+		int maxPasswordLen = 128;
+		int k = minPasswordLen;
+		
+		for(int i = 0; i <= (maxPasswordLen - minPasswordLen); i++) {
+			randGenLength.insertItemAt(k, i);
+			k++;
+		}
+		
+		randGenLength.setSelectedIndex(4);
+		
+		
+		Border rgBorder = BorderFactory.createTitledBorder("Randomization Settings");
+		randGenChkPnl = new JPanel();
+		randGenChkPnl.add(randGenLower);
+		randGenChkPnl.add(randGenUpper);
+		randGenChkPnl.add(randGenNumber);
+		randGenChkPnl.add(randGenSymbol);
+		randGenChkPnl.add(lengthLbl);
+		randGenChkPnl.add(randGenLength);
+		randGenChkPnl.setBorder(rgBorder);
 
 		flashLbl = new JLabel("");
 		unameLbl = new JLabel("Edit Username");
@@ -201,25 +237,29 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		gr.gridx = 1;
 		gr.gridy = 3;
 		gr.insets = new Insets(0,0,10,0);
-		add(randomGenPanel, gr);
+		add(randGenChkPnl, gr);
 		gr.gridx = 1;
 		gr.gridy = 4;
 		gr.insets = new Insets(0,0,10,0);
-		add(userPanel, gr);
+		add(randomGenPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 5;
 		gr.insets = new Insets(0,0,10,0);
-		add(pwPanel, gr);
+		add(userPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 6;
 		gr.insets = new Insets(0,0,10,0);
-		add(confirmPWPanel, gr);
+		add(pwPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 7;
 		gr.insets = new Insets(0,0,10,0);
-		add(checkBoxPnl, gr);
+		add(confirmPWPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 8;
+		gr.insets = new Insets(0,0,10,0);
+		add(checkBoxPnl, gr);
+		gr.gridx = 1;
+		gr.gridy = 9;
 		gr.insets = new Insets(0,0,10,0);
 		add(actionPanel, gr);
 		
@@ -352,8 +392,19 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			
 		}
 		else if (source == generatePWBtn) {
-			String randomPW = ctrl.generateRandomPassword();
-			randomPWField.setText(randomPW);
+			boolean lowercase = randGenLower.isSelected();
+			boolean uppercase = randGenUpper.isSelected();
+			boolean numeric = randGenNumber.isSelected();
+			boolean symbols = randGenSymbol.isSelected();
+			int length = (int) randGenLength.getSelectedItem();
+			if(lowercase || uppercase || numeric || symbols) {
+				String randomPW = ctrl.generateRandomPassword(lowercase, uppercase, numeric, symbols, length);
+				randomPWField.setText(randomPW);
+			}
+			else {
+				JOptionPane.showMessageDialog(null, "At least one checkbox must be selected for password generation");
+			}
+
 		}
 		
 		else if (source == editUsrBtn) {
