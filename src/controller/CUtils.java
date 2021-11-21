@@ -8,6 +8,7 @@ import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.util.Random;
 
 public class CUtils {
 
@@ -102,6 +103,32 @@ public class CUtils {
 	// return false if input is "Enter Password" or if input contains spaces of any kind
 	public Boolean validatePasswordInput(String passwordInput) {
 		return true;
+	}
+	
+	public String getRandomString(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols, int length) {
+		String randChars = "";
+		if(lowerAlpha) {
+			randChars = randChars + "abcdefghijklmnopqrstuvwxyz";
+		}
+		if(upperAlpha) {
+			randChars = randChars + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		}
+		if(numeric) {
+			randChars = randChars + "01234567890";
+		}
+		if(symbols) {
+			randChars = randChars + "~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
+		}
+		
+		
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < length) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * randChars.length());
+            salt.append(randChars.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
 	}
 
 }

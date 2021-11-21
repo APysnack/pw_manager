@@ -83,10 +83,8 @@ public class Controller {
 	// Still needs to be written: should generate a random password of length = length and according to the boolean rules
 	// for whether the user wishes to generate a password using a-z, A-Z, 0-9, and/or with symbols (@!#$ etc.)
 	public String generateRandomPassword(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols, int length) {
-		Random rand = new Random();
-		int rand_int = rand.nextInt(1000);
-		String str = String.valueOf(rand_int);
-		return str;
+		String randomPW = utils.getRandomString(lowerAlpha, upperAlpha, numeric, symbols, length);
+		return randomPW;
 	}
 
 	// gets the user information from the database for the user with the name
@@ -144,6 +142,7 @@ public class Controller {
 
 	// modifies an existing password in the database. needs validation checking, and
 	// particular do not allow spaces or any password that looks like *****
+	// IMPORTANT NOTE: password in this function currently not being decrypted
 	public boolean editPassword(String oldAppName, String oldAppUserName, String newAppName, String newAppUserName,
 			String password) {
 		// function still needs to be written. Should return false if input is all asterisks, 
@@ -186,7 +185,7 @@ public class Controller {
 	}
 
 	
-	// needs encryption before storing the password in the database
+	// edits user already in the database with new name/password/permission information
 	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
 			boolean editPermission, boolean deletePermission) {
 		if(currentUser.getAddPermission() == false && addPermission == true || currentUser.getEditPermission() == false && editPermission == true || currentUser.getDeletePermission() == false && deletePermission == true) {
