@@ -8,6 +8,7 @@ public class User {
 	int userID;
 	String username;
 	String encryptedPassword;
+	String saltVal;
 	int passwordLength;
 	boolean addPermission;
 	boolean editPermission;
@@ -15,6 +16,17 @@ public class User {
 
 	public User() {
 
+	}
+	
+	public User(int userID, String username, String encryptedPassword, String saltVal, boolean addPermission, boolean editPermission,
+			boolean deletePermission) {
+		this.userID = userID;
+		this.username = username;
+		this.encryptedPassword = encryptedPassword;
+		this.saltVal = saltVal;
+		this.addPermission = addPermission;
+		this.editPermission = editPermission;
+		this.deletePermission = deletePermission;
 	}
 
 	public User(int userID, String username, String encryptedPassword, boolean addPermission, boolean editPermission,
@@ -56,6 +68,17 @@ public class User {
 		this.deletePermission = deletePermission;
 		this.passwordLength = pwLength;
 	}
+	
+	public User(String username, String encryptedPassword, String saltVal, int pwLength, boolean addPermission, boolean editPermission,
+			boolean deletePermission) {
+		this.username = username;
+		this.encryptedPassword = encryptedPassword;
+		this.saltVal = saltVal;
+		this.addPermission = addPermission;
+		this.editPermission = editPermission;
+		this.deletePermission = deletePermission;
+		this.passwordLength = pwLength;
+	}
 
 	public User(String username, String encryptedPassword, List<Boolean> privilegeList) {
 		this.username = username;
@@ -76,6 +99,10 @@ public class User {
 
 	public void setUserID(int userID) {
 		this.userID = userID;
+	}
+	
+	public void setSaltVal(String saltVal) {
+		this.saltVal = saltVal;
 	}
 	
 	public void setPasswordLength(int passwordLength) {
@@ -134,6 +161,10 @@ public class User {
 
 	public boolean getDeletePermission() {
 		return deletePermission;
+	}
+	
+	public String getSaltVal() {
+		return saltVal;
 	}
 
 	public ArrayList<Boolean> getUserPermissions() {

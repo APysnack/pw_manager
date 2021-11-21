@@ -28,15 +28,16 @@ public class Controller {
 	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
-		String encryptedPW = utils.encrypt(password);
+		utils.encryptPassword(password);
+		String encryptedPW = utils.getEncryptedPassword();
+		String saltVal = utils.getSaltVal();
 		int pwLength = password.length();
 		password = "";
 		if(encryptedPW == "invalid") {
 			return false;
 		}
 		else {
-			User user = new User(userName, encryptedPW, pwLength, addPermission, editPermission, deletePermission);
-
+			User user = new User(userName, encryptedPW, saltVal, pwLength, addPermission, editPermission, deletePermission);
 			boolean insertSuccessful = conn.addUserToDb(user);
 
 			if (insertSuccessful) {
@@ -53,21 +54,17 @@ public class Controller {
 	// count == 1. Then gets the user's information from the database and sets it as
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
-		String encryptedPW = utils.encrypt(password);
-		if(encryptedPW == "invalid") {
-			return false;
-		}
-		else {
-			boolean userAuthenticated = conn.authenticateUserInDb(userName, encryptedPW);
+			User user = conn.getUser(userName);
+			String encPassword = user.getEncryptedPassword();
+			String saltVal = user.getSaltVal();
+			boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
 			if (userAuthenticated) {
-				User user = conn.getUser(userName);
 				conn.setCurrentUser(user);
 				this.currentUser = user;
 				return true;
 			} else {
 				return false;
 			}
-		}
 	}
 
 	// should generate a secure password (as randomly as possible)

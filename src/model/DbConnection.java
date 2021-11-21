@@ -89,16 +89,17 @@ public class DbConnection {
 	// statement to prevent SQL injection
 	public boolean addUserToDb(User user) {
 		openConnection();
-		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?)";
+		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?,?)";
 		PreparedStatement pStmt;
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, user.getUsername());
 			pStmt.setString(2, user.getEncryptedPassword());
-			pStmt.setInt(3, user.getPasswordLength());
-			pStmt.setBoolean(4, user.getAddPermission());
-			pStmt.setBoolean(5, user.getEditPermission());
-			pStmt.setBoolean(6, user.getDeletePermission());
+			pStmt.setString(3, user.getSaltVal());
+			pStmt.setInt(4, user.getPasswordLength());
+			pStmt.setBoolean(5, user.getAddPermission());
+			pStmt.setBoolean(6, user.getEditPermission());
+			pStmt.setBoolean(7, user.getDeletePermission());
 
 			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
@@ -160,10 +161,11 @@ public class DbConnection {
 				user.setUserID(result.getInt(1));
 				user.setUsername(result.getString(2));
 				user.setEncryptedPassword(result.getString(3));
-				user.setPasswordLength(result.getInt(4));
-				user.setAddPermission(result.getBoolean(5));
-				user.setEditPermission(result.getBoolean(6));
-				user.setDeletePermission(result.getBoolean(7));
+				user.setSaltVal(result.getString(4));
+				user.setPasswordLength(result.getInt(5));
+				user.setAddPermission(result.getBoolean(6));
+				user.setEditPermission(result.getBoolean(7));
+				user.setDeletePermission(result.getBoolean(8));
 			}
 
 			return user;
