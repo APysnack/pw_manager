@@ -352,7 +352,9 @@ public class MngPWPanel extends JPanel
 
 	public void populatePasswordData(String selectedApp, String username) {
 		if (onSecondaryPage == false) {
-			displayPWField.setText(ctrl.getDecryptedPassword(selectedApp, username));
+			if(selectedApp != null && username != null) {
+				displayPWField.setText(ctrl.getDecryptedPassword(selectedApp, username));
+			}
 		} else {
 			Password pwData = ctrl.getPasswordInfo(selectedApp, username);
 			appField.setText(pwData.getAppName());

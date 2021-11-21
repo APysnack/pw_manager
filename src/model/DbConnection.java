@@ -353,7 +353,8 @@ public class DbConnection {
 					tempPass.setAppName(result.getString(3));
 					tempPass.setAppUserName(result.getString(4));
 					tempPass.setEncryptedPassword(result.getString(5));
-					tempPass.setPasswordLength(result.getInt(6));
+					tempPass.setSaltVal(result.getString(6));
+					tempPass.setPasswordLength(result.getInt(7));
 					passwordList.add(tempPass);
 				}
 			} catch (SQLException e) {

@@ -11,30 +11,31 @@ import java.util.Base64;
 
 public class CUtils {
 
-	PassBasedEnc pbe;
 	String saltVal = "";
 	String hashedPW = "";
 	private String AESKey = "";
 	private static SecretKeySpec secretKey;
 	private static byte[] key;
+	private String hashedInput = "";
 
 	public CUtils() {
-		this.pbe = new PassBasedEnc();
 	}
 
 	public String generateKey(String originalPassword) {
-		this.saltVal = pbe.getSaltvalue(30);
-		this.hashedPW = pbe.generateSecurePassword(originalPassword, saltVal);
+		this.saltVal = PassBasedEnc.getSaltvalue(30);
+		this.AESKey = PassBasedEnc.generateSecurePassword(originalPassword, saltVal);
+		this.hashedPW = PassBasedEnc.generateSecurePassword(AESKey, saltVal);
 		return this.hashedPW;
 	}
 	
 	public String generateKey(String originalPassword, String saltValue) {
-		this.hashedPW = pbe.generateSecurePassword(originalPassword, saltValue);
+		this.hashedPW = PassBasedEnc.generateSecurePassword(originalPassword, saltValue);
 		return this.hashedPW;
 	}
 
 	public Boolean verifyPassword(String inputPassword, String dbPassword, String saltValue) {
-		Boolean result = pbe.verifyUserPassword(inputPassword, dbPassword, saltValue);
+		String AK = PassBasedEnc.generateSecurePassword(inputPassword, saltValue);
+		Boolean result = PassBasedEnc.verifyUserPassword(AK, dbPassword, saltValue);
 		return result;
 	}
 
@@ -74,13 +75,14 @@ public class CUtils {
 	
 	
 	public String encrypt(String input, String originalPassword) {
-		this.AESKey = generateKey(input);
+		this.saltVal = PassBasedEnc.getSaltvalue(30);
+		this.AESKey = PassBasedEnc.generateSecurePassword(input, saltVal);
 		String encryptedString = encryptData(originalPassword);
 		return encryptedString;
 	}
 
 	public String decrypt(String input, String encryptedPassword, String passwordSalt) {
-		this.AESKey = generateKey(input, passwordSalt);
+		this.AESKey = PassBasedEnc.generateSecurePassword(input, passwordSalt);
 		try {
 			setKey(this.AESKey);
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
@@ -90,6 +92,10 @@ public class CUtils {
 			System.out.println("Error while decrypting: " + e.toString());
 		}
 		return null;
+	}
+	
+	public String getHashedInput() {
+		return this.hashedInput;
 	}
 
 }

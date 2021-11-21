@@ -56,7 +56,7 @@ public class Controller {
 				if (userAuthenticated) {
 					conn.setCurrentUser(user);
 					this.currentUser = user;
-					this.input = password;
+					this.input = utils.getHashedInput();
 					return true;
 				}
 				
