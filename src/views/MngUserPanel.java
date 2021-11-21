@@ -246,7 +246,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 				confirmPWField.setText("");
 			}
 			else {
-				flashLbl.setText("User could not be added. Please check your input and try again.");
+				flashLbl.setText("User could not be added. Please check your input. Note you cannot create users with permissions you do not have");
 			}
 		}
 		
@@ -363,7 +363,6 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 				int response = JOptionPane.showConfirmDialog(null, "You're about to make changes to " + name + ". Do you wish to continue?","WARNING!!!", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 				if(response == 0) {
 					String newUserName = usrField.getText();
-
 					boolean canAdd = addPermission.isSelected();
 					boolean canEdit = editPermission.isSelected();
 					boolean canDelete = deletePermission.isSelected();

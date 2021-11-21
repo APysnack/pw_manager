@@ -97,5 +97,11 @@ public class CUtils {
 	public String getHashedInput() {
 		return this.hashedInput;
 	}
+	
+	// function still needs to be written. Should return false if input is all asterisks, 
+	// return false if input is "Enter Password" or if input contains spaces of any kind
+	public Boolean validatePasswordInput(String passwordInput) {
+		return true;
+	}
 
 }

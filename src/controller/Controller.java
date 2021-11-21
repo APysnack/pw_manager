@@ -29,17 +29,29 @@ public class Controller {
 	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
-		String hashedPassword = utils.generateKey(password);
-		String saltValue = utils.getSaltVal();
-		int pwLength = password.length();
-		password = "";
-		User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission, deletePermission);
-		boolean insertSuccessful = conn.addUserToDb(user);
-		if (insertSuccessful) {
-				return true;
-		} else {
+		if(currentUser != null) {
+			if(currentUser.getAddPermission() == false && addPermission == true || currentUser.getEditPermission() == false && editPermission == true || currentUser.getDeletePermission() == false && deletePermission == true) {
 				return false;
+			}
 		}
+		
+		// function still needs to be written. Should return false if input is all asterisks, 
+		// return false if input is "Enter Password" or if input contains spaces of any kind
+		// consider other SQL/Length edge cases. currently always returns true
+		Boolean validPassword = utils.validatePasswordInput(password);
+		if(validPassword) {
+			String hashedPassword = utils.generateKey(password);
+			String saltValue = utils.getSaltVal();
+			int pwLength = password.length();
+			password = "";
+			User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission, deletePermission);
+			boolean insertSuccessful = conn.addUserToDb(user);
+			if (insertSuccessful) {
+					return true;
+			}
+			
+		}
+		return false;
 	}
 
 	// needs input validation currently uses authenticateUserInDb to verify
@@ -48,7 +60,11 @@ public class Controller {
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
 			boolean userExists = conn.confirmUserExists(userName);
-			if(userExists) {
+			// function still needs to be written. Should return false if input is all asterisks, 
+			// return false if input is "Enter Password" or if input contains spaces of any kind
+			// consider other SQL/Length edge cases. currently always returns true
+			Boolean validPassword = utils.validatePasswordInput(password);
+			if(userExists && validPassword) {
 				User user = conn.getUser(userName);
 				String encPassword = user.getEncryptedPassword();
 				String saltVal = user.getSaltVal();
@@ -100,12 +116,20 @@ public class Controller {
 
 	// needs input validation
 	public boolean addNewPassword(String appName, String appUserName, String appPassword) {
-		String encryptedPassword = utils.encrypt(input, appPassword);
-		String saltVal = utils.getSaltVal();
-		int pwLen = appPassword.length();
-		Password newPassword = new Password(appName, appUserName, encryptedPassword, saltVal, pwLen);
-		conn.addPasswordToDb(newPassword);
-		return true;
+		// function still needs to be written. Should return false if input is all asterisks, 
+		// return false if input is "Enter Password" or if input contains spaces of any kind
+		// consider other SQL/Length edge cases. currently always returns true
+		Boolean validPassword = utils.validatePasswordInput(appPassword);
+		if(validPassword) {
+			String encryptedPassword = utils.encrypt(input, appPassword);
+			String saltVal = utils.getSaltVal();
+			int pwLen = appPassword.length();
+			Password newPassword = new Password(appName, appUserName, encryptedPassword, saltVal, pwLen);
+			conn.addPasswordToDb(newPassword);
+			return true;
+			
+		}
+		return false;
 	}
 
 	// retrieves encrypted password from the database and decrypts
@@ -121,13 +145,18 @@ public class Controller {
 	// particular do not allow spaces or any password that looks like *****
 	public boolean editPassword(String oldAppName, String oldAppUserName, String newAppName, String newAppUserName,
 			String password) {
+		// function still needs to be written. Should return false if input is all asterisks, 
+		// return false if input is "Enter Password" or if input contains spaces of any kind
+		// consider other SQL/Length edge cases. currently always returns true
+		Boolean validPassword = utils.validatePasswordInput(password);
+		if(validPassword) {
+			int pwLen = password.length();
+			Password pw = new Password(newAppName, newAppUserName, password, pwLen);
+			boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, pw);
+			return true;
+		}
 
-		int pwLen = password.length();
-
-		Password pw = new Password(newAppName, newAppUserName, password, pwLen);
-		boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, pw);
-
-		return true;
+		return false;
 	}
 
 	// this function gets all the passwords from database and stores them in a
@@ -159,9 +188,47 @@ public class Controller {
 	// needs encryption before storing the password in the database
 	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
 			boolean editPermission, boolean deletePermission) {
+		if(currentUser.getAddPermission() == false && addPermission == true || currentUser.getEditPermission() == false && editPermission == true || currentUser.getDeletePermission() == false && deletePermission == true) {
+			return false;
+		}
 		int pwLen = newPassword.length();
-		User newUserInfo = new User(newUserName, newPassword, pwLen, addPermission, editPermission, deletePermission);
-		boolean userEdited = conn.editUser(oldUserName, newUserInfo);
+		User userToModify = conn.getUser(oldUserName);		
+		if(userToModify.getUsername() != newUserName) {
+			userToModify.setUsername(newUserName);
+		}
+		
+		// function still needs to be written. Should return false if input is all asterisks, 
+		// return false if input is "Enter Password" or if input contains spaces of any kind
+		// currently always returns true
+		Boolean validPassword = utils.validatePasswordInput(newPassword);
+		
+		// NOTE: needs to be thoroughly tested
+		if(validPassword) {
+			String encPassword = userToModify.getEncryptedPassword();
+			String saltVal = userToModify.getSaltVal();
+			boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, saltVal);
+			
+			if(!userAuthenticated) {
+				String hashedPassword = utils.generateKey(newPassword);
+				String saltValue = utils.getSaltVal();
+				userToModify.setEncryptedPassword(hashedPassword);
+				userToModify.setSaltVal(saltValue);
+			}
+		}
+		
+		if(userToModify.getAddPermission() != addPermission) {
+			userToModify.setAddPermission(addPermission);
+		}
+		
+		if(userToModify.getEditPermission() != editPermission) {
+			userToModify.setEditPermission(editPermission);
+		}
+		
+		if(userToModify.getDeletePermission() != deletePermission) {
+			userToModify.setDeletePermission(deletePermission);
+		}
+		
+		boolean userEdited = conn.editUser(oldUserName, userToModify);
 		if (userEdited == true) {
 			return true;
 		} else {

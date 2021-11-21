@@ -269,18 +269,19 @@ public class DbConnection {
 	// updates the db entry with {oldUserName} and modifies their user info with the new data stored in the {user} User object
 	public boolean editUser(String oldUserName, User user) {
 		openConnection();
-		new_query = "update users set username=?, password=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=? where username=?";
+		new_query = "update users set userName=?, password=?, saltVal=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=? where username=?";
 		PreparedStatement pStmt;
 		
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, user.getUsername());
 			pStmt.setString(2, user.getEncryptedPassword());
-			pStmt.setInt(3, user.getPasswordLength());
-			pStmt.setBoolean(4, user.getAddPermission());
-			pStmt.setBoolean(5, user.getEditPermission());
-			pStmt.setBoolean(6, user.getDeletePermission());
-			pStmt.setString(7, oldUserName);
+			pStmt.setString(3, user.getSaltVal());
+			pStmt.setInt(4, user.getPasswordLength());
+			pStmt.setBoolean(5, user.getAddPermission());
+			pStmt.setBoolean(6, user.getEditPermission());
+			pStmt.setBoolean(7, user.getDeletePermission());
+			pStmt.setString(8, oldUserName);
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
 				return true;
