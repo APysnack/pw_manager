@@ -41,7 +41,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 	Controller ctrl;
 	Utils u;
 	DbConnection conn;
-	
+	JLabel flashLbl;
 	JLabel logoLbl;
 	JLabel logoTxt;
 	JLabel lgnLbl;
@@ -63,7 +63,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 		this.cl = cl;
 		
 		logoPanel = new LogoPanel("PLEASE LOG IN", 270);
-		
+		flashLbl = new JLabel("");
 		lgnBtn = new JButton("Log In");
 		usrField = new JTextField("Enter Username", 15);
 		usrLbl = new JLabel("Username");
@@ -87,25 +87,30 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 		
 		grid.gridx = 3;
 		grid.gridy = 1;
+		add(flashLbl, grid);
+		
+		grid.insets = new Insets(15,0,0,0);
+		grid.gridx = 3;
+		grid.gridy = 2;
 		add(logoPanel, grid);
 		
 		userPanel.add(usrLbl);
 		userPanel.add(usrField);
 		
 		grid.gridx = 3;
-		grid.gridy = 2;
+		grid.gridy = 3;
 		add(userPanel, grid);
 		
 		pwPanel.add(pwLbl);
 		pwPanel.add(pwField);
 		
 		grid.gridx = 3;
-		grid.gridy = 3;
+		grid.gridy = 4;
 		add(pwPanel, grid);
 		
 		grid.insets = new Insets(50,165,0,0);
 		grid.gridx = 3;
-		grid.gridy = 4;
+		grid.gridy = 5;
 		add(lgnBtn, grid);
 	}
 	
@@ -160,7 +165,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 
 		}
 		else {
-			cl.show(scrnMgr, "Error");
+			flashLbl.setText("Login failed. After 4 failed attempts, your account is temporarily locked out");
 		}
 	}
 	

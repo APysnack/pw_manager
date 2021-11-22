@@ -7,10 +7,19 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
 
 import org.sqlite.SQLiteConfig;
 
@@ -35,13 +44,14 @@ public class DbConnection {
 		this.conn = null;
 	}
 
-	// opens a connection to the database before a query, foreign keys must be enforced for cascading delete to work
+	// opens a connection to the database before a query, foreign keys must be
+	// enforced for cascading delete to work
 	public void openConnection() {
 		try {
-			SQLiteConfig config = new SQLiteConfig();  
-	        config.enforceForeignKeys(true);  
+			SQLiteConfig config = new SQLiteConfig();
+			config.enforceForeignKeys(true);
 			conn = DriverManager.getConnection(dbpath, config.toProperties());
-			
+
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
@@ -56,7 +66,8 @@ public class DbConnection {
 		}
 	}
 
-	// all the user information is stored a user object, this returns that information to the caller
+	// all the user information is stored a user object, this returns that
+	// information to the caller
 	public User getCurrentUser() {
 		return this.currentUser;
 	}
@@ -89,10 +100,11 @@ public class DbConnection {
 	// statement to prevent SQL injection
 	public boolean addUserToDb(User user) {
 		openConnection();
-		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?,?)";
+		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?,?);";
 		PreparedStatement pStmt;
+
 		try {
-			pStmt = conn.prepareStatement(new_query);
+			pStmt = conn.prepareStatement(new_query, Statement.RETURN_GENERATED_KEYS);
 			pStmt.setString(1, user.getUsername());
 			pStmt.setString(2, user.getEncryptedPassword());
 			pStmt.setString(3, user.getSaltVal());
@@ -104,10 +116,27 @@ public class DbConnection {
 			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
-				return true;
-			} else {
-				return false;
+				try (ResultSet generatedKeys = pStmt.getGeneratedKeys()) {
+					if (generatedKeys.next()) {
+						int userID = (int) generatedKeys.getLong(1);
+						new_query = "INSERT INTO LOGINS (UID, FAILEDATTEMPTS, LASTLOGIN) VALUES (?,?,?);";
+						try {
+							pStmt = conn.prepareStatement(new_query);
+							pStmt.setInt(1, userID);
+							pStmt.setInt(2, 0);
+							pStmt.setString(3, "2010-01-01");
+							rowsAffected = pStmt.executeUpdate();
+							if (rowsAffected == 1) {
+								return true;
+							}
+						} catch (SQLException e) {
+							System.out.println(e);
+							return false;
+						}
+					}
+				}
 			}
+			return false;
 		} catch (SQLException e) {
 			System.out.println(e);
 			return false;
@@ -139,7 +168,8 @@ public class DbConnection {
 		}
 	}
 
-	// accepts a user object from the called and sets it the currently logged in user
+	// accepts a user object from the called and sets it the currently logged in
+	// user
 	public void setCurrentUser(User user) {
 		this.currentUser = user;
 	}
@@ -203,7 +233,8 @@ public class DbConnection {
 		}
 	}
 
-	// inserts the data from a password object received by the caller into the database
+	// inserts the data from a password object received by the caller into the
+	// database
 	public boolean addPasswordToDb(Password password) {
 		openConnection();
 		new_query = "INSERT INTO PASSWORDS (UID, APPLICATION, APPUSERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH) VALUES (?,?,?,?,?, ?)";
@@ -234,13 +265,14 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-	
-	// updates the db entry with {oldAppName} and {oldAppUserName} and modifies their user info with the new data stored in the {newPW} Password object
+
+	// updates the db entry with {oldAppName} and {oldAppUserName} and modifies
+	// their user info with the new data stored in the {newPW} Password object
 	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW) {
 		openConnection();
 		new_query = "update passwords set application=?, appUserName=?, password=?, passwordLength=? where application=? and appUserName=?";
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, newPW.getAppName());
@@ -249,29 +281,28 @@ public class DbConnection {
 			pStmt.setInt(4, newPW.getPasswordLength());
 			pStmt.setString(5, oldAppName);
 			pStmt.setString(6, oldAppUserName);
-			
+
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
 				return true;
 			} else {
 				return false;
 			}
-			
-		}
-		catch(SQLException e) {
+
+		} catch (SQLException e) {
 			System.out.println(e);
 		}
-		
-		
+
 		return true;
 	}
-	
-	// updates the db entry with {oldUserName} and modifies their user info with the new data stored in the {user} User object
+
+	// updates the db entry with {oldUserName} and modifies their user info with the
+	// new data stored in the {user} User object
 	public boolean editUser(String oldUserName, User user) {
 		openConnection();
 		new_query = "update users set userName=?, password=?, saltVal=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=? where username=?";
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, user.getUsername());
@@ -288,19 +319,17 @@ public class DbConnection {
 			} else {
 				return false;
 			}
-			
-		}
-		catch(SQLException e) {
+
+		} catch (SQLException e) {
 			System.out.println(e);
 			return false;
-		}
-		finally {
+		} finally {
 			closeConnection();
 		}
 	}
-	
-	
-	// returns all the password information for the password that has both {appName} and {appUserName}
+
+	// returns all the password information for the password that has both {appName}
+	// and {appUserName}
 	public Password getPasswordInfo(String appName, String appUserName) {
 		Password pw = new Password();
 		openConnection();
@@ -310,7 +339,7 @@ public class DbConnection {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, appName);
 			pStmt.setString(2, appUserName);
-			
+
 			ResultSet result = pStmt.executeQuery();
 			while (result.next()) {
 				pw.setUserID(result.getInt(2));
@@ -320,14 +349,12 @@ public class DbConnection {
 				pw.setSaltVal(result.getString(6));
 				pw.setPasswordLength(result.getInt(7));
 			}
-		}
-		catch(SQLException e) {
+		} catch (SQLException e) {
 			System.out.println(e);
-		}
-		finally {
+		} finally {
 			closeConnection();
 		}
-		
+
 		return pw;
 	}
 
@@ -346,7 +373,7 @@ public class DbConnection {
 				pStmt = conn.prepareStatement(new_query);
 				pStmt.setInt(1, uid);
 				ResultSet result = pStmt.executeQuery();
-				
+
 				while (result.next()) {
 					Password tempPass = new Password();
 					tempPass.setPasswordID(result.getInt(1));
@@ -365,7 +392,7 @@ public class DbConnection {
 		closeConnection();
 		return passwordList;
 	}
-	
+
 	// deletes a user with {userName} from the database
 	public boolean deleteUserFromDb(String userName) {
 		openConnection();
@@ -375,46 +402,105 @@ public class DbConnection {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, userName);
 			int rowsAffected = pStmt.executeUpdate();
-			if(rowsAffected == 1) {
+			if (rowsAffected == 1) {
 				return true;
+			} else {
+				return false;
 			}
-			else {
+		} catch (SQLException e) {
+			System.out.println(e);
+			return false;
+		} finally {
+			closeConnection();
+		}
+
+	}
+
+	// returns true if user is locked out
+	public boolean getUserLockoutStatus(int userID) {
+		openConnection();
+		new_query = "SELECT * FROM LOGINS WHERE UID=?";
+		int failedLogins = -1;
+		String lastLogin = "";
+		PreparedStatement pStmt;
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setInt(1, userID);
+			ResultSet result = pStmt.executeQuery();
+			while (result.next()) {
+				failedLogins = result.getInt(3);
+				lastLogin = result.getString(4);
+			}
+			LocalDate lastLoginDate = LocalDate.parse(lastLogin);
+			LocalDate currentDate = LocalDate.now();
+			if (currentDate.isAfter(lastLoginDate)) {
+				new_query = "update logins set failedAttempts=?, lastLogin=?";
+				pStmt = conn.prepareStatement(new_query);
+				failedLogins = 0;
+				pStmt.setInt(1, 0);
+				pStmt.setString(2, currentDate.toString());
+				pStmt.executeUpdate();
+				return false;
+			} else {
+				if(failedLogins > 3) {
+					return true;
+				}
 				return false;
 			}
 		}
-		catch(SQLException e) {
+
+		catch (SQLException e) {
 			System.out.println(e);
-			return false;
+			return true;
+		} finally {
+			closeConnection();
 		}
-		finally {
+	}
+	
+	public void updateLoginAttempts(int userID, String updateType) {
+		openConnection();
+		if(updateType == "reset") {
+			new_query = "update logins set failedAttempts=0 where uid=?";
+		}
+		else {
+			new_query = "update logins set failedAttempts=failedAttempts+1 where uid=?";
+		}
+		PreparedStatement pStmt;
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setInt(1, userID);
+			pStmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally{
 			closeConnection();
 		}
 		
+		
 	}
-	
+
 	// deletes a password with both {appName} and {appUserName}
 	public boolean deletePWFromDb(String appName, String appUserName) {
 		openConnection();
 		new_query = "DELETE FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, appName);
 			pStmt.setString(2, appUserName);
 			int rowsAffected = pStmt.executeUpdate();
-			if(rowsAffected == 1) {
+			if (rowsAffected == 1) {
 				return true;
-			}
-			else {
+			} else {
 				return false;
 			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return false;
-		}
-		finally {
+		} finally {
 			closeConnection();
 		}
 	}

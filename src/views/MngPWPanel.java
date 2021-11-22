@@ -144,9 +144,13 @@ public class MngPWPanel extends JPanel
 		confirmPWPanel.add(confirmPWField);
 		
 		randGenLower = new JCheckBox("a-z");
+		randGenLower.setSelected(true);
 		randGenUpper = new JCheckBox("A-Z");
+		randGenUpper.setSelected(true);
 		randGenNumber = new JCheckBox("0-9");
+		randGenNumber.setSelected(true);
 		randGenSymbol = new JCheckBox("@!%$...");
+		randGenSymbol.setSelected(true);
 		lengthLbl = new JLabel("Length");
 		randGenLength = new JComboBox<Integer>();
 		

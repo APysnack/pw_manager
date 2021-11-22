@@ -27,23 +27,37 @@ public class ErrorPanel extends JPanel implements ActionListener {
 	JTextField usrField;
 	JPasswordField pwField;
 	JButton createUserBtn;
+	JButton backButton;
 	JPanel scrnMgr;
 	CardLayout cl;
 	Controller ctrl;
 	Utils u;
+	DbConnection conn;
 
 	public ErrorPanel() {
 
 	}
-	
+
 	public ErrorPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
-		JLabel errorLbl = new JLabel("There was an error with your request. Please close out the application and try again.");
+		this.conn = conn;
+		this.cl = cl;
+		this.scrnMgr = scrnMgr;
+		this.ctrl = ctrl;
+		u = new Utils();
+
+		JLabel errorLbl = new JLabel(
+				"There was an error with your request. Please try again.");
+		backButton = new JButton("Back");
+		add(backButton);
 		add(errorLbl);
+		backButton.addActionListener(this);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
+		Object source = e.getSource();
+		if (source == backButton) {
+			cl.show(scrnMgr, "Login");
+		}
 	}
 }
