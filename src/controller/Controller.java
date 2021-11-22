@@ -239,6 +239,10 @@ public class Controller {
 			userToModify.setDeletePermission(deletePermission);
 		}
 		
+		if(userToModify.getPasswordLength() != pwLen) {
+			userToModify.setPasswordLength(pwLen);
+		}
+		
 		boolean userEdited = conn.editUser(oldUserName, userToModify);
 		if (userEdited == true) {
 			return true;
