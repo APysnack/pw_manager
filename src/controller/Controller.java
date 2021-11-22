@@ -66,14 +66,25 @@ public class Controller {
 			Boolean validPassword = utils.validatePasswordInput(password);
 			if(userExists && validPassword) {
 				User user = conn.getUser(userName);
-				String encPassword = user.getEncryptedPassword();
-				String saltVal = user.getSaltVal();
-				boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
-				if (userAuthenticated) {
-					conn.setCurrentUser(user);
-					this.currentUser = user;
-					this.input = utils.getHashedInput();
-					return true;
+				boolean userIsLockedOut = conn.getUserLockoutStatus(user.getUserID());
+				if(userIsLockedOut) {
+					return false;
+				}
+				else {
+					String encPassword = user.getEncryptedPassword();
+					String saltVal = user.getSaltVal();
+					boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
+					if (userAuthenticated) {
+						conn.updateLoginAttempts(user.getUserID(), "reset");
+						conn.setCurrentUser(user);
+						this.currentUser = user;
+						this.input = utils.getHashedInput();
+						return true;
+					}
+					else {
+						conn.updateLoginAttempts(user.getUserID(), "increment");
+					}
+					
 				}
 				
 			}
