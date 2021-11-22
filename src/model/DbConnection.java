@@ -270,7 +270,7 @@ public class DbConnection {
 	// their user info with the new data stored in the {newPW} Password object
 	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW) {
 		openConnection();
-		new_query = "update passwords set application=?, appUserName=?, password=?, passwordLength=? where application=? and appUserName=?";
+		new_query = "update passwords set application=?, appUserName=?, password=?, saltVal=?, passwordLength=? where application=? and appUserName=?";
 		PreparedStatement pStmt;
 
 		try {
@@ -278,9 +278,10 @@ public class DbConnection {
 			pStmt.setString(1, newPW.getAppName());
 			pStmt.setString(2, newPW.getAppUserName());
 			pStmt.setString(3, newPW.getEncryptedPassword());
-			pStmt.setInt(4, newPW.getPasswordLength());
-			pStmt.setString(5, oldAppName);
-			pStmt.setString(6, oldAppUserName);
+			pStmt.setString(4, newPW.getSaltVal());
+			pStmt.setInt(5, newPW.getPasswordLength());
+			pStmt.setString(6, oldAppName);
+			pStmt.setString(7, oldAppUserName);
 
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {

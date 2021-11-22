@@ -23,33 +23,30 @@ public class Controller {
 		this.utils = new CUtils();
 	}
 
-	// still needs input validation. passwords should not be greater than char[64],
-	// username is a text type, but we should set limitations for number of
-	// characters/no spaces should be allowed in usernames or passwords/etc. (no
-	// passwords should be accepted that are all asterisks e.g. *****)
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
-		if(currentUser != null) {
-			if(currentUser.getAddPermission() == false && addPermission == true || currentUser.getEditPermission() == false && editPermission == true || currentUser.getDeletePermission() == false && deletePermission == true) {
+		if (currentUser != null) {
+			if (currentUser.getAddPermission() == false && addPermission == true
+					|| currentUser.getEditPermission() == false && editPermission == true
+					|| currentUser.getDeletePermission() == false && deletePermission == true) {
 				return false;
 			}
 		}
-		
-		// function still needs to be written. Should return false if input is all asterisks, 
-		// return false if input is "Enter Password" or if input contains spaces of any kind
-		// consider other SQL/Length edge cases. currently always returns true
-		Boolean validPassword = utils.validatePasswordInput(password);
-		if(validPassword) {
+
+		boolean validUserName = utils.validateInput(userName, "userName");
+		boolean validPassword = utils.validateInput(password, "password");
+		if (validPassword && validUserName) {
 			String hashedPassword = utils.generateKey(password);
 			String saltValue = utils.getSaltVal();
 			int pwLength = password.length();
 			password = "";
-			User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission, deletePermission);
+			User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission,
+					deletePermission);
 			boolean insertSuccessful = conn.addUserToDb(user);
 			if (insertSuccessful) {
-					return true;
+				return true;
 			}
-			
+
 		}
 		return false;
 	}
@@ -59,18 +56,16 @@ public class Controller {
 	// count == 1. Then gets the user's information from the database and sets it as
 	// the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
+		boolean validUserName = utils.validateInput(userName, "userName");
+		boolean validPassword = utils.validateInput(password, "password");
+		if (validUserName && validPassword) {
 			boolean userExists = conn.confirmUserExists(userName);
-			// function still needs to be written. Should return false if input is all asterisks, 
-			// return false if input is "Enter Password" or if input contains spaces of any kind
-			// consider other SQL/Length edge cases. currently always returns true
-			Boolean validPassword = utils.validatePasswordInput(password);
-			if(userExists && validPassword) {
+			if (userExists) {
 				User user = conn.getUser(userName);
 				boolean userIsLockedOut = conn.getUserLockoutStatus(user.getUserID());
-				if(userIsLockedOut) {
+				if (userIsLockedOut) {
 					return false;
-				}
-				else {
+				} else {
 					String encPassword = user.getEncryptedPassword();
 					String saltVal = user.getSaltVal();
 					boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
@@ -80,69 +75,75 @@ public class Controller {
 						this.currentUser = user;
 						this.input = utils.getHashedInput();
 						return true;
-					}
-					else {
+					} else {
 						conn.updateLoginAttempts(user.getUserID(), "increment");
 					}
-					
+
 				}
-				
+
 			}
-			return false;
+
+		}
+		return false;
 	}
 
-	// Still needs to be written: should generate a random password of length = length and according to the boolean rules
-	// for whether the user wishes to generate a password using a-z, A-Z, 0-9, and/or with symbols (@!#$ etc.)
-	public String generateRandomPassword(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols, int length) {
+	// Still needs to be written: should generate a random password of length =
+	// length and according to the boolean rules
+	// for whether the user wishes to generate a password using a-z, A-Z, 0-9,
+	// and/or with symbols (@!#$ etc.)
+	public String generateRandomPassword(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols,
+			int length) {
 		String randomPW = utils.getRandomString(lowerAlpha, upperAlpha, numeric, symbols, length);
 		return randomPW;
 	}
 
 	// gets the user information from the database for the user with the name
-	// {username}
+	// {username}, input validation not needed since this value comes directly from
+	// the database
 	public User getUserInfo(String username) {
 		User user = conn.getUser(username);
 		return user;
 	}
 
 	// gets the password object associated with {applicationName} and {appUserName}
-	// from the db
+	// from the db. input validation not needed since this value comes directly from
+	// the database
 	public Password getPasswordInfo(String applicationName, String appUserName) {
 		Password password = conn.getPasswordInfo(applicationName, appUserName);
 		return password;
 	}
 
-	// validation needed
+	// input validation not needed since this value comes directly from the database
 	public boolean deleteUser(String userName) {
 		conn.deleteUserFromDb(userName);
 		return true;
 	}
 
-	// may need validation/error checking
+	// input validation not needed since this value comes directly from the database
 	public boolean deletePassword(String appName, String userName) {
 		boolean pwDeleted = conn.deletePWFromDb(appName, userName);
 		return pwDeleted;
 	}
 
-	// needs input validation
+	// adds a non-primary password to the database for the current user
 	public boolean addNewPassword(String appName, String appUserName, String appPassword) {
-		// function still needs to be written. Should return false if input is all asterisks, 
-		// return false if input is "Enter Password" or if input contains spaces of any kind
-		// consider other SQL/Length edge cases. currently always returns true
-		Boolean validPassword = utils.validatePasswordInput(appPassword);
-		if(validPassword) {
+		boolean validAppName = utils.validateInput(appName, "appName");
+		boolean validAppUserName = utils.validateInput(appUserName, "appUserName");
+		boolean validPassword = utils.validateInput(appPassword, "password");
+		if (validPassword && validAppName && validAppUserName) {
 			String encryptedPassword = utils.encrypt(input, appPassword);
 			String saltVal = utils.getSaltVal();
 			int pwLen = appPassword.length();
 			Password newPassword = new Password(appName, appUserName, encryptedPassword, saltVal, pwLen);
 			conn.addPasswordToDb(newPassword);
 			return true;
-			
+
 		}
 		return false;
 	}
 
 	// retrieves encrypted password from the database and decrypts
+	// input validation not needed since these values come from the db
 	public String getDecryptedPassword(String appName, String userName) {
 		Password password = conn.getPasswordInfo(appName, userName);
 		String encryptedPassword = password.getEncryptedPassword();
@@ -151,20 +152,21 @@ public class Controller {
 		return returnString;
 	}
 
-	// modifies an existing password in the database. needs validation checking, and
-	// particular do not allow spaces or any password that looks like *****
-	// IMPORTANT NOTE: password in this function currently not being decrypted
+	// modifies a non-primary password that currently exists in the database
 	public boolean editPassword(String oldAppName, String oldAppUserName, String newAppName, String newAppUserName,
 			String password) {
-		// function still needs to be written. Should return false if input is all asterisks, 
-		// return false if input is "Enter Password" or if input contains spaces of any kind
-		// consider other SQL/Length edge cases. currently always returns true
-		Boolean validPassword = utils.validatePasswordInput(password);
-		if(validPassword) {
+		boolean validAppName = utils.validateInput(newAppName, "appName");
+		boolean validAppUserName = utils.validateInput(newAppUserName, "appUserName");
+		boolean validPassword = utils.validateInput(password, "password");
+		if (validPassword && validAppName && validAppUserName) {
 			int pwLen = password.length();
-			Password pw = new Password(newAppName, newAppUserName, password, pwLen);
-			boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, pw);
-			return true;
+			String encryptedPassword = utils.encrypt(input, password);
+			String saltVal = utils.getSaltVal();
+			Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
+			boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
+			if (pwUpdated) {
+				return true;
+			}
 		}
 
 		return false;
@@ -172,7 +174,8 @@ public class Controller {
 
 	// this function gets all the passwords from database and stores them in a
 	// "password set" which groups all usernames by application name (e.g. if you
-	// have multiple gmail accounts, they're all grouped together as a password set).
+	// have multiple gmail accounts, they're all grouped together as a password
+	// set).
 	public ArrayList<PasswordSet> getAllPasswords() {
 
 		// creation of the list object to be returned
@@ -195,60 +198,64 @@ public class Controller {
 		return passwordSetList;
 	}
 
-	
-	// edits user already in the database with new name/password/permission information
+	// edits user already in the database with new name/password/permission
+	// information. NOTE: needs to be thoroughly tested
 	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
 			boolean editPermission, boolean deletePermission) {
-		if(currentUser.getAddPermission() == false && addPermission == true || currentUser.getEditPermission() == false && editPermission == true || currentUser.getDeletePermission() == false && deletePermission == true) {
+		if (currentUser.getAddPermission() == false && addPermission == true
+				|| currentUser.getEditPermission() == false && editPermission == true
+				|| currentUser.getDeletePermission() == false && deletePermission == true) {
 			return false;
 		}
 		int pwLen = newPassword.length();
-		User userToModify = conn.getUser(oldUserName);		
-		if(userToModify.getUsername() != newUserName) {
-			userToModify.setUsername(newUserName);
-		}
-		
-		// function still needs to be written. Should return false if input is all asterisks, 
-		// return false if input is "Enter Password" or if input contains spaces of any kind
-		// currently always returns true
-		Boolean validPassword = utils.validatePasswordInput(newPassword);
-		
-		// NOTE: needs to be thoroughly tested
-		if(validPassword) {
-			String encPassword = userToModify.getEncryptedPassword();
-			String saltVal = userToModify.getSaltVal();
-			boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, saltVal);
-			
-			if(!userAuthenticated) {
-				String hashedPassword = utils.generateKey(newPassword);
-				String saltValue = utils.getSaltVal();
-				userToModify.setEncryptedPassword(hashedPassword);
-				userToModify.setSaltVal(saltValue);
+
+		boolean validUserName = utils.validateInput(newUserName, "userName");
+		boolean validPassword = utils.validateInput(newPassword, "password");
+
+		if (validUserName && validPassword) {
+			User userToModify = conn.getUser(oldUserName);
+
+			if (userToModify.getUsername() != newUserName) {
+				userToModify.setUsername(newUserName);
+			}
+
+			boolean modified = utils.isModified(newPassword);
+			if (modified) {
+				String encPassword = userToModify.getEncryptedPassword();
+				String saltVal = userToModify.getSaltVal();
+				boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, saltVal);
+
+				if (!userAuthenticated) {
+					String hashedPassword = utils.generateKey(newPassword);
+					String saltValue = utils.getSaltVal();
+					userToModify.setEncryptedPassword(hashedPassword);
+					userToModify.setSaltVal(saltValue);
+				}
+			}
+
+			if (userToModify.getAddPermission() != addPermission) {
+				userToModify.setAddPermission(addPermission);
+			}
+
+			if (userToModify.getEditPermission() != editPermission) {
+				userToModify.setEditPermission(editPermission);
+			}
+
+			if (userToModify.getDeletePermission() != deletePermission) {
+				userToModify.setDeletePermission(deletePermission);
+			}
+
+			if (userToModify.getPasswordLength() != pwLen) {
+				userToModify.setPasswordLength(pwLen);
+			}
+			boolean userEdited = conn.editUser(oldUserName, userToModify);
+			if (userEdited == true) {
+				return true;
+			} else {
+				return false;
 			}
 		}
-		
-		if(userToModify.getAddPermission() != addPermission) {
-			userToModify.setAddPermission(addPermission);
-		}
-		
-		if(userToModify.getEditPermission() != editPermission) {
-			userToModify.setEditPermission(editPermission);
-		}
-		
-		if(userToModify.getDeletePermission() != deletePermission) {
-			userToModify.setDeletePermission(deletePermission);
-		}
-		
-		if(userToModify.getPasswordLength() != pwLen) {
-			userToModify.setPasswordLength(pwLen);
-		}
-		
-		boolean userEdited = conn.editUser(oldUserName, userToModify);
-		if (userEdited == true) {
-			return true;
-		} else {
-			return false;
-		}
+		return false;
 	}
 
 }

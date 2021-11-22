@@ -99,9 +99,20 @@ public class CUtils {
 		return this.hashedInput;
 	}
 	
-	// function still needs to be written. Should return false if input is all asterisks, 
-	// return false if input is "Enter Password" or if input contains spaces of any kind
-	public Boolean validatePasswordInput(String passwordInput) {
+	// still needs to be written: should return false if input is all asterisks, "Enter Password" or if input contains spaces of any kind.
+	// inputTypes can be: userName, password, appName, appUserName
+	// username: should return false if input is all asterisks, "Enter Password" or if input contains spaces of any kind.
+	// password: should return false if input is all asterisks, "Enter Password" or if input contains spaces of any kind.
+	// appUserName && appName should return false if input is all asterisks or "Enter Password", spaces allowed 
+	// need to consider other SQL injection and minimum/max length edge cases. 
+	public Boolean validateInput(String input, String inputType) {
+		int maxStringLength;
+		if(inputType == "password") {
+			maxStringLength = 128;
+		}
+		else {
+			maxStringLength = 64;
+		}
 		return true;
 	}
 	
@@ -130,5 +141,13 @@ public class CUtils {
         String saltStr = salt.toString();
         return saltStr;
 	}
+	
+	public boolean isModified(String name) {
+		if(name == "Enter Password" || name.matches("[*]+")) {
+			return false;
+		}
+		return true;
+	}
 
 }
+
