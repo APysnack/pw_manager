@@ -23,6 +23,8 @@ public class Controller {
 		this.utils = new CUtils();
 	}
 
+	// adds a user into the database. ensures that a user cannot create another user
+	// with permissions they themselves don't have
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
 			boolean deletePermission) {
 		if (currentUser != null) {
@@ -33,9 +35,12 @@ public class Controller {
 			}
 		}
 
+		// validates input for username/password, actual function needs to be written
 		boolean validUserName = utils.validateInput(userName, "userName");
 		boolean validPassword = utils.validateInput(password, "password");
 		if (validPassword && validUserName) {
+
+			// stores hashed password and salt value in the database
 			String hashedPassword = utils.generateKey(password);
 			String saltValue = utils.getSaltVal();
 			int pwLength = password.length();
@@ -51,10 +56,11 @@ public class Controller {
 		return false;
 	}
 
-	// needs input validation currently uses authenticateUserInDb to verify
-	// that a user with userName + password is found. returns boolean true if user
-	// count == 1. Then gets the user's information from the database and sets it as
-	// the current user for both the controller and dbconnection
+	// uses confirmUserExists to verify that a user with userName + password is
+	// found.
+	// returns boolean true if user count == 1. Then gets the user's information
+	// from the database
+	// and sets it as the current user for both the controller and dbconnection
 	public boolean authenticateUser(String userName, String password) {
 		boolean validUserName = utils.validateInput(userName, "userName");
 		boolean validPassword = utils.validateInput(password, "password");
@@ -62,10 +68,15 @@ public class Controller {
 			boolean userExists = conn.confirmUserExists(userName);
 			if (userExists) {
 				User user = conn.getUser(userName);
+
+				// checks to determine if user is currently locked out from too many failed
+				// login attempts
 				boolean userIsLockedOut = conn.getUserLockoutStatus(user.getUserID());
 				if (userIsLockedOut) {
 					return false;
 				} else {
+					// hashes the input to verify that it matches the output hash stored for this
+					// user in the db
 					String encPassword = user.getEncryptedPassword();
 					String saltVal = user.getSaltVal();
 					boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
@@ -87,10 +98,8 @@ public class Controller {
 		return false;
 	}
 
-	// Still needs to be written: should generate a random password of length =
-	// length and according to the boolean rules
-	// for whether the user wishes to generate a password using a-z, A-Z, 0-9,
-	// and/or with symbols (@!#$ etc.)
+	// Generates a random string. User inputs boolean to specify if string should
+	// contain (a-z, A-Z, 0-9, symbols, etc.)
 	public String generateRandomPassword(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols,
 			int length) {
 		String randomPW = utils.getRandomString(lowerAlpha, upperAlpha, numeric, symbols, length);
@@ -113,12 +122,14 @@ public class Controller {
 		return password;
 	}
 
+	// deletes user with the name {userName}
 	// input validation not needed since this value comes directly from the database
 	public boolean deleteUser(String userName) {
 		conn.deleteUserFromDb(userName);
 		return true;
 	}
 
+	// deletes password with the app name {appName} and username {userName}
 	// input validation not needed since this value comes directly from the database
 	public boolean deletePassword(String appName, String userName) {
 		boolean pwDeleted = conn.deletePWFromDb(appName, userName);
@@ -127,6 +138,7 @@ public class Controller {
 
 	// adds a non-primary password to the database for the current user
 	public boolean addNewPassword(String appName, String appUserName, String appPassword) {
+		// input validation, function still needs to be written
 		boolean validAppName = utils.validateInput(appName, "appName");
 		boolean validAppUserName = utils.validateInput(appUserName, "appUserName");
 		boolean validPassword = utils.validateInput(appPassword, "password");
@@ -159,16 +171,26 @@ public class Controller {
 		boolean validAppUserName = utils.validateInput(newAppUserName, "appUserName");
 		boolean validPassword = utils.validateInput(password, "password");
 		if (validPassword && validAppName && validAppUserName) {
-			int pwLen = password.length();
-			String encryptedPassword = utils.encrypt(input, password);
-			String saltVal = utils.getSaltVal();
-			Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
-			boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
-			if (pwUpdated) {
-				return true;
+			boolean modified = utils.isModified(password);
+			if (modified) {
+				int pwLen = password.length();
+				String encryptedPassword = utils.encrypt(input, password);
+				String saltVal = utils.getSaltVal();
+				Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
+				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
+				if (pwUpdated) {
+					return true;
+				}
 			}
-		}
-
+			else {
+				Password oldPassword = conn.getPasswordInfo(oldAppName, oldAppUserName);
+				Password newPassword = new Password(newAppName, newAppUserName, oldPassword.getEncryptedPassword(), oldPassword.getSaltVal(), oldPassword.getPasswordLength());
+				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
+				if (pwUpdated) {
+					return true;
+				}
+			}
+		} 
 		return false;
 	}
 
