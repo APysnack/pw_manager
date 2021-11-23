@@ -28,7 +28,7 @@ public class CUtils {
 		this.hashedPW = PassBasedEnc.generateSecurePassword(AESKey, saltVal);
 		return this.hashedPW;
 	}
-	
+
 	public String generateKey(String originalPassword, String saltValue) {
 		this.hashedPW = PassBasedEnc.generateSecurePassword(originalPassword, saltValue);
 		return this.hashedPW;
@@ -43,10 +43,11 @@ public class CUtils {
 	public String getSaltVal() {
 		return this.saltVal;
 	}
+
 	public String getEncryptedPassword() {
 		return this.hashedPW;
 	}
-	
+
 	private static void setKey(String myKey) {
 		MessageDigest sha = null;
 		try {
@@ -73,8 +74,7 @@ public class CUtils {
 		}
 		return null;
 	}
-	
-	
+
 	public String encrypt(String input, String originalPassword) {
 		this.saltVal = PassBasedEnc.getSaltvalue(30);
 		this.AESKey = PassBasedEnc.generateSecurePassword(input, saltVal);
@@ -94,83 +94,83 @@ public class CUtils {
 		}
 		return null;
 	}
-	
+
 	public String getHashedInput() {
 		return this.hashedInput;
 	}
-	
-	// still needs to be written: should return false input contains spaces (exceptions: "Enter Password", "Enter Username", "Application Name")
+
+	// more edge cases should be added: should return false input contains spaces
+	// (exceptions: "Enter Password", "Enter Username", "Application Name")
 	// inputTypes can be: userName, password, appName, appUserName
-	// should not allow spaces in username, appUserName or password. appName can have spaces
-	// need to consider other SQL injection and minimum/max length edge cases. 
+	// should not allow spaces in username, appUserName or password. appName can
+	// have spaces
+	// need to consider other SQL injection and minimum/max length edge cases.
 	public Boolean validateInput(String input, String inputType) {
-		// input with spaces are considered valid as long as they are one of the placeholder text field values 
-		if(!isModified(input, inputType)) {
+		// input with spaces are considered valid as long as they are one of the
+		// placeholder text field values
+		if (!isModified(input, inputType)) {
 			return true;
 		}
 		int maxStringLength;
 		int minStringLength;
-		
+
 		// passwords shorter than 12 chars are accepted, but discouraged
-		if(inputType == "password") {
+		if (inputType == "password") {
 			maxStringLength = 128;
 			minStringLength = 8;
-		}
-		else {
+		} else {
 			maxStringLength = 64;
 			minStringLength = 4;
 		}
-		
-		if(input.length() < minStringLength || input.length() > maxStringLength) {
+
+		if (input.length() < minStringLength || input.length() > maxStringLength) {
 			return false;
 		}
-		
-		
+
 		return true;
 	}
-	
-	public String getRandomString(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols, int length) {
+
+	public String getRandomString(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols,
+			int length) {
 		String randChars = "";
-		if(lowerAlpha) {
+		if (lowerAlpha) {
 			randChars = randChars + "abcdefghijklmnopqrstuvwxyz";
 		}
-		if(upperAlpha) {
+		if (upperAlpha) {
 			randChars = randChars + "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		}
-		if(numeric) {
+		if (numeric) {
 			randChars = randChars + "01234567890";
 		}
-		if(symbols) {
+		if (symbols) {
 			randChars = randChars + "~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
 		}
-		
-		
-        StringBuilder salt = new StringBuilder();
-        Random rnd = new Random();
-        while (salt.length() < length) { // length of the random string.
-            int index = (int) (rnd.nextFloat() * randChars.length());
-            salt.append(randChars.charAt(index));
-        }
-        String saltStr = salt.toString();
-        return saltStr;
+
+		StringBuilder salt = new StringBuilder();
+		Random rnd = new Random();
+		while (salt.length() < length) { // length of the random string.
+			int index = (int) (rnd.nextFloat() * randChars.length());
+			salt.append(randChars.charAt(index));
+		}
+		String saltStr = salt.toString();
+		return saltStr;
 	}
-	
+
 	public boolean isModified(String name, String inputType) {
-		if(name.matches("[*]+")){
+		if (name.matches("[*]+")) {
 			return false;
 		}
-		if(inputType.equals("password") && name.equals("Enter Password")) {
+		if (inputType.equals("password") && name.equals("Enter Password")) {
 			return false;
 		}
-		if(inputType.equals("userName") && name.equals("Enter Username")) {
+		if (inputType.equals("userName") && name.equals("Enter Username")) {
 			return false;
 		}
-		if(inputType.equals("appName") && name.equals("Application Name")) {
+		if (inputType.equals("appName") && name.equals("Application Name")) {
 			return false;
 		}
-		
+
 		return true;
 	}
 
 }
-

@@ -334,12 +334,13 @@ public class DbConnection {
 	public Password getPasswordInfo(String appName, String appUserName) {
 		Password pw = new Password();
 		openConnection();
-		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
+		new_query = "SELECT * FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=? AND UID=?";
 		PreparedStatement pStmt;
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, appName);
 			pStmt.setString(2, appUserName);
+			pStmt.setInt(3, currentUser.getUserID());
 
 			ResultSet result = pStmt.executeQuery();
 			while (result.next()) {
