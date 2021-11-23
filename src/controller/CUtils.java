@@ -7,6 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+
+import structures.User;
+
 import java.util.Base64;
 import java.util.Random;
 
@@ -17,7 +20,6 @@ public class CUtils {
 	private String AESKey = "";
 	private static SecretKeySpec secretKey;
 	private static byte[] key;
-	private String hashedInput = "";
 
 	public CUtils() {
 	}
@@ -27,6 +29,11 @@ public class CUtils {
 		this.AESKey = PassBasedEnc.generateSecurePassword(originalPassword, saltVal);
 		this.hashedPW = PassBasedEnc.generateSecurePassword(AESKey, saltVal);
 		return this.hashedPW;
+	}
+
+	public String generateAESKey(String input, String saltVal) {
+		this.AESKey = PassBasedEnc.generateSecurePassword(input, saltVal);
+		return AESKey;
 	}
 
 	public String generateKey(String originalPassword, String saltValue) {
@@ -82,6 +89,12 @@ public class CUtils {
 		return encryptedString;
 	}
 
+	public String encrypt(String input, String originalString, String saltVal) {
+		this.AESKey = PassBasedEnc.generateSecurePassword(input, saltVal);
+		String encryptedString = encryptData(originalString);
+		return encryptedString;
+	}
+
 	public String decrypt(String input, String encryptedPassword, String passwordSalt) {
 		this.AESKey = PassBasedEnc.generateSecurePassword(input, passwordSalt);
 		try {
@@ -95,42 +108,8 @@ public class CUtils {
 		return null;
 	}
 
-	public String getHashedInput() {
-		return this.hashedInput;
-	}
-
-	// more edge cases could be added: input is invalid if it contains spaces
-	// (exceptions are the strings: "Enter Password", "Enter Username", "Application Name")
-	// inputTypes can be: userName, password, appName, appUserName
-	public Boolean validateInput(String input, String inputType) {
-		// input with spaces are considered valid as long as they are one of the
-		// placeholder text field values
-		if (!isModified(input, inputType)) {
-			return true;
-		}
-		int maxStringLength;
-		int minStringLength;
-
-		// passwords shorter than 12 chars are accepted, but discouraged
-		if (inputType == "password") {
-			maxStringLength = 128;
-			minStringLength = 8;
-		} else {
-			maxStringLength = 64;
-			minStringLength = 4;
-		}
-		
-		if (inputType != "Application Name") {
-			if(input.contains(" ")) {
-				return false;
-			}
-		}
-
-		if (input.length() < minStringLength || input.length() > maxStringLength) {
-			return false;
-		}
-
-		return true;
+	public String getAESKey() {
+		return this.AESKey;
 	}
 
 	public String getRandomString(boolean lowerAlpha, boolean upperAlpha, boolean numeric, boolean symbols,
@@ -159,7 +138,7 @@ public class CUtils {
 		return saltStr;
 	}
 
-	public boolean isModified(String name, String inputType) {
+	public static boolean isModified(String name, String inputType) {
 		if (name.matches("[*]+")) {
 			return false;
 		}
@@ -170,6 +149,69 @@ public class CUtils {
 			return false;
 		}
 		if (inputType.equals("appName") && name.equals("Application Name")) {
+			return false;
+		}
+		if (inputType.equals("mobileNumber") && name.equals("Enter Mobile Number")) {
+			return false;
+		}
+
+		return true;
+	}
+
+	// needs to be written: gets user's mobile number (assume sanitized input)
+	// should text the user and return true only if the user confirms their login
+	public boolean verifyNumber(String mobileNumber) {
+		System.out.println(mobileNumber);
+		return true;
+	}
+
+	// Still needs to be written, should remove ()'s and -'s from phone numbers
+	// remove any non-numbers
+	public String sanitizeInput(String input, String inputType) {
+		if (inputType == "mobileNumber") {
+			// remove ()'s and -'s and non-numbers
+		}
+		return input;
+	}
+
+	// more edge cases could be added: input is invalid if it contains spaces
+	// (exceptions are the strings: "Enter Password", "Enter Username", "Application
+	// Name", and "Enter Mobile Number" for their respective input types)
+	// inputTypes can be: userName, password, appName, appUserName, mobileNumber
+	public Boolean validateInput(String input, String inputType) {
+		// input with spaces are considered valid as long as they are one of the
+		// placeholder text field values
+		if (!isModified(input, inputType)) {
+			return true;
+		}
+
+		int maxStringLength;
+		int minStringLength;
+
+		// symbols should have been previously removed by sanitizeInput function,
+		// leaving length = 10
+		if (inputType == "mobileNumber") {
+			maxStringLength = 10;
+			minStringLength = 10;
+			return true;
+		}
+
+		// passwords shorter than 12 chars are accepted, but discouraged
+		if (inputType == "password") {
+			maxStringLength = 128;
+			minStringLength = 8;
+		} else {
+			maxStringLength = 64;
+			minStringLength = 4;
+		}
+
+		if (inputType != "Application Name") {
+			if (input.contains(" ")) {
+				return false;
+			}
+		}
+
+		if (input.length() < minStringLength || input.length() > maxStringLength) {
 			return false;
 		}
 

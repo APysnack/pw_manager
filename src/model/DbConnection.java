@@ -100,7 +100,7 @@ public class DbConnection {
 	// statement to prevent SQL injection
 	public boolean addUserToDb(User user) {
 		openConnection();
-		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER) VALUES (?,?,?,?,?,?,?);";
+		new_query = "INSERT INTO USERS (USERNAME, PASSWORD, SALTVAL, PASSWORDLENGTH, CANADDUSER, CANEDITUSER, CANDELETEUSER, MOBILENUMBER) VALUES (?,?,?,?,?,?,?,?);";
 		PreparedStatement pStmt;
 
 		try {
@@ -112,6 +112,7 @@ public class DbConnection {
 			pStmt.setBoolean(5, user.getAddPermission());
 			pStmt.setBoolean(6, user.getEditPermission());
 			pStmt.setBoolean(7, user.getDeletePermission());
+			pStmt.setString(8, user.getEncryptedNumber());
 
 			// if rowsAffected == 1, insert was successful
 			int rowsAffected = pStmt.executeUpdate();
@@ -242,6 +243,7 @@ public class DbConnection {
 				user.setAddPermission(result.getBoolean(6));
 				user.setEditPermission(result.getBoolean(7));
 				user.setDeletePermission(result.getBoolean(8));
+				user.setEncryptedNumber(result.getString(9));
 			}
 
 			return user;
@@ -348,7 +350,7 @@ public class DbConnection {
 	// new data stored in the {user} User object
 	public boolean editUser(String oldUserName, User user) {
 		openConnection();
-		new_query = "update users set userName=?, password=?, saltVal=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=? where username=?";
+		new_query = "update users set userName=?, password=?, saltVal=?, passwordLength=?, canadduser=?, canedituser=?, candeleteuser=?, mobileNumber=? where username=?";
 		PreparedStatement pStmt;
 
 		try {
@@ -360,7 +362,8 @@ public class DbConnection {
 			pStmt.setBoolean(5, user.getAddPermission());
 			pStmt.setBoolean(6, user.getEditPermission());
 			pStmt.setBoolean(7, user.getDeletePermission());
-			pStmt.setString(8, oldUserName);
+			pStmt.setString(8, user.getEncryptedNumber());
+			pStmt.setString(9, oldUserName);
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
 				return true;

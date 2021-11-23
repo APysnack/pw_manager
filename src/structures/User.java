@@ -13,7 +13,8 @@ public class User {
 	boolean addPermission;
 	boolean editPermission;
 	boolean deletePermission;
-
+	String encryptedNumber;
+	
 	public User() {
 
 	}
@@ -27,6 +28,18 @@ public class User {
 		this.addPermission = addPermission;
 		this.editPermission = editPermission;
 		this.deletePermission = deletePermission;
+	}
+	
+	public User(int userID, String username, String encryptedPassword, String saltValue, boolean addPermission, boolean editPermission,
+			boolean deletePermission, String encryptedNumber) {
+		this.userID = userID;
+		this.username = username;
+		this.encryptedPassword = encryptedPassword;
+		this.saltValue = saltValue;
+		this.addPermission = addPermission;
+		this.editPermission = editPermission;
+		this.deletePermission = deletePermission;
+		this.encryptedNumber = encryptedNumber;
 	}
 
 	public User(int userID, String username, String encryptedPassword, boolean addPermission, boolean editPermission,
@@ -78,6 +91,18 @@ public class User {
 		this.editPermission = editPermission;
 		this.deletePermission = deletePermission;
 		this.passwordLength = pwLength;
+	}
+	
+	public User(String username, String encryptedPassword, String saltValue, int pwLength, boolean addPermission, boolean editPermission,
+			boolean deletePermission, String encryptedNumber) {
+		this.username = username;
+		this.encryptedPassword = encryptedPassword;
+		this.saltValue = saltValue;
+		this.addPermission = addPermission;
+		this.editPermission = editPermission;
+		this.deletePermission = deletePermission;
+		this.passwordLength = pwLength;
+		this.encryptedNumber = encryptedNumber;
 	}
 
 	public User(String username, String encryptedPassword, List<Boolean> privilegeList) {
@@ -134,6 +159,10 @@ public class User {
 		this.editPermission = editPermission;
 		this.deletePermission = deletePermission;
 	}
+	
+	public void setEncryptedNumber(String encryptedNumber) {
+		this.encryptedNumber = encryptedNumber;
+	}
 
 	public int getUserID() {
 		return userID;
@@ -165,6 +194,10 @@ public class User {
 	
 	public String getSaltVal() {
 		return this.saltValue;
+	}
+	
+	public String getEncryptedNumber() {
+		return encryptedNumber;
 	}
 	
 	public ArrayList<Boolean> getUserPermissions() {

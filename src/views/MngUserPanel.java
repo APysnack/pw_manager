@@ -40,6 +40,8 @@ import java.awt.Insets;
 import java.awt.BorderLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
+
+import controller.CUtils;
 import controller.Controller;
 import model.DbConnection;
 import structures.User;
@@ -62,6 +64,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	JCheckBox randGenNumber;
 	JCheckBox randGenSymbol;
 	JTextField usrField;
+	JTextField mobileField;
 	JTextField randomPWField;
 	JPasswordField pwField;
 	JPasswordField confirmPWField;
@@ -72,6 +75,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	JLabel titleLbl;
 	JLabel lengthLbl;
 	JLabel unameLbl;
+	JLabel mobileLbl;
 	JLabel pwLbl;
 	JLabel confirmPWLbl;
 	JLabel actionLbl;
@@ -163,6 +167,8 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		pwField = new JPasswordField("Enter Password", 15);
 		confirmPWLbl = new JLabel("Confirm New Password");
 		confirmPWField = new JPasswordField("Confirm Password", 15);
+		mobileLbl = new JLabel("Enter Mobile #");
+		mobileField = new JTextField("Enter Mobile Number", 15);
 		backButton = new JButton("Back");
 		createUsrBtn = new JButton("Create User");
 		editUsrBtn = new JButton("Apply Changes To User");
@@ -180,6 +186,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		usrField.addFocusListener(this);
 		pwField.addFocusListener(this);
 		confirmPWField.addFocusListener(this);
+		mobileField.addFocusListener(this);
 		userComboBox.addActionListener(this);
 		addUserBtn.addActionListener(this);
 		createUsrBtn.addActionListener(this);
@@ -203,6 +210,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		repaint();
 		revalidate();
 		JPanel userPanel = new JPanel();
+		JPanel mobilePanel = new JPanel();
 		JPanel pwPanel = new JPanel();
 		JPanel confirmPWPanel = new JPanel();
 		JPanel randomGenPanel = new JPanel();
@@ -216,11 +224,16 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		userPanel.add(unameLbl);
 		userPanel.add(usrField);
 		
+		mobilePanel.add(mobileLbl);
+		mobilePanel.add(mobileField);
+		
 		pwPanel.add(pwLbl);
 		pwPanel.add(pwField);
 		
 		confirmPWPanel.add(confirmPWLbl);
 		confirmPWPanel.add(confirmPWField);
+		
+		
 		
 		if(layoutName == "main") {
 			actionPanel.add(addUserBtn);
@@ -256,17 +269,21 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		gr.gridx = 1;
 		gr.gridy = 6;
 		gr.insets = new Insets(0,0,0,0);
-		add(pwPanel, gr);
+		add(mobilePanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 7;
 		gr.insets = new Insets(0,0,0,0);
-		add(confirmPWPanel, gr);
+		add(pwPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 8;
 		gr.insets = new Insets(0,0,0,0);
-		add(checkBoxPnl, gr);
+		add(confirmPWPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 9;
+		gr.insets = new Insets(0,0,0,0);
+		add(checkBoxPnl, gr);
+		gr.gridx = 1;
+		gr.gridy = 10;
 		gr.insets = new Insets(0,0,0,0);
 		add(actionPanel, gr);
 		
@@ -276,6 +293,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		String username = usrField.getText();
 		char[] password  = pwField.getPassword();
 		char[] passwordConfirm = confirmPWField.getPassword();
+		String mobileNumber = mobileField.getText();
 		
 		if (Arrays.equals(password, passwordConfirm) == true) {
 			String stringPW = String.valueOf(password);
@@ -287,12 +305,13 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 				boolean editPermission = checkBoxes.get(1).isSelected();
 				boolean deletePermission = checkBoxes.get(2).isSelected();
 				
-				boolean userAdded = ctrl.addUser(username, stringPW, addPermission, editPermission, deletePermission);
+				boolean userAdded = ctrl.addUser(username, stringPW, addPermission, editPermission, deletePermission, mobileNumber);
 				
 				if(userAdded) {
 					flashLbl.setText("User added successfully!");
 					usrField.setText("");
 					pwField.setText("");
+					mobileField.setText("");
 					randomPWField.setText("");
 					confirmPWField.setText("");
 				}
@@ -313,6 +332,9 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		String selectedUser = (String) userComboBox.getSelectedItem();
 		User user = ctrl.getUserInfo(selectedUser);
 		usrField.setText(user.getUsername());
+		
+		// optional: use a single value so as not to give away information about the password
+		// trade-off between security vs practical ease-of-use for the user
 		int userPWLen = user.getPasswordLength();
 		String pwStr = "";
 		for (int i = 0; i < userPWLen; i++) {
@@ -430,6 +452,8 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 					boolean canDelete = deletePermission.isSelected();
 					char[] password = pwField.getPassword();
 					char[] passwordConfirm = confirmPWField.getPassword();
+					String newMobileNumber = mobileField.getText();
+					boolean mobileModified = CUtils.isModified(newMobileNumber, "mobileNumber");
 
 					if (Arrays.equals(password, passwordConfirm) == true) {
 						String stringPW = String.valueOf(password);
@@ -437,7 +461,19 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 							flashLbl.setText("ERROR: Passwords must be between 8 and 128 characters long");
 						}
 						else {
-							boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete);
+							String userToModStringPW = "";
+							
+							if(mobileModified) {
+								JPasswordField modifiedUserPW = new JPasswordField(15);
+								int userResponse = JOptionPane.showConfirmDialog(null, modifiedUserPW, "User's PW needed to modify their number", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+								
+								if(userResponse == 0) {
+									char[] userToModifyPW = modifiedUserPW.getPassword();
+									userToModStringPW = String.valueOf(userToModifyPW);
+								}
+							}
+							
+							boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete, newMobileNumber, userToModStringPW);
 							if (userEdited == true) {
 								flashLbl.setText("User successfully modified!");
 							}
@@ -478,6 +514,12 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		else if (source == confirmPWField) {
 			passwordFieldGainFocus(confirmPWField);
 		}
+		
+		else if (source == mobileField) {
+			if (mobileField.getText().equals("Enter Mobile Number")) {
+				mobileField.setText("");
+			}
+		}
 	}
 
 	@Override
@@ -492,6 +534,11 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		}
 		else if (source == confirmPWField) {
 			passwordFieldLoseFocus(confirmPWField);
+		}
+		else if (source == mobileField) {
+			if (mobileField.getText().isEmpty()) {
+				mobileField.setText("Enter Mobile Number");
+			}
 		}
 	}
 

@@ -15,7 +15,7 @@ public class Controller {
 	DbConnection conn;
 	User currentUser;
 	CUtils utils;
-	String input;
+	String inputKey;
 
 	// needed to make calls to the database
 	public Controller(DbConnection conn) {
@@ -26,7 +26,7 @@ public class Controller {
 	// adds a user into the database. ensures that a user cannot create another user
 	// with permissions they themselves don't have
 	public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
-			boolean deletePermission) {
+			boolean deletePermission, String mobileNumber) {
 		if (currentUser != null) {
 			if (currentUser.getAddPermission() == false && addPermission == true
 					|| currentUser.getEditPermission() == false && editPermission == true
@@ -35,18 +35,22 @@ public class Controller {
 			}
 		}
 
-		// validates input for username/password, actual function needs to be written
+		// validates input for username/password, actual function still needs modification
 		boolean validUserName = utils.validateInput(userName, "userName");
 		boolean validPassword = utils.validateInput(password, "password");
-		if (validPassword && validUserName) {
-
+		boolean validNumber = utils.validateInput(mobileNumber, "mobileNumber");
+		
+		if (validPassword && validUserName && validNumber) {
 			// stores hashed password and salt value in the database
 			String hashedPassword = utils.generateKey(password);
 			String saltValue = utils.getSaltVal();
+			String inputKey = utils.getAESKey();
+			String encryptedNumber = utils.encrypt(inputKey, mobileNumber, saltValue);
 			int pwLength = password.length();
 			password = "";
+			mobileNumber = "";
 			User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission,
-					deletePermission);
+					deletePermission, encryptedNumber);
 			boolean insertSuccessful = conn.addUserToDb(user);
 			if (insertSuccessful) {
 				return true;
@@ -80,11 +84,17 @@ public class Controller {
 					String saltVal = user.getSaltVal();
 					boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
 					if (userAuthenticated) {
-						conn.updateLoginAttempts(user.getUserID(), "reset");
 						conn.setCurrentUser(user);
 						this.currentUser = user;
-						this.input = utils.getHashedInput();
-						return true;
+						this.inputKey = utils.generateAESKey(password, saltVal);
+						
+						// still needs to be written, currently always returns true
+						// should only return true if user responds to SMS
+						boolean numberVerified = utils.verifyNumber(utils.decrypt(inputKey, user.getEncryptedNumber(), saltVal));
+						if(numberVerified) {
+							conn.updateLoginAttempts(user.getUserID(), "reset");
+							return true;
+						}
 					} else {
 						conn.updateLoginAttempts(user.getUserID(), "increment");
 					}
@@ -137,12 +147,12 @@ public class Controller {
 
 	// adds a non-primary password to the database for the current user
 	public boolean addNewPassword(String appName, String appUserName, String appPassword) {
-		// input validation, function still needs to be written
+		// input validation, function still needs modifications
 		boolean validAppName = utils.validateInput(appName, "appName");
 		boolean validAppUserName = utils.validateInput(appUserName, "appUserName");
 		boolean validPassword = utils.validateInput(appPassword, "password");
 		if (validPassword && validAppName && validAppUserName) {
-			String encryptedPassword = utils.encrypt(input, appPassword);
+			String encryptedPassword = utils.encrypt(inputKey, appPassword);
 			String saltVal = utils.getSaltVal();
 			int pwLen = appPassword.length();
 			Password newPassword = new Password(appName, appUserName, encryptedPassword, saltVal, pwLen);
@@ -159,7 +169,7 @@ public class Controller {
 		Password password = conn.getPasswordInfo(appName, userName);
 		String encryptedPassword = password.getEncryptedPassword();
 		String passwordSalt = password.getSaltVal();
-		String returnString = utils.decrypt(input, encryptedPassword, passwordSalt);
+		String returnString = utils.decrypt(inputKey, encryptedPassword, passwordSalt);
 		return returnString;
 	}
 
@@ -170,15 +180,14 @@ public class Controller {
 		boolean validAppUserName = utils.validateInput(newAppUserName, "appUserName");
 		boolean validPassword = utils.validateInput(password, "password");
 		if (validPassword && validAppName && validAppUserName) {
-			boolean modified = utils.isModified(password, "password");
+			boolean modified = CUtils.isModified(password, "password");
 			if (modified) {
 				int pwLen = password.length();
-				String encryptedPassword = utils.encrypt(input, password);
+				String encryptedPassword = utils.encrypt(inputKey, password);
 				String saltVal = utils.getSaltVal();
 				Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
 				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
 				if (pwUpdated) {
-					System.out.println("test");
 					return true;
 				}
 			}
@@ -223,7 +232,7 @@ public class Controller {
 	// edits user already in the database with new name/password/permission
 	// information. NOTE: needs to be thoroughly tested
 	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
-			boolean editPermission, boolean deletePermission) {
+			boolean editPermission, boolean deletePermission, String newMobileNumber, String userToModPW) {
 		if (currentUser.getAddPermission() == false && addPermission == true
 				|| currentUser.getEditPermission() == false && editPermission == true
 				|| currentUser.getDeletePermission() == false && deletePermission == true) {
@@ -231,18 +240,20 @@ public class Controller {
 		}
 		int pwLen = newPassword.length();
 
+		String sanitizedNumber = utils.sanitizeInput(newMobileNumber, "mobileNumber");
 		boolean validUserName = utils.validateInput(newUserName, "userName");
 		boolean validPassword = utils.validateInput(newPassword, "password");
+		boolean validNumber = utils.validateInput(sanitizedNumber, "mobileNumber");
 
-		if (validUserName && validPassword) {
+		if (validUserName && validPassword && validNumber) {
 			User userToModify = conn.getUser(oldUserName);
 
 			if (userToModify.getUsername() != newUserName) {
 				userToModify.setUsername(newUserName);
 			}
 
-			boolean modified = utils.isModified(newPassword, "password");
-			if (modified) {
+			boolean passwordModified = CUtils.isModified(newPassword, "password");
+			if (passwordModified) {
 				String encPassword = userToModify.getEncryptedPassword();
 				String saltVal = userToModify.getSaltVal();
 				boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, saltVal);
@@ -257,8 +268,17 @@ public class Controller {
 						userToModify.setPasswordLength(pwLen);
 					}
 				}
-				
-
+			}
+			
+			boolean mobileModified = CUtils.isModified(sanitizedNumber, "mobileNumber");
+			
+			if(mobileModified) {
+				String InputKey = utils.generateAESKey(userToModPW, userToModify.getSaltVal());
+				String newEncryptedNumber = utils.encrypt(InputKey, sanitizedNumber, userToModify.getSaltVal());
+				String oldEncryptedNumber = userToModify.getEncryptedNumber();
+				if(!newEncryptedNumber.equals(oldEncryptedNumber)) {
+					userToModify.setEncryptedNumber(newEncryptedNumber);
+				}
 			}
 
 			if (userToModify.getAddPermission() != addPermission) {

@@ -29,6 +29,7 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 
 	JTextField usrField;
 	JPasswordField pwField;
+	JTextField mobileField;
 	JButton createUserBtn;
 	JPanel scrnMgr;
 	JPanel welcomePnl;
@@ -159,15 +160,26 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 		pwBox.add(Box.createHorizontalStrut(6));
 		pwBox.add(pwTxtFld);
 		
+		// label/input box for password
+		JLabel mobileLbl = new JLabel("Mobile #");
+		JTextField mobileTxtFld = new JTextField("Enter Mobile Number", 15);
+		Box mobileBox = Box.createHorizontalBox();
+		mobileBox.add(mobileLbl);
+		mobileBox.add(Box.createHorizontalStrut(17));
+		mobileBox.add(mobileTxtFld);
+		
 		userTxtFld.addFocusListener(this);
 		pwTxtFld.addFocusListener(this);
+		mobileTxtFld.addFocusListener(this);
 		
 		this.usrField = userTxtFld;
 		this.pwField = pwTxtFld;
+		this.mobileField = mobileTxtFld;
 
 		JPanel innerPnl = new JPanel(new GridLayout(3, 1, 0, 1));
 		innerPnl.add(userNameBox);
 		innerPnl.add(pwBox);
+		innerPnl.add(mobileBox);
 		
 		return innerPnl;
 	}
@@ -187,6 +199,11 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 				pwField.setText("");
 			}
 		}
+		else if(source == mobileField) {
+			if (mobileField.getText().equals("Enter Mobile Number")) {
+				mobileField.setText("");
+			}
+		}
 	}
 
 	@Override
@@ -203,6 +220,11 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 				pwField.setEchoChar((char) 0);
 			}
 		}
+		else if(source == mobileField) {
+			if (mobileField.getText().isEmpty()) {
+				mobileField.setText("Enter Mobile Number");
+			}
+		}
 	}
 
 	@Override
@@ -211,8 +233,9 @@ public class SetupPanel extends JPanel implements FocusListener, ActionListener 
 		if(source == createUserBtn) {
 			String userName = usrField.getText();
 			String password = String.valueOf(pwField.getPassword());
+			String mobileNumber = mobileField.getText();
 			
-			boolean addSuccessful = ctrl.addUser(userName, password, true, true, true);
+			boolean addSuccessful = ctrl.addUser(userName, password, true, true, true, mobileNumber);
 			
 			if(addSuccessful == true) {
 				AppWindow window = (AppWindow) SwingUtilities.getWindowAncestor(this);
