@@ -199,6 +199,9 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 	}
 
 	public void updateLayout(String layoutName) {
+		removeAll();
+		repaint();
+		revalidate();
 		JPanel userPanel = new JPanel();
 		JPanel pwPanel = new JPanel();
 		JPanel confirmPWPanel = new JPanel();
@@ -232,7 +235,7 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		
 		gr.gridx = 1;
 		gr.gridy = 1;
-		gr.insets = new Insets(10,0,0,0);
+		gr.insets = new Insets(0,0,20,0);
 		add(flashLbl, gr);
 		gr.gridx = 1;
 		gr.gridy = 2;
@@ -240,31 +243,31 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		add(logoPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 3;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(randGenChkPnl, gr);
 		gr.gridx = 1;
 		gr.gridy = 4;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(randomGenPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 5;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(userPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 6;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(pwPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 7;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(confirmPWPanel, gr);
 		gr.gridx = 1;
 		gr.gridy = 8;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(checkBoxPnl, gr);
 		gr.gridx = 1;
 		gr.gridy = 9;
-		gr.insets = new Insets(0,0,10,0);
+		gr.insets = new Insets(0,0,0,0);
 		add(actionPanel, gr);
 		
 	}
@@ -276,21 +279,26 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 		
 		if (Arrays.equals(password, passwordConfirm) == true) {
 			String stringPW = String.valueOf(password);
-			boolean addPermission = checkBoxes.get(0).isSelected();
-			boolean editPermission = checkBoxes.get(1).isSelected();
-			boolean deletePermission = checkBoxes.get(2).isSelected();
-			
-			boolean userAdded = ctrl.addUser(username, stringPW, addPermission, editPermission, deletePermission);
-			
-			if(userAdded) {
-				flashLbl.setText("User added successfully!");
-				usrField.setText("");
-				pwField.setText("");
-				randomPWField.setText("");
-				confirmPWField.setText("");
+			if(stringPW.length() < 8 || stringPW.length() > 256) {
+				flashLbl.setText("ERROR: Passwords must be between 8 and 256 characters long");
 			}
 			else {
-				flashLbl.setText("User could not be added. Please check your input. Note you cannot create users with permissions you do not have");
+				boolean addPermission = checkBoxes.get(0).isSelected();
+				boolean editPermission = checkBoxes.get(1).isSelected();
+				boolean deletePermission = checkBoxes.get(2).isSelected();
+				
+				boolean userAdded = ctrl.addUser(username, stringPW, addPermission, editPermission, deletePermission);
+				
+				if(userAdded) {
+					flashLbl.setText("User added successfully!");
+					usrField.setText("");
+					pwField.setText("");
+					randomPWField.setText("");
+					confirmPWField.setText("");
+				}
+				else {
+					flashLbl.setText("User could not be added. Please check your input. Note you cannot create users with permissions you do not have");
+				}
 			}
 		}
 		
@@ -426,12 +434,18 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 
 					if (Arrays.equals(password, passwordConfirm) == true) {
 						String stringPW = String.valueOf(password);
-						boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete);
-						if (userEdited == true) {
-							flashLbl.setText("User successfully modified!");
+						if(stringPW.length() < 8 || stringPW.length() > 128) {
+							flashLbl.setText("ERROR: Passwords must be between 8 and 128 characters long");
 						}
 						else {
-							flashLbl.setText("ERROR: User could not be modified");
+							boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete);
+							if (userEdited == true) {
+								flashLbl.setText("User successfully modified!");
+							}
+							else {
+								flashLbl.setText("ERROR: User could not be modified");
+							}
+							
 						}
 					}
 					else {
