@@ -506,4 +506,36 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
+	
+	public int getFailedLogins(String userName) {
+		openConnection();
+		new_query = "SELECT ID FROM USERS WHERE USERNAME=?";
+		PreparedStatement pStmt;
+		int userID = 0;
+		int failedAttempts = 0;
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, userName);
+			ResultSet result = pStmt.executeQuery();
+			while (result.next()) {
+				userID = result.getInt(1);
+			}
+			if(userID != 0) {
+				new_query = "SELECT FAILEDATTEMPTS FROM LOGINS WHERE UID=?";
+				pStmt = conn.prepareStatement(new_query);
+				pStmt.setInt(1, userID);
+				ResultSet attemptResult = pStmt.executeQuery();
+				while (attemptResult.next()) {
+					failedAttempts = attemptResult.getInt(1);
+				}
+				return failedAttempts;
+			}
+			return 1;
+		}catch (SQLException e) {
+			e.printStackTrace();
+			return -1;
+		} finally {
+			closeConnection();
+		}
+	}
 }

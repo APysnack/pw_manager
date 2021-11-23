@@ -165,7 +165,19 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 
 		}
 		else {
-			flashLbl.setText("Login failed. After 4 failed attempts, your account is temporarily locked out");
+			if(password.length() < 8 || password.length() > 128) {
+				flashLbl.setText("Passwords must be between 8 - 128 characters");
+			}
+			else {
+				int failedAttempts = conn.getFailedLogins(userName);
+				if(failedAttempts < 4) {
+					flashLbl.setText("Login failed. After " + (4 - failedAttempts) + " more failed attempts, your account will be temporarily locked out");
+				}
+				else {
+					flashLbl.setText("Your account is temporarily locked out. Try again tomorrow.");
+				}
+				
+			}
 		}
 	}
 	

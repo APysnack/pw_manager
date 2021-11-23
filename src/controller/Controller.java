@@ -68,7 +68,6 @@ public class Controller {
 			boolean userExists = conn.confirmUserExists(userName);
 			if (userExists) {
 				User user = conn.getUser(userName);
-
 				// checks to determine if user is currently locked out from too many failed
 				// login attempts
 				boolean userIsLockedOut = conn.getUserLockoutStatus(user.getUserID());
