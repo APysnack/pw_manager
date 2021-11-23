@@ -186,6 +186,33 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
+	
+	public boolean checkPasswordCollision(String appName, String appUserName) {
+		openConnection();
+		new_query = "SELECT COUNT(*) FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=? AND UID=?";
+		PreparedStatement pStmt;
+
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			pStmt.setString(1, appName);
+			pStmt.setString(2, appUserName);
+			pStmt.setInt(3, currentUser.getUserID());
+			result = pStmt.executeQuery();
+			int numRows = result.getInt(1);
+			if(numRows == 0) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		} catch (SQLException e) {
+			System.out.println(e);
+		} finally {
+			closeConnection();
+		}
+		return true;
+		
+	}
 
 	// accepts a user object from the called and sets it the currently logged in
 	// user

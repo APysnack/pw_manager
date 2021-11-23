@@ -219,7 +219,7 @@ public class MngPWPanel extends JPanel
 		
 		gr.gridx = 1;
 		gr.gridy = 1;
-		gr.insets = new Insets(10,0,0,0);
+		gr.insets = new Insets(0,0,20,0);
 		add(flashLbl, gr);
 		gr.gridx = 1;
 		gr.gridy = 2;
@@ -503,25 +503,31 @@ public class MngPWPanel extends JPanel
 	public void attemptAddPassword() {
 		String appName = appField.getText();
 		String appUserName = appUsrNameField.getText();
-		char[] password = pwField.getPassword();
-		char[] passwordConfirm = confirmPWField.getPassword();
+		
+		boolean collisionCaused = conn.checkPasswordCollision(appName, appUserName);
+		if(!collisionCaused) {
+			char[] password = pwField.getPassword();
+			char[] passwordConfirm = confirmPWField.getPassword();
 
-		if (Arrays.equals(password, passwordConfirm) == true) {
-			String stringPW = String.valueOf(password);
-			boolean addSuccessful = ctrl.addNewPassword(appName, appUserName, stringPW);
-			if (addSuccessful) {
-				flashLbl.setText("Password successfully added to database!");
-				appField.setText("Application Name");
-				appUsrNameField.setText("Enter Username");
-				pwField.setText("Enter Password");
-				confirmPWField.setText("Enter Password");
+			if (Arrays.equals(password, passwordConfirm) == true) {
+				String stringPW = String.valueOf(password);
+				boolean addSuccessful = ctrl.addNewPassword(appName, appUserName, stringPW);
+				if (addSuccessful) {
+					flashLbl.setText("Password successfully added to database!");
+					appField.setText("Application Name");
+					appUsrNameField.setText("Enter Username");
+					pwField.setText("Enter Password");
+					confirmPWField.setText("Enter Password");
+				} else {
+					flashLbl.setText("Error in user input, password could not be added");
+				}
 			} else {
-				flashLbl.setText("Error in user input, password could not be added");
+				flashLbl.setText("Passwords do not match, please try again");
 			}
-		} else {
-			flashLbl.setText("Passwords do not match, please try again");
 		}
-
+		else {
+			flashLbl.setText("Cannot use same username/application combination twice");
+		}
 		flashLbl.setVisible(true);
 	}
 
@@ -618,24 +624,30 @@ public class MngPWPanel extends JPanel
 		if (response == 0) {
 			String newAppName = appField.getText();
 			String newAppUsername = appUsrNameField.getText();
-			char[] password = pwField.getPassword();
-			char[] passwordConfirm = confirmPWField.getPassword();
+			boolean collisionCaused = conn.checkPasswordCollision(oldAppName, oldAppUserName);
+			if(!collisionCaused) {
+				char[] password = pwField.getPassword();
+				char[] passwordConfirm = confirmPWField.getPassword();
 
-			if (Arrays.equals(password, passwordConfirm) == true) {
-				String stringPW = String.valueOf(password);
-				boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUserName, newAppName, newAppUsername, stringPW);
-				if (addSuccessful) {
-					flashLbl.setText("Password successfully modified!");
-					appField.setText("Application Name");
-					pwField.setText("Enter Password");
-					appUsrNameField.setText("Enter Username");
-					confirmPWField.setText("Enter Password");
-				} else {
-					flashLbl.setText("Error in user input, password could not be added");
+				if (Arrays.equals(password, passwordConfirm) == true) {
+					String stringPW = String.valueOf(password);
+					boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUserName, newAppName, newAppUsername, stringPW);
+					if (addSuccessful) {
+						flashLbl.setText("Password successfully modified!");
+						appField.setText("Application Name");
+						pwField.setText("Enter Password");
+						appUsrNameField.setText("Enter Username");
+						confirmPWField.setText("Enter Password");
+					} else {
+						flashLbl.setText("Error in user input, password could not be added");
+					}
+				}
+				else {
+					flashLbl.setText("The passwords you entered do not match. Please try again");
 				}
 			}
 			else {
-				flashLbl.setText("The passwords you entered do not match. Please try again");
+				flashLbl.setText("You cannot use the same application/username combination twice");
 			}
 
 			flashLbl.setVisible(true);

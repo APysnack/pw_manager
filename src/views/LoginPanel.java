@@ -163,7 +163,6 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 		boolean userAuthenticated = ctrl.authenticateUser(userName, password);
 		if(userAuthenticated == true) {
 			cl.show(scrnMgr, "Home");
-
 		}
 		else {
 			if(password.length() < 8 || password.length() > 128) {
