@@ -120,6 +120,12 @@ public class CUtils {
 			maxStringLength = 64;
 			minStringLength = 4;
 		}
+		
+		if(input.length() < minStringLength || input.length() > maxStringLength) {
+			return false;
+		}
+		
+		
 		return true;
 	}
 	
