@@ -158,8 +158,9 @@ public class CUtils {
 		return true;
 	}
 
-	// needs to be written: gets user's mobile number (assume sanitized input)
-	// should text the user and return true only if the user confirms their login
+	// needs to be written: gets user's mobile number (assume sanitized input
+	// with a 10 digit number representing in a string: e.g. "4105559672")
+	// function should text the user and return true only if the user confirms their login
 	public boolean verifyNumber(String mobileNumber) {
 		System.out.println(mobileNumber);
 		return true;
