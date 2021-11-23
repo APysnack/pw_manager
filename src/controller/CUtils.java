@@ -99,12 +99,9 @@ public class CUtils {
 		return this.hashedInput;
 	}
 
-	// more edge cases should be added: should return false input contains spaces
-	// (exceptions: "Enter Password", "Enter Username", "Application Name")
+	// more edge cases could be added: input is invalid if it contains spaces
+	// (exceptions are the strings: "Enter Password", "Enter Username", "Application Name")
 	// inputTypes can be: userName, password, appName, appUserName
-	// should not allow spaces in username, appUserName or password. appName can
-	// have spaces
-	// need to consider other SQL injection and minimum/max length edge cases.
 	public Boolean validateInput(String input, String inputType) {
 		// input with spaces are considered valid as long as they are one of the
 		// placeholder text field values
@@ -121,6 +118,12 @@ public class CUtils {
 		} else {
 			maxStringLength = 64;
 			minStringLength = 4;
+		}
+		
+		if (inputType != "Application Name") {
+			if(input.contains(" ")) {
+				return false;
+			}
 		}
 
 		if (input.length() < minStringLength || input.length() > maxStringLength) {

@@ -270,7 +270,7 @@ public class DbConnection {
 	// their user info with the new data stored in the {newPW} Password object
 	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW) {
 		openConnection();
-		new_query = "update passwords set application=?, appUserName=?, password=?, saltVal=?, passwordLength=? where application=? and appUserName=?";
+		new_query = "update passwords set application=?, appUserName=?, password=?, saltVal=?, passwordLength=? where application=? and appUserName=? and uid=?";
 		PreparedStatement pStmt;
 
 		try {
@@ -282,6 +282,7 @@ public class DbConnection {
 			pStmt.setInt(5, newPW.getPasswordLength());
 			pStmt.setString(6, oldAppName);
 			pStmt.setString(7, oldAppUserName);
+			pStmt.setInt(8, currentUser.getUserID());
 
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
@@ -485,13 +486,14 @@ public class DbConnection {
 	// deletes a password with both {appName} and {appUserName}
 	public boolean deletePWFromDb(String appName, String appUserName) {
 		openConnection();
-		new_query = "DELETE FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=?";
+		new_query = "DELETE FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=? AND UID=?";
 		PreparedStatement pStmt;
 
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, appName);
 			pStmt.setString(2, appUserName);
+			pStmt.setInt(3, currentUser.getUserID());
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
 				return true;

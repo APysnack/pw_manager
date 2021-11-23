@@ -178,6 +178,7 @@ public class Controller {
 				Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
 				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
 				if (pwUpdated) {
+					System.out.println("test");
 					return true;
 				}
 			}
