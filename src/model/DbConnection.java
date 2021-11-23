@@ -551,7 +551,7 @@ public class DbConnection {
 				}
 				return failedAttempts;
 			}
-			return 1;
+			return -1;
 		}catch (SQLException e) {
 			e.printStackTrace();
 			return -1;

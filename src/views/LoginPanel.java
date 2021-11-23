@@ -53,6 +53,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 	LogoPanel logoPanel;
 	JPanel userPanel;
 	JPanel pwPanel;
+	int failedAttemptSimulator = 1;
 	
 	public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn){
 		u = new Utils();
@@ -170,13 +171,26 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 			}
 			else {
 				int failedAttempts = conn.getFailedLogins(userName);
-				if(failedAttempts < 4) {
-					flashLbl.setText("Login failed. After " + (4 - failedAttempts) + " more failed attempts, your account will be temporarily locked out");
+				if(failedAttempts == -1) {
+					if(failedAttemptSimulator < 4) {
+						flashLbl.setText("Login failed. After " + (4 - failedAttemptSimulator) + " more failed attempts, your account will be temporarily locked out");
+						failedAttemptSimulator++;
+					}
+					else {
+						flashLbl.setText("Your account is temporarily locked out. Try again tomorrow.");
+					}
+					
 				}
 				else {
-					flashLbl.setText("Your account is temporarily locked out. Try again tomorrow.");
+					if(failedAttempts < 4) {
+						flashLbl.setText("Login failed. After " + (4 - failedAttempts) + " more failed attempts, your account will be temporarily locked out");
+					}
+					else {
+						flashLbl.setText("Your account is temporarily locked out. Try again tomorrow.");
+					}
+					
+					
 				}
-				
 			}
 		}
 	}
