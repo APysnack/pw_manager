@@ -373,12 +373,11 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 			attemptUserCreation();
 		}
 		else if(source == deleteUsrBtn) {
-			
 			User user = conn.getCurrentUser();
 			if(user.getDeletePermission() == true) {
-				int numUsers = conn.getRowCountFromTable("users");
+				int numUsers = conn.getAddRowCount();
 				if (numUsers < 2){
-					JOptionPane.showMessageDialog(null, "User cannot be deleted. There must be at least one user with add permissions in the database");
+					JOptionPane.showMessageDialog(null, "User cannot be deleted. There must be at least one user with all permissions (add/edit/delete)");
 				}
 				else {
 					String name = (String) userComboBox.getSelectedItem();

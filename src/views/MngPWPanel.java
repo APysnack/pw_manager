@@ -570,7 +570,6 @@ public class MngPWPanel extends JPanel
 		else if (source == deletePWBtn) {
 			String appName = (String) appComboBox.getSelectedItem();
 			String userName = (String) userNameComboBox.getSelectedItem();
-			
 			if(appName == null || userName == null) {
 				JOptionPane.showMessageDialog(null,
 						"There are currently no passwords to delete, please add one", "WARNING!!!", JOptionPane.WARNING_MESSAGE);
@@ -583,6 +582,7 @@ public class MngPWPanel extends JPanel
 					boolean pwDeleted = ctrl.deletePassword(appName, userName);
 					if (pwDeleted == true) {
 						flashLbl.setText("Password successfully deleted!");
+						displayPWField.setText("");
 						initializeComboBox();
 						updateLayout("main", true);
 						

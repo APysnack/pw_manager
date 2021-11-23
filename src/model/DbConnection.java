@@ -167,6 +167,25 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
+	
+	public int getAddRowCount() {
+		openConnection();
+		new_query = "SELECT COUNT(*) FROM USERS WHERE CANADDUSER=1 AND CANEDITUSER=1 AND CANDELETEUSER=1";
+
+		PreparedStatement pStmt;
+
+		try {
+			pStmt = conn.prepareStatement(new_query);
+			result = pStmt.executeQuery();
+			int numRows = result.getInt(1);
+			return numRows;
+		} catch (SQLException e) {
+			System.out.println(e);
+			return -1;
+		} finally {
+			closeConnection();
+		}
+	}
 
 	// accepts a user object from the called and sets it the currently logged in
 	// user
