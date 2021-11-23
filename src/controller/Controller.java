@@ -171,7 +171,8 @@ public class Controller {
 		boolean validAppUserName = utils.validateInput(newAppUserName, "appUserName");
 		boolean validPassword = utils.validateInput(password, "password");
 		if (validPassword && validAppName && validAppUserName) {
-			boolean modified = utils.isModified(password);
+			boolean modified = utils.isModified(password, "password");
+			System.out.println(modified);
 			if (modified) {
 				int pwLen = password.length();
 				String encryptedPassword = utils.encrypt(input, password);
@@ -241,7 +242,7 @@ public class Controller {
 				userToModify.setUsername(newUserName);
 			}
 
-			boolean modified = utils.isModified(newPassword);
+			boolean modified = utils.isModified(newPassword, "password");
 			if (modified) {
 				String encPassword = userToModify.getEncryptedPassword();
 				String saltVal = userToModify.getSaltVal();

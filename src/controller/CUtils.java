@@ -99,19 +99,26 @@ public class CUtils {
 		return this.hashedInput;
 	}
 	
-	// still needs to be written: should return false if input is all asterisks, "Enter Password" or if input contains spaces of any kind.
+	// still needs to be written: should return false input contains spaces (exceptions: "Enter Password", "Enter Username", "Application Name")
 	// inputTypes can be: userName, password, appName, appUserName
-	// username: should return false if input is all asterisks, "Enter Password" or if input contains spaces of any kind.
-	// password: should return false if input is all asterisks, "Enter Password" or if input contains spaces of any kind.
-	// appUserName && appName should return false if input is all asterisks or "Enter Password", spaces allowed 
+	// should not allow spaces in username, appUserName or password. appName can have spaces
 	// need to consider other SQL injection and minimum/max length edge cases. 
 	public Boolean validateInput(String input, String inputType) {
+		// input with spaces are considered valid as long as they are one of the placeholder text field values 
+		if(!isModified(input, inputType)) {
+			return true;
+		}
 		int maxStringLength;
+		int minStringLength;
+		
+		// passwords shorter than 12 chars are accepted, but discouraged
 		if(inputType == "password") {
 			maxStringLength = 128;
+			minStringLength = 8;
 		}
 		else {
 			maxStringLength = 64;
+			minStringLength = 4;
 		}
 		return true;
 	}
@@ -142,10 +149,20 @@ public class CUtils {
         return saltStr;
 	}
 	
-	public boolean isModified(String name) {
-		if(name == "Enter Password" || name.matches("[*]+")) {
+	public boolean isModified(String name, String inputType) {
+		if(name.matches("[*]+")){
 			return false;
 		}
+		if(inputType.equals("password") && name.equals("Enter Password")) {
+			return false;
+		}
+		if(inputType.equals("userName") && name.equals("Enter Username")) {
+			return false;
+		}
+		if(inputType.equals("appName") && name.equals("Application Name")) {
+			return false;
+		}
+		
 		return true;
 	}
 
