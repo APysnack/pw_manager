@@ -38,7 +38,7 @@ public class PassBasedEnc {
 	        Arrays.fill(password, Character.MIN_VALUE);  
 	        try   
 	        {  
-	            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");  
+	            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");  
 	            return skf.generateSecret(spec).getEncoded();  
 	        }   
 	        catch (NoSuchAlgorithmException | InvalidKeySpecException e)   
