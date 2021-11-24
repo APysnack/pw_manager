@@ -35,11 +35,12 @@ public class Controller {
 			}
 		}
 
-		// validates input for username/password, actual function still needs modification
+		// validates input for username/password, actual function still needs
+		// modification
 		boolean validUserName = utils.validateInput(userName, "userName");
 		boolean validPassword = utils.validateInput(password, "password");
 		boolean validNumber = utils.validateInput(mobileNumber, "mobileNumber");
-		
+
 		if (validPassword && validUserName && validNumber) {
 			// stores hashed password and salt value in the database
 			String hashedPassword = utils.generateKey(password);
@@ -85,21 +86,11 @@ public class Controller {
 					boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
 					if (userAuthenticated && sessionType.equals("login")) {
 						this.inputKey = utils.generateAESKey(password, saltVal);
-						// still needs to be written, currently always returns true
-						// should only return true if user responds to SMS
-						boolean numberVerified = utils.verifyNumber(utils.decrypt(inputKey, user.getEncryptedNumber(), saltVal));
-						if(numberVerified) {
-							conn.setCurrentUser(user);
-							this.currentUser = user;
-							conn.updateLoginAttempts(user.getUserID(), "reset");
-							return true;
-						}
-					}
-					else if(userAuthenticated && sessionType.equals("userMod")) {
 						return true;
-					}
-					else {
-						if(sessionType == "login") {
+					} else if (userAuthenticated && sessionType.equals("userMod")) {
+						return true;
+					} else {
+						if (sessionType == "login") {
 							conn.updateLoginAttempts(user.getUserID(), "increment");
 						}
 					}
@@ -110,6 +101,38 @@ public class Controller {
 
 		}
 		return false;
+	}
+
+	public boolean sendMessage(String userName, String password, int nonce) {
+		boolean validUserName = utils.validateInput(userName, "userName");
+		boolean validPassword = utils.validateInput(password, "password");
+		if (validUserName && validPassword) {
+			boolean userExists = conn.confirmUserExists(userName);
+			if (userExists) {
+				User user = conn.getUser(userName);
+				String mobileNum = utils.decrypt(inputKey, user.getEncryptedNumber(), user.getSaltVal());
+				boolean messageSent = utils.sendMessage(mobileNum, nonce);
+				mobileNum = "";
+				if (messageSent) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public void setCurrentUser(String userName, String password) {
+		boolean validUserName = utils.validateInput(userName, "userName");
+		boolean validPassword = utils.validateInput(password, "password");
+		if (validUserName && validPassword) {
+			boolean userExists = conn.confirmUserExists(userName);
+			if (userExists) {
+				User user = conn.getUser(userName);
+				conn.setCurrentUser(user);
+				this.currentUser = user;
+				conn.updateLoginAttempts(user.getUserID(), "reset");
+			}
+		}
 	}
 
 	// Generates a random string. User inputs boolean to specify if string should
@@ -195,16 +218,16 @@ public class Controller {
 				if (pwUpdated) {
 					return true;
 				}
-			}
-			else {
+			} else {
 				Password oldPassword = conn.getPasswordInfo(oldAppName, oldAppUserName);
-				Password newPassword = new Password(newAppName, newAppUserName, oldPassword.getEncryptedPassword(), oldPassword.getSaltVal(), oldPassword.getPasswordLength());
+				Password newPassword = new Password(newAppName, newAppUserName, oldPassword.getEncryptedPassword(),
+						oldPassword.getSaltVal(), oldPassword.getPasswordLength());
 				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword, currentUser.getUserID());
 				if (pwUpdated) {
 					return true;
 				}
 			}
-		} 
+		}
 		return false;
 	}
 
@@ -260,16 +283,16 @@ public class Controller {
 
 			boolean passwordModified = CUtils.isModified(newPassword, "password");
 			boolean mobileModified = CUtils.isModified(newMobileNumber, "mobileNumber");
-			
-			if (passwordModified) {				
+
+			if (passwordModified) {
 				String encPassword = userToModify.getEncryptedPassword();
 				String oldSaltVal = userToModify.getSaltVal();
 				boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, oldSaltVal);
-				
+
 				// if user is not authenticated, the password has been changed
 				// passwords are encrypted/decrypted using the hash of the input password
 				// thus if the password changes, the key changed. User's passwords must
-				// be re-encrypted using this new password 
+				// be re-encrypted using this new password
 				if (!userAuthenticated) {
 					String oldAESKey = utils.generateAESKey(userToModPW, oldSaltVal);
 					String newHashedPassword = utils.generateKey(newPassword);
@@ -277,45 +300,45 @@ public class Controller {
 					String newAESKey = utils.getAESKey();
 					userToModify.setEncryptedPassword(newHashedPassword);
 					userToModify.setSaltVal(newSaltValue);
-					
+
 					ArrayList<Password> passwordList = conn.getAllPasswords(userToModify.getUserID());
-					for (int i = 0; i < passwordList.size(); i++) {					
-						String pwString = utils.decrypt(oldAESKey, passwordList.get(i).getEncryptedPassword(), passwordList.get(i).getSaltVal());
+					for (int i = 0; i < passwordList.size(); i++) {
+						String pwString = utils.decrypt(oldAESKey, passwordList.get(i).getEncryptedPassword(),
+								passwordList.get(i).getSaltVal());
 						String encryptedPassword = utils.encrypt(newAESKey, pwString);
 						String newSaltVal = utils.getSaltVal();
 						passwordList.get(i).setEncryptedPassword(encryptedPassword);
 						passwordList.get(i).setSaltVal(newSaltVal);
-						conn.editPassword(passwordList.get(i).getAppName(), passwordList.get(i).getAppUserName(), passwordList.get(i), userToModify.getUserID());
+						conn.editPassword(passwordList.get(i).getAppName(), passwordList.get(i).getAppUserName(),
+								passwordList.get(i), userToModify.getUserID());
 					}
 
 					if (userToModify.getPasswordLength() != pwLen) {
 						userToModify.setPasswordLength(pwLen);
 					}
-					
+
 					String mobileNum = utils.decrypt(oldAESKey, userToModify.getEncryptedNumber(), oldSaltVal);
 					String encryptedMobileNum = "";
-					
-					if(mobileModified) {
-						if(!sanitizedNumber.equals(mobileNum)) {
+
+					if (mobileModified) {
+						if (!sanitizedNumber.equals(mobileNum)) {
 							encryptedMobileNum = utils.encrypt(newAESKey, sanitizedNumber, userToModify.getSaltVal());
-						}
-						else {
+						} else {
 							encryptedMobileNum = utils.encrypt(newAESKey, mobileNum, userToModify.getSaltVal());
 						}
-					}
-					else {
+					} else {
 						encryptedMobileNum = utils.encrypt(newAESKey, mobileNum, userToModify.getSaltVal());
 					}
 					userToModify.setEncryptedNumber(encryptedMobileNum);
 				}
 			}
-			
-			else{
-				if(mobileModified) {
+
+			else {
+				if (mobileModified) {
 					String InputKey = utils.generateAESKey(userToModPW, userToModify.getSaltVal());
 					String newEncryptedNumber = utils.encrypt(InputKey, sanitizedNumber, userToModify.getSaltVal());
 					String oldEncryptedNumber = userToModify.getEncryptedNumber();
-					if(!newEncryptedNumber.equals(oldEncryptedNumber)) {
+					if (!newEncryptedNumber.equals(oldEncryptedNumber)) {
 						userToModify.setEncryptedNumber(newEncryptedNumber);
 					}
 				}
@@ -332,7 +355,6 @@ public class Controller {
 			if (userToModify.getDeletePermission() != deletePermission) {
 				userToModify.setDeletePermission(deletePermission);
 			}
-
 
 			boolean userEdited = conn.editUser(oldUserName, userToModify);
 			if (userEdited == true) {

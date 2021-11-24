@@ -1,5 +1,9 @@
 package controller;
 
+import com.twilio.Twilio;
+import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.type.PhoneNumber;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -20,8 +24,16 @@ public class CUtils {
 	private String AESKey = "";
 	private static SecretKeySpec secretKey;
 	private static byte[] key;
+	
+	// currently unprotected, in production this would need to be set as an environment variable
+	// the values used here are for a trial version of twilio for demonstrative purposes only
+	public static final String ACCOUNT_SID = "ACf38b220a422bd7c7f342afb7936078ea";
+	public static final String AUTH_TOKEN = "a3e5dfc7a069676811e1f3cebac899ea";
+	public static final int verifMinNum = 100000;
+	public static final int verifMaxNum = 999999;
 
 	public CUtils() {
+		Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 	}
 
 	public String generateKey(String originalPassword) {
@@ -158,12 +170,29 @@ public class CUtils {
 		return true;
 	}
 
+	public static int generateVerificationNumber() {
+		int nonce = -1;
+		nonce = (int) (Math.random() * (verifMaxNum - verifMinNum + 1) + verifMinNum);
+		return nonce;
+	}
+
 	// needs to be written: gets user's mobile number (assume sanitized input
 	// with a 10 digit number representing in a string: e.g. "4105559672")
-	// function should text the user and return true only if the user confirms their login
-	public boolean verifyNumber(String mobileNumber) {
-		System.out.println(mobileNumber);
-		return true;
+	// function should text the user and return true only if the user confirms their
+	// login
+	public boolean sendMessage(String mobileNumber, int nonce) {
+
+		String verifString = "Please verify your login attempt with Secure Password Manager by entering this number on your screen: "
+				+ nonce;
+
+		try {
+			Message message = Message
+					.creator(new PhoneNumber("+1" + mobileNumber), new PhoneNumber("+12407742562"), verifString)
+					.create();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	// Still needs to be written, should remove ()'s and -'s from phone numbers

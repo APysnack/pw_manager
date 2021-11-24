@@ -319,8 +319,6 @@ public class DbConnection {
 	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW, int userID) {
 		openConnection();
 		
-		System.out.println("test" + userID);
-		
 		new_query = "update passwords set application=?, appUserName=?, password=?, saltVal=?, passwordLength=? where application=? and appUserName=? and uid=?";
 		PreparedStatement pStmt;
 		

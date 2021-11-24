@@ -2,11 +2,13 @@ package views;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import controller.CUtils;
 import controller.Controller;
 import model.DbConnection;
 
@@ -161,7 +163,25 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 		String password = String.valueOf(pwField.getPassword());
 		boolean userAuthenticated = ctrl.authenticateUser(userName, password, "login");
 		if(userAuthenticated == true) {
+			ctrl.setCurrentUser(userName, password);
 			cl.show(scrnMgr, "Home");
+// 			replace the 2 lines of code above with the code below to enable 2fa
+//			int nonce = CUtils.generateVerificationNumber();
+//			ctrl.sendMessage(userName, password, nonce);
+//			String responseStr = JOptionPane.showInputDialog ("Please enter the 6 digit number sent to your phone");
+//			if(responseStr.length() == 6) {
+//				int response = Integer.parseInt(responseStr);
+//				if(response == nonce) {
+//					ctrl.setCurrentUser(userName, password);
+//					cl.show(scrnMgr, "Home");
+//				}
+//				else {
+//					flashLbl.setText("The number you've entered was incorrect, please try again");
+//				}
+//			}
+//			else {
+//				flashLbl.setText("Your response should be exactly 6 numbers long, please try again.");
+//			}
 		}
 		else {
 			if(password.length() < 8 || password.length() > 128) {
