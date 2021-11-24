@@ -623,15 +623,22 @@ public class MngPWPanel extends JPanel
 				JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if (response == 0) {
 			String newAppName = appField.getText();
-			String newAppUsername = appUsrNameField.getText();
-			boolean collisionCaused = conn.checkPasswordCollision(oldAppName, oldAppUserName);
-			if(!collisionCaused) {
+			String newAppUserName = appUsrNameField.getText();
+			
+			// if appName and appUserName have not been changed, only the password is being modified
+			// a collision is expected in this case. Otherwise, collisions should not be allowed
+			boolean sameAppName = oldAppName.equalsIgnoreCase(newAppName);
+			boolean sameAppUserName = oldAppUserName.equalsIgnoreCase(newAppUserName);
+			boolean passwordChangeOnly = (sameAppName && sameAppUserName);
+			boolean collisionCaused = conn.checkPasswordCollision(newAppName, newAppUserName);
+			
+			if(!collisionCaused || passwordChangeOnly) {
 				char[] password = pwField.getPassword();
 				char[] passwordConfirm = confirmPWField.getPassword();
 
 				if (Arrays.equals(password, passwordConfirm) == true) {
 					String stringPW = String.valueOf(password);
-					boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUserName, newAppName, newAppUsername, stringPW);
+					boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUserName, newAppName, newAppUserName, stringPW);
 					if (addSuccessful) {
 						flashLbl.setText("Password successfully modified!");
 						appField.setText("Application Name");
@@ -647,7 +654,7 @@ public class MngPWPanel extends JPanel
 				}
 			}
 			else {
-				flashLbl.setText("You cannot use the same application/username combination twice");
+				flashLbl.setText("Collision detected: cannot use the same application/username combination twice");
 			}
 
 			flashLbl.setVisible(true);

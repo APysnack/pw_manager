@@ -174,11 +174,6 @@ public class Controller {
 		Password password = conn.getPasswordInfo(appName, userName);
 		String encryptedPassword = password.getEncryptedPassword();
 		String passwordSalt = password.getSaltVal();
-		
-		System.out.println("Encrypted PW " + encryptedPassword);
-		System.out.println("Salt val " + passwordSalt);
-		System.out.println("AES Key used to decrypt pw " + inputKey);
-		
 		String returnString = utils.decrypt(inputKey, encryptedPassword, passwordSalt);
 		return returnString;
 	}
@@ -277,9 +272,6 @@ public class Controller {
 				// be re-encrypted using this new password 
 				if (!userAuthenticated) {
 					String oldAESKey = utils.generateAESKey(userToModPW, oldSaltVal);
-					
-					System.out.println("inputPW :" + userToModPW);
-					System.out.println("AES key to decrypt old: " + oldAESKey);
 					String newHashedPassword = utils.generateKey(newPassword);
 					String newSaltValue = utils.getSaltVal();
 					String newAESKey = utils.getAESKey();

@@ -454,7 +454,6 @@ public class MngUserPanel extends JPanel
 					boolean passwordModified = CUtils.isModified(stringPW, "password");
 					boolean confirmPasswordModified = CUtils.isModified(stringConfirmPW, "password");
 					boolean passwordIsBeingChanged = (passwordModified && confirmPasswordModified);
-					System.out.println(mobileModified);
 
 					int numUsers = conn.getAdminRowCount();
 					if (numUsers < 2 && (canAdd == false && canEdit == false && canDelete == false)) {
