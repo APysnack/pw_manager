@@ -453,33 +453,44 @@ public class MngUserPanel extends JPanel implements ActionListener, FocusListene
 					char[] password = pwField.getPassword();
 					char[] passwordConfirm = confirmPWField.getPassword();
 					String newMobileNumber = mobileField.getText();
-					boolean mobileModified = CUtils.isModified(newMobileNumber, "mobileNumber");
 
 					if (Arrays.equals(password, passwordConfirm) == true) {
 						String stringPW = String.valueOf(password);
+						boolean mobileModified = CUtils.isModified(newMobileNumber, "mobileNumber");
+						boolean passwordModified = CUtils.isModified(stringPW, "password");
+						
 						if(stringPW.length() < 8 || stringPW.length() > 128) {
 							flashLbl.setText("ERROR: Passwords must be between 8 and 128 characters long");
 						}
 						else {
 							String userToModStringPW = "";
 							
-							if(mobileModified) {
+							if(mobileModified || passwordModified) {
 								JPasswordField modifiedUserPW = new JPasswordField(15);
-								int userResponse = JOptionPane.showConfirmDialog(null, modifiedUserPW, "User's PW needed to modify their number", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+								int userResponse = JOptionPane.showConfirmDialog(null, modifiedUserPW, "User's PW needed to make these changes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 								
 								if(userResponse == 0) {
 									char[] userToModifyPW = modifiedUserPW.getPassword();
 									userToModStringPW = String.valueOf(userToModifyPW);
+									boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete, newMobileNumber, userToModStringPW);
+									if (userEdited == true) {
+										flashLbl.setText("User successfully modified!");
+									}
+									else {
+										flashLbl.setText("ERROR: User could not be modified");
+									}
+								}
+							}
+							else {
+								boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete, newMobileNumber, userToModStringPW);
+								if (userEdited == true) {
+									flashLbl.setText("User successfully modified!");
+								}
+								else {
+									flashLbl.setText("ERROR: User could not be modified");
 								}
 							}
 							
-							boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd, canEdit, canDelete, newMobileNumber, userToModStringPW);
-							if (userEdited == true) {
-								flashLbl.setText("User successfully modified!");
-							}
-							else {
-								flashLbl.setText("ERROR: User could not be modified");
-							}
 							
 						}
 					}

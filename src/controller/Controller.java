@@ -169,6 +169,11 @@ public class Controller {
 		Password password = conn.getPasswordInfo(appName, userName);
 		String encryptedPassword = password.getEncryptedPassword();
 		String passwordSalt = password.getSaltVal();
+		
+		System.out.println("Encrypted PW " + encryptedPassword);
+		System.out.println("Salt val " + passwordSalt);
+		System.out.println("AES Key used to decrypt pw " + inputKey);
+		
 		String returnString = utils.decrypt(inputKey, encryptedPassword, passwordSalt);
 		return returnString;
 	}
@@ -186,7 +191,7 @@ public class Controller {
 				String encryptedPassword = utils.encrypt(inputKey, password);
 				String saltVal = utils.getSaltVal();
 				Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
-				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
+				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword, currentUser.getUserID());
 				if (pwUpdated) {
 					return true;
 				}
@@ -194,7 +199,7 @@ public class Controller {
 			else {
 				Password oldPassword = conn.getPasswordInfo(oldAppName, oldAppUserName);
 				Password newPassword = new Password(newAppName, newAppUserName, oldPassword.getEncryptedPassword(), oldPassword.getSaltVal(), oldPassword.getPasswordLength());
-				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword);
+				boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword, currentUser.getUserID());
 				if (pwUpdated) {
 					return true;
 				}
@@ -211,7 +216,7 @@ public class Controller {
 
 		// creation of the list object to be returned
 		ArrayList<PasswordSet> passwordSetList = new ArrayList<PasswordSet>();
-		ArrayList<Password> passwordList = conn.getAllPasswords();
+		ArrayList<Password> passwordList = conn.getAllPasswords(currentUser.getUserID());
 		ArrayList<String> applicationList = new ArrayList<String>();
 
 		for (int i = 0; i < passwordList.size(); i++) {
@@ -230,7 +235,8 @@ public class Controller {
 	}
 
 	// edits user already in the database with new name/password/permission
-	// information. NOTE: needs to be thoroughly tested
+	// information. NOTE: needs to be thoroughly tested, especially with respect
+	// to password/phone number changes
 	public boolean editUser(String oldUserName, String newUserName, String newPassword, boolean addPermission,
 			boolean editPermission, boolean deletePermission, String newMobileNumber, String userToModPW) {
 		if (currentUser.getAddPermission() == false && addPermission == true
@@ -253,31 +259,68 @@ public class Controller {
 			}
 
 			boolean passwordModified = CUtils.isModified(newPassword, "password");
+			boolean mobileModified = CUtils.isModified(newMobileNumber, "mobileNumber");
+			
 			if (passwordModified) {
 				String encPassword = userToModify.getEncryptedPassword();
-				String saltVal = userToModify.getSaltVal();
-				boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, saltVal);
-
+				String oldSaltVal = userToModify.getSaltVal();
+				boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, oldSaltVal);
+				
+				// if user is not authenticated, the password has been changed
+				// passwords are encrypted/decrypted using the hash of the input password
+				// thus if the password changes, the key changed. User's passwords must
+				// be re-encrypted using this new password 
 				if (!userAuthenticated) {
-					String hashedPassword = utils.generateKey(newPassword);
-					String saltValue = utils.getSaltVal();
-					userToModify.setEncryptedPassword(hashedPassword);
-					userToModify.setSaltVal(saltValue);
+					String oldAESKey = utils.generateAESKey(userToModPW, oldSaltVal);
 					
+					System.out.println("inputPW :" + userToModPW);
+					System.out.println("AES key to decrypt old: " + oldAESKey);
+					String newHashedPassword = utils.generateKey(newPassword);
+					String newSaltValue = utils.getSaltVal();
+					String newAESKey = utils.getAESKey();
+					userToModify.setEncryptedPassword(newHashedPassword);
+					userToModify.setSaltVal(newSaltValue);
+					
+					ArrayList<Password> passwordList = conn.getAllPasswords(userToModify.getUserID());
+					for (int i = 0; i < passwordList.size(); i++) {					
+						String pwString = utils.decrypt(oldAESKey, passwordList.get(i).getEncryptedPassword(), passwordList.get(i).getSaltVal());
+						String encryptedPassword = utils.encrypt(newAESKey, pwString);
+						String newSaltVal = utils.getSaltVal();
+						passwordList.get(i).setEncryptedPassword(encryptedPassword);
+						passwordList.get(i).setSaltVal(newSaltVal);
+						conn.editPassword(passwordList.get(i).getAppName(), passwordList.get(i).getAppUserName(), passwordList.get(i), userToModify.getUserID());
+					}
+
 					if (userToModify.getPasswordLength() != pwLen) {
 						userToModify.setPasswordLength(pwLen);
 					}
+					
+					String mobileNum = utils.decrypt(oldAESKey, userToModify.getEncryptedNumber(), oldSaltVal);
+					String encryptedMobileNum = "";
+					
+					if(mobileModified) {
+						if(!sanitizedNumber.equals(mobileNum)) {
+							encryptedMobileNum = utils.encrypt(newAESKey, sanitizedNumber, userToModify.getSaltVal());
+						}
+						else {
+							encryptedMobileNum = utils.encrypt(newAESKey, mobileNum, userToModify.getSaltVal());
+						}
+					}
+					else {
+						encryptedMobileNum = utils.encrypt(newAESKey, mobileNum, userToModify.getSaltVal());
+					}
+					userToModify.setEncryptedNumber(encryptedMobileNum);
 				}
 			}
 			
-			boolean mobileModified = CUtils.isModified(sanitizedNumber, "mobileNumber");
-			
-			if(mobileModified) {
-				String InputKey = utils.generateAESKey(userToModPW, userToModify.getSaltVal());
-				String newEncryptedNumber = utils.encrypt(InputKey, sanitizedNumber, userToModify.getSaltVal());
-				String oldEncryptedNumber = userToModify.getEncryptedNumber();
-				if(!newEncryptedNumber.equals(oldEncryptedNumber)) {
-					userToModify.setEncryptedNumber(newEncryptedNumber);
+			else{
+				if(mobileModified) {
+					String InputKey = utils.generateAESKey(userToModPW, userToModify.getSaltVal());
+					String newEncryptedNumber = utils.encrypt(InputKey, sanitizedNumber, userToModify.getSaltVal());
+					String oldEncryptedNumber = userToModify.getEncryptedNumber();
+					if(!newEncryptedNumber.equals(oldEncryptedNumber)) {
+						userToModify.setEncryptedNumber(newEncryptedNumber);
+					}
 				}
 			}
 

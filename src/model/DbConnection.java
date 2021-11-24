@@ -316,11 +316,14 @@ public class DbConnection {
 
 	// updates the db entry with {oldAppName} and {oldAppUserName} and modifies
 	// their user info with the new data stored in the {newPW} Password object
-	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW) {
+	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW, int userID) {
 		openConnection();
+		
+		System.out.println("test" + userID);
+		
 		new_query = "update passwords set application=?, appUserName=?, password=?, saltVal=?, passwordLength=? where application=? and appUserName=? and uid=?";
 		PreparedStatement pStmt;
-
+		
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, newPW.getAppName());
@@ -330,7 +333,7 @@ public class DbConnection {
 			pStmt.setInt(5, newPW.getPasswordLength());
 			pStmt.setString(6, oldAppName);
 			pStmt.setString(7, oldAppUserName);
-			pStmt.setInt(8, currentUser.getUserID());
+			pStmt.setInt(8, userID);
 
 			int rowsAffected = pStmt.executeUpdate();
 			if (rowsAffected == 1) {
@@ -411,14 +414,14 @@ public class DbConnection {
 	}
 
 	// retrieves all passwords from the database for the logged in user
-	public ArrayList<Password> getAllPasswords() {
+	public ArrayList<Password> getAllPasswords(int userID) {
 		openConnection();
 		ArrayList<Password> passwordList = new ArrayList<Password>();
 		openConnection();
 		new_query = "SELECT * FROM PASSWORDS WHERE UID=?";
 		PreparedStatement pStmt;
 
-		int uid = currentUser.getUserID();
+		int uid = userID;
 
 		if (currentUser.getUserID() > 0) {
 			try {
