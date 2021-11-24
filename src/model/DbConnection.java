@@ -34,10 +34,6 @@ public class DbConnection {
 	Connection conn;
 	public User currentUser;
 
-	/*******************************
-	 * THINGS YOU CAN MODIFY IF YOU WANT BUT MAY NOT NEED TO
-	 ******************************/
-
 	// tries to connect to the database, prints out an error if unsuccessful
 	public DbConnection() {
 		this.dbpath = "jdbc:sqlite:pwdb.db";
@@ -51,7 +47,6 @@ public class DbConnection {
 			SQLiteConfig config = new SQLiteConfig();
 			config.enforceForeignKeys(true);
 			conn = DriverManager.getConnection(dbpath, config.toProperties());
-
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
@@ -63,6 +58,39 @@ public class DbConnection {
 			conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void initDatabase() {
+		openConnection();
+		PreparedStatement pStmt;
+		new_query = "SELECT NAME FROM SQLITE_MASTER WHERE TYPE='TABLE'";
+		try {
+			Statement stmt = conn.createStatement();
+			String sqlCommand = "CREATE TABLE IF NOT EXISTS USERS(" + "ID INTEGER PRIMARY KEY,"
+					+ "USERNAME TEXT NOT NULL UNIQUE," + "PASSWORD CHAR(64) NOT NULL," + "SALTVAL CHAR(32) NOT NULL,"
+					+ "PASSWORDLENGTH INT NOT NULL," + "CANADDUSER BOOLEAN NOT NULL," + "CANEDITUSER BOOLEAN NOT NULL,"
+					+ "CANDELETEUSER BOOLEAN NOT NULL," + "MOBILENUMBER CHAR(64) NOT NULL);";
+
+			stmt.executeUpdate(sqlCommand);
+
+			sqlCommand = "CREATE TABLE IF NOT EXISTS PASSWORDS(" + "PID INTEGER PRIMARY KEY," + "UID INTEGER,"
+					+ "APPLICATION TEXT NOT NULL," + "APPUSERNAME TEXT NOT NULL," + "PASSWORD CHAR(64) NOT NULL,"
+					+ "SALTVAL CHAR(30) NOT NULL," + "PASSWORDLENGTH INT NOT NULL,"
+					+ "FOREIGN KEY (UID) REFERENCES USERS(ID) ON DELETE CASCADE);";
+
+			stmt.executeUpdate(sqlCommand);
+
+			sqlCommand = "CREATE TABLE IF NOT EXISTS LOGINS(" + "ID INTEGER PRIMARY KEY," + "UID INTEGER,"
+					+ "FAILEDATTEMPTS INTEGER NOT NULL," + "LASTLOGIN TEXT NOT NULL,"
+					+ "FOREIGN KEY (UID) REFERENCES USERS(ID) ON DELETE CASCADE);";
+
+			stmt.executeUpdate(sqlCommand);
+
+		} catch (SQLException e) {
+			System.out.println(e);
+		} finally {
+			closeConnection();
 		}
 	}
 
@@ -168,7 +196,7 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-	
+
 	public int getAdminRowCount() {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM USERS WHERE CANADDUSER=1 AND CANEDITUSER=1 AND CANDELETEUSER=1";
@@ -187,7 +215,7 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-	
+
 	public boolean checkPasswordCollision(String appName, String appUserName) {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM PASSWORDS WHERE APPLICATION=? AND APPUSERNAME=? AND UID=?";
@@ -200,10 +228,9 @@ public class DbConnection {
 			pStmt.setInt(3, currentUser.getUserID());
 			result = pStmt.executeQuery();
 			int numRows = result.getInt(1);
-			if(numRows == 0) {
+			if (numRows == 0) {
 				return false;
-			}
-			else {
+			} else {
 				return true;
 			}
 		} catch (SQLException e) {
@@ -212,7 +239,7 @@ public class DbConnection {
 			closeConnection();
 		}
 		return true;
-		
+
 	}
 
 	// accepts a user object from the called and sets it the currently logged in
@@ -318,10 +345,10 @@ public class DbConnection {
 	// their user info with the new data stored in the {newPW} Password object
 	public boolean editPassword(String oldAppName, String oldAppUserName, Password newPW, int userID) {
 		openConnection();
-		
+
 		new_query = "update passwords set application=?, appUserName=?, password=?, saltVal=?, passwordLength=? where application=? and appUserName=? and uid=?";
 		PreparedStatement pStmt;
-		
+
 		try {
 			pStmt = conn.prepareStatement(new_query);
 			pStmt.setString(1, newPW.getAppName());
@@ -495,7 +522,7 @@ public class DbConnection {
 				pStmt.executeUpdate();
 				return false;
 			} else {
-				if(failedLogins > 3) {
+				if (failedLogins > 3) {
 					return true;
 				}
 				return false;
@@ -509,13 +536,12 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-	
+
 	public void updateLoginAttempts(int userID, String updateType) {
 		openConnection();
-		if(updateType == "reset") {
+		if (updateType == "reset") {
 			new_query = "update logins set failedAttempts=0 where uid=?";
-		}
-		else {
+		} else {
 			new_query = "update logins set failedAttempts=failedAttempts+1 where uid=?";
 		}
 		PreparedStatement pStmt;
@@ -525,12 +551,10 @@ public class DbConnection {
 			pStmt.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-		finally{
+		} finally {
 			closeConnection();
 		}
-		
-		
+
 	}
 
 	// deletes a password with both {appName} and {appUserName}
@@ -558,7 +582,7 @@ public class DbConnection {
 			closeConnection();
 		}
 	}
-	
+
 	public int getFailedLogins(String userName) {
 		openConnection();
 		new_query = "SELECT ID FROM USERS WHERE USERNAME=?";
@@ -572,7 +596,7 @@ public class DbConnection {
 			while (result.next()) {
 				userID = result.getInt(1);
 			}
-			if(userID != 0) {
+			if (userID != 0) {
 				new_query = "SELECT FAILEDATTEMPTS FROM LOGINS WHERE UID=?";
 				pStmt = conn.prepareStatement(new_query);
 				pStmt.setInt(1, userID);
@@ -583,7 +607,7 @@ public class DbConnection {
 				return failedAttempts;
 			}
 			return -1;
-		}catch (SQLException e) {
+		} catch (SQLException e) {
 			e.printStackTrace();
 			return -1;
 		} finally {

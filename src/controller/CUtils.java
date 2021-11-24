@@ -37,7 +37,7 @@ public class CUtils {
 	}
 
 	public String generateKey(String originalPassword) {
-		this.saltVal = PassBasedEnc.getSaltvalue(30);
+		this.saltVal = PassBasedEnc.getSaltvalue(32);
 		this.AESKey = PassBasedEnc.generateSecurePassword(originalPassword, saltVal);
 		this.hashedPW = PassBasedEnc.generateSecurePassword(AESKey, saltVal);
 		return this.hashedPW;
@@ -95,7 +95,7 @@ public class CUtils {
 	}
 
 	public String encrypt(String input, String originalPassword) {
-		this.saltVal = PassBasedEnc.getSaltvalue(30);
+		this.saltVal = PassBasedEnc.getSaltvalue(32);
 		this.AESKey = PassBasedEnc.generateSecurePassword(input, saltVal);
 		String encryptedString = encryptData(originalPassword);
 		return encryptedString;

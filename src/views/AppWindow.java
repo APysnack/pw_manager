@@ -54,7 +54,7 @@ public class AppWindow extends JFrame {
 		
 		// initial set-up to switch between screens in the GUI
 		initializeScreenManager();
-		
+		conn.initDatabase();
 		// fetches the number of users in the database
 		int numUsers = conn.getRowCountFromTable("users");
 		
