@@ -65,7 +65,7 @@ public class Controller {
 	// returns boolean true if user count == 1. Then gets the user's information
 	// from the database
 	// and sets it as the current user for both the controller and dbconnection
-	public boolean authenticateUser(String userName, String password) {
+	public boolean authenticateUser(String userName, String password, String sessionType) {
 		boolean validUserName = utils.validateInput(userName, "userName");
 		boolean validPassword = utils.validateInput(password, "password");
 		if (validUserName && validPassword) {
@@ -83,20 +83,25 @@ public class Controller {
 					String encPassword = user.getEncryptedPassword();
 					String saltVal = user.getSaltVal();
 					boolean userAuthenticated = utils.verifyPassword(password, encPassword, saltVal);
-					if (userAuthenticated) {
-						conn.setCurrentUser(user);
-						this.currentUser = user;
+					if (userAuthenticated && sessionType.equals("login")) {
 						this.inputKey = utils.generateAESKey(password, saltVal);
-						
 						// still needs to be written, currently always returns true
 						// should only return true if user responds to SMS
 						boolean numberVerified = utils.verifyNumber(utils.decrypt(inputKey, user.getEncryptedNumber(), saltVal));
 						if(numberVerified) {
+							conn.setCurrentUser(user);
+							this.currentUser = user;
 							conn.updateLoginAttempts(user.getUserID(), "reset");
 							return true;
 						}
-					} else {
-						conn.updateLoginAttempts(user.getUserID(), "increment");
+					}
+					else if(userAuthenticated && sessionType.equals("userMod")) {
+						return true;
+					}
+					else {
+						if(sessionType == "login") {
+							conn.updateLoginAttempts(user.getUserID(), "increment");
+						}
 					}
 
 				}
@@ -261,7 +266,7 @@ public class Controller {
 			boolean passwordModified = CUtils.isModified(newPassword, "password");
 			boolean mobileModified = CUtils.isModified(newMobileNumber, "mobileNumber");
 			
-			if (passwordModified) {
+			if (passwordModified) {				
 				String encPassword = userToModify.getEncryptedPassword();
 				String oldSaltVal = userToModify.getSaltVal();
 				boolean userAuthenticated = utils.verifyPassword(newPassword, encPassword, oldSaltVal);

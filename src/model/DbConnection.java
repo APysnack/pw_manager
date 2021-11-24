@@ -169,7 +169,7 @@ public class DbConnection {
 		}
 	}
 	
-	public int getAddRowCount() {
+	public int getAdminRowCount() {
 		openConnection();
 		new_query = "SELECT COUNT(*) FROM USERS WHERE CANADDUSER=1 AND CANEDITUSER=1 AND CANDELETEUSER=1";
 
