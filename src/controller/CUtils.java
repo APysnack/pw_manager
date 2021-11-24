@@ -25,10 +25,10 @@ public class CUtils {
 	private static SecretKeySpec secretKey;
 	private static byte[] key;
 	
-	// currently unprotected, in production this would need to be set as an environment variable
-	// the values used here are for a trial version of twilio for demonstrative purposes only
-	public static final String ACCOUNT_SID = "ACf38b220a422bd7c7f342afb7936078ea";
-	public static final String AUTH_TOKEN = "a3e5dfc7a069676811e1f3cebac899ea";
+	// SID and AUTH Token values need to be set based on twilio account information for 2fa to work
+	public static final String ACCOUNT_SID = "ENTER YOUR TWILIO ACCOUNT_SID HERE";
+	public static final String AUTH_TOKEN = "ENTER YOUR TWILIO AUTH_TOKEN HERE";
+	public static final String SMS_PHONE_NUMBER = "ENTER YOUR TWILIO PHONE NUMBER HERE";
 	public static final int verifMinNum = 100000;
 	public static final int verifMaxNum = 999999;
 
@@ -187,7 +187,7 @@ public class CUtils {
 
 		try {
 			Message message = Message
-					.creator(new PhoneNumber("+1" + mobileNumber), new PhoneNumber("+12407742562"), verifString)
+					.creator(new PhoneNumber("+1" + mobileNumber), new PhoneNumber(SMS_PHONE_NUMBER), verifString)
 					.create();
 			return true;
 		} catch (Exception e) {
