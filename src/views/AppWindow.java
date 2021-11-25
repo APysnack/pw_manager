@@ -71,6 +71,7 @@ public class AppWindow extends JFrame {
 		this.pack();
 	}
 	
+	// builds the window where the panel currently being shown by the card layout screen manager will be displayed
 	public void buildAppWindow() {
 		DbConnection connect = new DbConnection();
 		this.conn = connect;
@@ -84,6 +85,7 @@ public class AppWindow extends JFrame {
 		this.setTitle("Password Manager");
 	}
 	
+	// Initializes the screen manager which switches between views as the user interacts with the gui
 	public void initializeScreenManager(){
 		CardLayout cl = new CardLayout();
 		this.cl = cl;
@@ -106,37 +108,44 @@ public class AppWindow extends JFrame {
 		this.add(scrnMgr);
 	}
 	
+	// builds the components of the login panel view
 	public JPanel buildLoginPanel() {
 		LoginPanel loginPnl = new LoginPanel(ctrl, cl, scrnMgr, conn);
 		return loginPnl;
 	}
 	
+	// builds the components of the initial registration panel view
 	public JPanel buildSetupPanel() {
 		SetupPanel setupPnl = new SetupPanel(ctrl, cl, scrnMgr, conn);
 		return setupPnl;
 	}
 	
+	// builds the components of the error panel view
 	public JPanel buildErrorPanel() {
 		ErrorPanel errorPnl = new ErrorPanel(ctrl, cl, scrnMgr, conn);
 		return errorPnl;
 	}
 	
+	// builds the components of the user's "home" panel view
 	public JPanel buildUserPanel() {
 		HomePanel userPnl = new HomePanel(ctrl, cl, scrnMgr, conn);
 		return userPnl;
 	}
 	
+	// builds the components of the user management panel view
 	public JPanel buildMngUserPanel() {
 		MngUserPanel mngUserPnl = new MngUserPanel(ctrl, cl, scrnMgr, conn);
 		this.mngUsrPnl = mngUserPnl;
 		return mngUserPnl;
 	}
 	
+	// builds the components of the password management panel view
 	public JPanel buildMngPWPanel() {
 		MngPWPanel mngPWPnl = new MngPWPanel(ctrl, cl, scrnMgr, conn);
 		return mngPWPnl;
 	}
 	
+	// used to close out the current app session and create a new one
 	public void rebuildApp() {
 		this.dispose();
 		conn.closeConnection();

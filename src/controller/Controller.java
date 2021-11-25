@@ -37,19 +37,21 @@ public class Controller {
 
 		// validates input for username/password, actual function still needs
 		// modification
+		String sanitizedNumber = utils.sanitizeInput(mobileNumber, "mobileNumber");
 		boolean validUserName = utils.validateInput(userName, "userName");
 		boolean validPassword = utils.validateInput(password, "password");
-		boolean validNumber = utils.validateInput(mobileNumber, "mobileNumber");
+		boolean validNumber = utils.validateInput(sanitizedNumber, "mobileNumber");
 
 		if (validPassword && validUserName && validNumber) {
 			// stores hashed password and salt value in the database
 			String hashedPassword = utils.generateKey(password);
 			String saltValue = utils.getSaltVal();
 			String inputKey = utils.getAESKey();
-			String encryptedNumber = utils.encrypt(inputKey, mobileNumber, saltValue);
+			String encryptedNumber = utils.encrypt(inputKey, sanitizedNumber, saltValue);
 			int pwLength = password.length();
 			password = "";
 			mobileNumber = "";
+			sanitizedNumber = "";
 			User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission,
 					deletePermission, encryptedNumber);
 			boolean insertSuccessful = conn.addUserToDb(user);

@@ -196,7 +196,6 @@ public class MngUserPanel extends JPanel
 		generatePWBtn.addActionListener(this);
 		clipboardLbl.addMouseListener(this);
 		addComponentListener(this);
-
 		setLayout(new GridBagLayout());
 		gr = new GridBagConstraints();
 		logoPanel = new LogoPanel("User Management", 240);

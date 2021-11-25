@@ -196,7 +196,7 @@ public class CUtils {
 	// remove any non-numbers
 	public String sanitizeInput(String input, String inputType) {
 		if (inputType == "mobileNumber") {
-			// remove ()'s and -'s and non-numbers
+			input = input.replaceAll("[^\\d]", "");
 		}
 		return input;
 	}
@@ -218,9 +218,12 @@ public class CUtils {
 		// symbols should have been previously removed by sanitizeInput function,
 		// leaving length = 10
 		if (inputType == "mobileNumber") {
-			maxStringLength = 10;
-			minStringLength = 10;
-			return true;
+			if(input.length() != 10) {
+				return false;
+			}
+			else {
+				return true;
+			}
 		}
 
 		// passwords shorter than 12 chars are accepted, but discouraged
