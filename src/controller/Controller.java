@@ -278,7 +278,6 @@ public class Controller {
 
 		if (validUserName && validPassword && validNumber) {
 			User userToModify = conn.getUser(oldUserName);
-
 			if (userToModify.getUsername() != newUserName) {
 				userToModify.setUsername(newUserName);
 			}

@@ -218,7 +218,7 @@ public class CUtils {
 		// symbols should have been previously removed by sanitizeInput function,
 		// leaving length = 10
 		if (inputType == "mobileNumber") {
-			if(input.length() != 10) {
+			if(input.length() != 10 && !input.equals("")) {
 				return false;
 			}
 			else {

@@ -453,11 +453,16 @@ public class MngUserPanel extends JPanel
 					boolean passwordModified = CUtils.isModified(stringPW, "password");
 					boolean confirmPasswordModified = CUtils.isModified(stringConfirmPW, "password");
 					boolean passwordIsBeingChanged = (passwordModified && confirmPasswordModified);
+					int numAdmins = conn.getAdminRowCount();
+					User moddedUser = conn.getUser(name);
 
-					int numUsers = conn.getAdminRowCount();
-					if (numUsers < 2 && (canAdd == false && canEdit == false && canDelete == false)) {
+					if((numAdmins < 2)
+							&& (moddedUser.getAddPermission() == true && moddedUser.getEditPermission() == true
+									&& moddedUser.getDeletePermission() == true)
+							&& (canAdd == false || canEdit == false || canDelete || false)) {
 						JOptionPane.showMessageDialog(null,
 								"User not modified. There must be at least one user with all permissions (add/edit/delete)");
+
 					} else {
 						if ((Arrays.equals(password, passwordConfirm) == true) || passwordIsBeingChanged == false) {
 							if (stringPW.length() < 8 || stringPW.length() > 128) {
@@ -481,6 +486,7 @@ public class MngUserPanel extends JPanel
 										boolean oldPasswordValid = ctrl.authenticateUser(name, userToModStringPW,
 												"userMod");
 										if (oldPasswordValid) {
+											System.out.println("sanity");
 											boolean userEdited = ctrl.editUser(name, newUserName, stringPW, canAdd,
 													canEdit, canDelete, newMobileNumber, userToModStringPW);
 											if (userEdited == true) {
