@@ -5,14 +5,11 @@ import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-
-import structures.User;
 
 import java.util.Base64;
 import java.util.Random;
@@ -26,9 +23,9 @@ public class CUtils {
 	private static byte[] key;
 	
 	// SID and AUTH Token values need to be set based on twilio account information for 2fa to work
-	public static final String ACCOUNT_SID = "ENTER YOUR TWILIO ACCOUNT_SID HERE";
-	public static final String AUTH_TOKEN = "ENTER YOUR TWILIO AUTH_TOKEN HERE";
-	public static final String SMS_PHONE_NUMBER = "ENTER YOUR TWILIO PHONE NUMBER HERE";
+	public static final String ACCOUNT_SID = "ACf38b220a422bd7c7f342afb7936078ea";
+	public static final String AUTH_TOKEN = "9a5597843d253b11907dc9eaf54ebd0a";
+	public static final String SMS_PHONE_NUMBER = "+12407742562";
 	public static final int verifMinNum = 100000;
 	public static final int verifMaxNum = 999999;
 

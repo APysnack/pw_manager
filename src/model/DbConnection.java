@@ -33,6 +33,8 @@ public class DbConnection {
 	ResultSet result;
 	Connection conn;
 	public User currentUser;
+	String dbName = "DB42328112177C2D6F2F6CA7F33C8E81084B8FF3E14202254137E22673BCE2C8";
+	String dbPass = "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8";
 
 	// tries to connect to the database, prints out an error if unsuccessful
 	public DbConnection() {
@@ -46,7 +48,7 @@ public class DbConnection {
 		try {
 			SQLiteConfig config = new SQLiteConfig();
 			config.enforceForeignKeys(true);
-			conn = DriverManager.getConnection(dbpath, config.toProperties());
+			conn = DriverManager.getConnection(dbpath, dbName, dbPass);
 		} catch (SQLException e) {
 			System.out.println(e);
 		}
@@ -76,7 +78,7 @@ public class DbConnection {
 
 			sqlCommand = "CREATE TABLE IF NOT EXISTS PASSWORDS(" + "PID INTEGER PRIMARY KEY," + "UID INTEGER,"
 					+ "APPLICATION TEXT NOT NULL," + "APPUSERNAME TEXT NOT NULL," + "PASSWORD CHAR(64) NOT NULL,"
-					+ "SALTVAL CHAR(30) NOT NULL," + "PASSWORDLENGTH INT NOT NULL,"
+					+ "SALTVAL CHAR(32) NOT NULL," + "PASSWORDLENGTH INT NOT NULL,"
 					+ "FOREIGN KEY (UID) REFERENCES USERS(ID) ON DELETE CASCADE);";
 
 			stmt.executeUpdate(sqlCommand);

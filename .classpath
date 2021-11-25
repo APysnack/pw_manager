@@ -11,12 +11,12 @@
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/databinding-1.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/filters-2.0.235.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/jxdatepicker-support-1.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/sqlite-jdbc-3.36.0.3.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/swing-worker-1.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/swingx-1.6.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/swingx-1.6.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/base64-2.3.7.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/twilio-8.9.0-jar-with-dependencies.jar"/>
 	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/slf4j-simple-1.6.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/purle/eclipse-workspace/pw_manager/external_jars/sqlite-jdbc-3.36.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
