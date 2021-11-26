@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 
+// the panel that contains secure password manager logo image and text
 public class LogoPanel extends JPanel {
 
     Utils u;
@@ -25,6 +26,7 @@ public class LogoPanel extends JPanel {
 
     }
 
+    // subLabelText is the text displayed under the logo, offset moves this text for a better aesthetic
     public LogoPanel(String subLabelText, int subLabelOffset) {
         u = new Utils();
         logo = new JLabel();
@@ -34,6 +36,7 @@ public class LogoPanel extends JPanel {
         buildPanel(subLabelText, subLabelOffset);
     }
 
+    // builds panel with the lock image contained in the images folder
     public void buildPanel(String subLabelText, int xoffset) {
         setLayout(new GridBagLayout());
         GridBagConstraints grid = new GridBagConstraints();

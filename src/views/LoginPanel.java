@@ -19,7 +19,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 
 
-
+// initial login page
 public class LoginPanel extends JPanel implements FocusListener, ActionListener, KeyListener {
 
     final JPanel scrnMgr;
@@ -65,6 +65,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
         lgnBtn.addActionListener(this);
     }
 
+    // gridbag layout places each panel below the next with nested panels
     public void loginPanelLayout() {
         setLayout(new GridBagLayout());
         GridBagConstraints grid = new GridBagConstraints();
@@ -94,6 +95,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
         add(lgnBtn, grid);
     }
 
+    // clears the input fields if the user clicks on them
     @Override
     public void focusGained(FocusEvent e) {
         Object source = e.getSource();
@@ -111,6 +113,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
         }
     }
 
+    // restores the input fields if the user clicks out of them
     @Override
     public void focusLost(FocusEvent e) {
         Object source = e.getSource();
@@ -135,6 +138,8 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
         }
     }
 
+    // attempts to log in a user by checking that the password they entered matches the output hash
+    // 2fa has been disabled during debugging to make development easier
     public void attemptLogin() {
         String userName = usrField.getText();
         String password = String.valueOf(pwField.getPassword());
@@ -142,7 +147,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
         if(userAuthenticated) {
             ctrl.setCurrentUser(userName, password);
             cl.show(scrnMgr, "Home");
-// 			replace the 2 lines of code above with the code below to enable 2fa
+// 			replace the 2 lines of code above with the code below and change variables in CUtils to enable 2fa
 //			int nonce = CUtils.generateVerificationNumber();
 //			ctrl.sendMessage(userName, password, nonce);
 //			String responseStr = JOptionPane.showInputDialog ("Please enter the 6 digit number sent to your phone");
@@ -160,11 +165,13 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
 //				flashLbl.setText("Your response should be exactly 6 numbers long, please try again.");
 //			}
         }
+        // user has not been authenticated, outputs a message to inform them why
         else {
             if(password.length() < 8 || password.length() > 128) {
                 flashLbl.setText("Passwords must be between 8 - 128 characters");
             }
             else {
+            	// if the user is trying to log into an actual account found in the database, begins lockout sequence
                 int failedAttempts = conn.getFailedLogins(userName);
                 if(failedAttempts == -1) {
                     if(failedAttemptSimulator < 4) {
@@ -176,6 +183,7 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
                     }
 
                 }
+                // simulates lockout sequence for accounts that do not exist in the database to prevent giving an attacker more information
                 else {
                     if(failedAttempts < 4) {
                         flashLbl.setText("Login failed. After " + (4 - failedAttempts) + " more failed attempts, your account will be temporarily locked out");

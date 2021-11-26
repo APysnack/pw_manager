@@ -91,6 +91,7 @@ public class MngPWPanel extends JPanel
     public MngPWPanel() {
     }
 
+    // initializes panel view for managing password
     public MngPWPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
         setName("managePWPanel");
         this.conn = conn;
@@ -106,6 +107,7 @@ public class MngPWPanel extends JPanel
         gr = new GridBagConstraints();
         onSecondaryPage = false;
 
+        // clipboard for copying/pasting a randomly generated password
         String clipboard = "images/clipboard.png";
         clipboardLbl = u.generateImage(clipboard, 25, 25);
         clipboardLbl.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -137,6 +139,7 @@ public class MngPWPanel extends JPanel
         confirmPWPanel.add(confirmPWLbl);
         confirmPWPanel.add(confirmPWField);
 
+        // various options for the random password generator
         randGenLower = new JCheckBox("a-z");
         randGenLower.setSelected(true);
         randGenUpper = new JCheckBox("A-Z");
@@ -152,6 +155,9 @@ public class MngPWPanel extends JPanel
         int maxPasswordLen = 128;
         int k = minPasswordLen;
 
+        // outputs a dot for each letter in the user's password
+        // the password is not decrypted for this purpose, it is just returning an int stored in the db
+        // rationale behind this explained in the SPM readme file
         for(int i = 0; i <= (maxPasswordLen - minPasswordLen); i++) {
             randGenLength.insertItemAt(k, i);
             k++;
@@ -183,6 +189,7 @@ public class MngPWPanel extends JPanel
         deletePWBtn = new JButton("Delete Password");
 
 
+        // flashLbl used to provide user with helpful prompts about their interactions
         flashLbl = new JLabel("");
         backButton = new JButton("Back");
         createNewPWBtn = new JButton("Add This Password");
@@ -207,6 +214,7 @@ public class MngPWPanel extends JPanel
         addComponentListener(this);
     }
 
+    // updates the panel differently according to the user's interactions
     public void updateLayout(String layoutName, boolean showFlash){
         removeAll();
         flashLbl.setVisible(showFlash);
@@ -319,6 +327,7 @@ public class MngPWPanel extends JPanel
         revalidate();
     }
 
+    // updates to the the main view of the password panel shown by default, assuming the user has passwords in the system
     public void mainView() {
         String selectedApp = (String) appComboBox.getSelectedItem();
         String selectedUserName = (String) userNameComboBox.getSelectedItem();
@@ -329,12 +338,14 @@ public class MngPWPanel extends JPanel
         updateLayout("main", false);
     }
 
+    // updates to the view that is shown when the user has not already created any secondary passwords
     public void noPasswordsView() {
         titleLbl.setText("No passwords for this user. Please add one");
         onSecondaryPage = false;
         updateLayout("noPasswords", false);
     }
 
+    // updates to the view that is shown when the user is trying to edit a secondary password
     public void editPWView(String appName, String username) {
         titleLbl.setText("Editing password for " + appName);
         onSecondaryPage = true;
@@ -342,6 +353,7 @@ public class MngPWPanel extends JPanel
         updateLayout("editPW", false);
     }
 
+    // updates to the view shown when the user is trying to add in a new password
     public void addPWView() {
         titleLbl.setText("Creating a new password for " + userName);
         onSecondaryPage = true;
@@ -349,7 +361,9 @@ public class MngPWPanel extends JPanel
         clearPasswordData();
         updateLayout("addPW", false);
     }
-
+    
+    // initializes the combo box containing all of the user's secondary passwords and organizes them based on
+    // application name. E.g. all accounts for Gmail are grouped together. 
     public void initializeComboBox() {
         appComboBox.removeAllItems();
         userNameComboBox.removeAllItems();
@@ -367,6 +381,7 @@ public class MngPWPanel extends JPanel
         }
     }
 
+    // Removes all items currently in the dropdown box then populates it with all the of the user's secondary passwords
     public void populateAppUsersFor(PasswordSet passwordSet){
         userNameComboBox.removeAllItems();
 
@@ -379,6 +394,7 @@ public class MngPWPanel extends JPanel
         userNameComboBox.setSelectedIndex(0);
     }
 
+    // once the user enters information for a password, restores the field so that it appears unaltered
     public void clearPasswordData() {
         appField.setText("Application Name");
         appUsrNameField.setText("Enter Username");
@@ -386,11 +402,17 @@ public class MngPWPanel extends JPanel
         confirmPWField.setText("Enter Password");
     }
 
+    // displays the password data for the associated account
     public void populatePasswordData(String selectedApp, String username) {
+    	// field is reused depending on context. If onSecondaryPage is false, displays 
+    	// the decrypted password for the currently selected application and username
         if (!onSecondaryPage) {
             if(selectedApp != null && username != null) {
                 displayPWField.setText(ctrl.getDecryptedPassword(selectedApp, username));
             }
+        // else, we are on a page where the password for thee selected app and username 
+        // is being edited. does not display the decrypted password information, but uses
+        //placeholder asterisks instead, primarily for psychological acceptability   
         } else {
             Password pwData = ctrl.getPasswordInfo(selectedApp, username);
             appField.setText(pwData.getAppName());
@@ -406,6 +428,7 @@ public class MngPWPanel extends JPanel
 
     }
 
+    // clears the input fields if the user clicks into it
     public void passwordFieldGainFocus(JPasswordField pwField) {
         pwField.setEchoChar('*');
         boolean allAsterisks = String.valueOf(pwField.getPassword()).matches("[*]*");
@@ -415,6 +438,7 @@ public class MngPWPanel extends JPanel
         }
     }
 
+    // restores the input fields if the user clicks out of it
     public void passwordFieldLoseFocus(JPasswordField pwField) {
         if (String.valueOf(pwField.getPassword()).equals("")) {
             pwField.setText("Enter Password");
@@ -423,15 +447,20 @@ public class MngPWPanel extends JPanel
     }
 
     public void backBtnBehavior() {
+        // if the user is looking at the "edit" or "add" secondary pw views and clicks "back", remains on the current panel, 
+        // but updates the view for the "main view'
         if (onSecondaryPage) {
             titleLbl.setText("Displaying passwords for " + userName);
             initializeComboBox();
             mainView();
+            
+        // else, the user is already on the "main view" and wants to go back to the 'home' panel
         } else {
             cl.show(scrnMgr, "Home");
         }
     }
 
+    // displays the initialized password manager panel on entrance
     @Override
     public void componentShown(ComponentEvent e) {
         if (Objects.equals(((Component) e.getSource()).getName(), "managePWPanel")) {
@@ -443,6 +472,7 @@ public class MngPWPanel extends JPanel
 
     }
 
+    // clears input fields when the user clicks into them
     @Override
     public void focusGained(FocusEvent e) {
         Object source = e.getSource();
@@ -466,7 +496,8 @@ public class MngPWPanel extends JPanel
             passwordFieldGainFocus(confirmPWField);
         }
     }
-
+    
+    // restores the input fields when the user clicks out of them
     @Override
     public void focusLost(FocusEvent e) {
         Object source = e.getSource();
@@ -488,17 +519,24 @@ public class MngPWPanel extends JPanel
 
     }
 
+    // attempts to add a new secondary password to the database
     public void attemptAddPassword() {
         String appName = appField.getText();
         String appUserName = appUsrNameField.getText();
 
+        // checks to see if this user already has a secondary pw associated with this appName and appUserName
         boolean collisionCaused = conn.checkPasswordCollision(appName, appUserName);
+        
+        // only adds password if there is no collision
         if(!collisionCaused) {
             char[] password = pwField.getPassword();
             char[] passwordConfirm = confirmPWField.getPassword();
 
+            // confirms both the password and confirm password fields match
             if (Arrays.equals(password, passwordConfirm)) {
                 String stringPW = String.valueOf(password);
+                
+                // attempts to add password and receive boolean depending on success or failure
                 boolean addSuccessful = ctrl.addNewPassword(appName, appUserName, stringPW);
                 if (addSuccessful) {
                     flashLbl.setText("Password successfully added to database!");
@@ -520,11 +558,16 @@ public class MngPWPanel extends JPanel
     }
 
     @Override
+    // different responses to user input/buttons selected by the user
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+        // if the user has clicked on "addPWBtn", perform addPWView function
         if (source == addPWBtn) {
             addPWView();
-        } else if (source == generatePWBtn) {
+        }
+        
+        // if the user has clicked on "generate password", generates a random password according to their control settings
+        else if (source == generatePWBtn) {
             boolean lowercase = randGenLower.isSelected();
             boolean uppercase = randGenUpper.isSelected();
             boolean numeric = randGenNumber.isSelected();
@@ -536,7 +579,10 @@ public class MngPWPanel extends JPanel
             }
 
             if(lowercase || uppercase || numeric || symbols) {
+            	// generates a random password based on the selected settings
                 String randomPW = ctrl.generateRandomPassword(lowercase, uppercase, numeric, symbols, length);
+                
+                // displays the random password in the field
                 randomPWField.setText(randomPW);
             }
             else {
@@ -547,10 +593,14 @@ public class MngPWPanel extends JPanel
         } else if (source == createNewPWBtn) {
             attemptAddPassword();
 
-        } else if (source == appComboBox) {
+        }
+        // listens for changes being made to the appComboBox
+        else if (source == appComboBox) {
+        	// gets all password information for the application the user has selected
             String selectedApp = (String) appComboBox.getSelectedItem();
             ArrayList<PasswordSet> allPasswords = ctrl.getAllPasswords();
 
+            // fills the app username combo box with the usernames associated with the selected application
             for(int i = 0; i < allPasswords.size(); i++) {
                 if (allPasswords.get(i).getAppName().equals(selectedApp)) {
                     populateAppUsersFor(allPasswords.get(i));
@@ -560,26 +610,36 @@ public class MngPWPanel extends JPanel
             String selectedUserName = (String) userNameComboBox.getSelectedItem();
             populatePasswordData(selectedApp, selectedUserName);
         }
+        
+        // listens for changes being made to the userNameComboBox
         else if (source == userNameComboBox) {
+        	// displays password data based on the app and username selected
             String selectedApp = (String) appComboBox.getSelectedItem();
             String selectedUserName = (String) userNameComboBox.getSelectedItem();
             populatePasswordData(selectedApp, selectedUserName);
         }
 
+        // listens for the user to select that they want to delete a secondary password
         else if (source == deletePWBtn) {
             String appName = (String) appComboBox.getSelectedItem();
             String userName = (String) userNameComboBox.getSelectedItem();
+            
+            // displays prompt if no passwords exist in the combo box
             if(appName == null || userName == null) {
                 JOptionPane.showMessageDialog(null,
                         "There are currently no passwords to delete, please add one", "WARNING!!!", JOptionPane.WARNING_MESSAGE);
             }
             else {
+            	// gives the user a dialog box to confirm that they wish to delete
                 int response = JOptionPane.showConfirmDialog(null,
                         "This will delete the password for " + appName + " with the username " + userName + ". Do you still wish to continue?", "WARNING!!!",
                         JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                
+                // if the user selects yes, attempts deletion
                 if (response == 0) {
                     boolean pwDeleted = ctrl.deletePassword(appName, userName);
                     if (pwDeleted) {
+                    	// if password deletes successfully, reupdates the combobox with the remaining passwords in the db
                         flashLbl.setText("Password successfully deleted!");
                         displayPWField.setText("");
                         initializeComboBox();
@@ -590,27 +650,36 @@ public class MngPWPanel extends JPanel
                     }
                 }
             }
-        } else if (source == editPWBtn) {
+        } 
+        
+        // listens for the user to attempt to edit a password
+        else if (source == editPWBtn) {
             String selectedApp = (String) appComboBox.getSelectedItem();
             String selectedUsername = (String) userNameComboBox.getSelectedItem();
+            
+            // if there are no passwords to edit, displays prompt
             if(selectedApp == null || selectedUsername == null) {
                 JOptionPane.showMessageDialog(null,
                         "There are currently no passwords to edit, please add one", "WARNING!!!", JOptionPane.WARNING_MESSAGE);
             }
             else {
+            	// else, redirects user to the edit password view
                 editPWView(selectedApp, selectedUsername);
             }
         }
 
+        // if user has selected to edit the password, attempts to do the update
         else if (source == applyChangesBtn) {
             attemptPWUpdate();
         }
     }
 
+    // attempts to modify an existing secondary password in the database
     public void attemptPWUpdate() {
         String oldAppName = (String) appComboBox.getSelectedItem();
         String oldAppUserName = (String) userNameComboBox.getSelectedItem();
 
+        // gives the user a prompt to confirm they wish to update this password
         int response = JOptionPane.showConfirmDialog(null,
                 "You're about to make changes to " + oldAppName + ". Do you wish to continue?", "WARNING!!!",
                 JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -630,8 +699,11 @@ public class MngPWPanel extends JPanel
                     char[] password = pwField.getPassword();
                     char[] passwordConfirm = confirmPWField.getPassword();
 
+                    // confirms that both password and confirm password fields match each other
                     if (Arrays.equals(password, passwordConfirm)) {
                         String stringPW = String.valueOf(password);
+                        
+                        // returns a boolean specifying if the edit was successful
                         boolean addSuccessful = ctrl.editPassword(oldAppName, oldAppUserName, newAppName, newAppUserName, stringPW);
                         if (addSuccessful) {
                             flashLbl.setText("Password successfully modified!");
@@ -665,12 +737,17 @@ public class MngPWPanel extends JPanel
     @Override
     public void mouseClicked(MouseEvent e) {
         Object source = e.getSource();
+        // if user clicks on the clipboard, copies the text in the field to their clipboard
         if (source == clipboardLbl) {
             String textToCopy = "";
 
+            // if the user is on add or edit view, the text being copied is from the random generator
             if (onSecondaryPage) {
                 textToCopy = randomPWField.getText();
-            } else {
+            }
+            
+            // else, the text being copied is the decrypted password from the displayPWField
+            else {
                 textToCopy = displayPWField.getText();
             }
             StringSelection stringSel = new StringSelection(textToCopy);
@@ -681,6 +758,8 @@ public class MngPWPanel extends JPanel
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
             }
+            
+            // displays a prompt if the user is attempting to copy an empty value to the clipboard
             if (textToCopy.equals("")) {
                 String message = "";
                 if (onSecondaryPage) {

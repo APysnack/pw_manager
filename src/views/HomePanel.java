@@ -20,6 +20,7 @@ import controller.Controller;
 import model.DbConnection;
 import structures.User;
 
+// home panel that either directs the user to the user management or password management panels
 public class HomePanel extends JPanel implements ComponentListener, ActionListener {
 
     JPanel scrnMgr;
@@ -54,6 +55,9 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
         homePanelLayout();
     }
 
+    // only displays the button to access user management if the user had admin privileges
+    // always displays the button to manage passwords for the current user
+    // gridbag layout places on object beneath the next
     public void homePanelLayout() {
         setLayout(new GridBagLayout());
         GridBagConstraints grid = new GridBagConstraints();
@@ -90,7 +94,8 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
         // TODO Auto-generated method stub
 
     }
-
+    
+    // only displays the button to access user management if the user had admin privileges
     @Override
     public void componentShown(ComponentEvent e) {
         if(Objects.equals(((Component) e.getSource()).getName(), "userPanel")) {
@@ -121,6 +126,7 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
     public void componentHidden(ComponentEvent e) {
     }
 
+    // redirects user depending on which button they click on
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == manageUsrBtn) {

@@ -8,6 +8,7 @@ public class App {
     }
 
     public void createApp() {
+    	// creates a new instance of the password manager application
         AppWindow appWindow = new AppWindow();
         appWindow.setSize(900, 550);
         appWindow.setVisible(true);

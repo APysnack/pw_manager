@@ -14,6 +14,7 @@ import java.awt.Insets;
 import controller.Controller;
 import model.DbConnection;
 
+// Error panel displayed if user inputs incorrect registration information or other unusual input that throws an error
 public class ErrorPanel extends JPanel implements ActionListener {
 
     JButton backButton;
@@ -29,6 +30,7 @@ public class ErrorPanel extends JPanel implements ActionListener {
 
     }
 
+    // if the user clicks the "back" button, disposes the current application and starts a new one
     public ErrorPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn) {
         this.conn = conn;
         this.cl = cl;
