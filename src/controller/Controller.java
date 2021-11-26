@@ -36,6 +36,10 @@ public class Controller {
         boolean validPassword = utils.validateInput(password, "password");
         boolean validNumber = utils.validateInput(sanitizedNumber, "mobileNumber");
 
+        if(sanitizedNumber.equals("")) {
+        	return false;
+        }
+        
         if (validPassword && validUserName && validNumber) {
             // stores hashed password and salt value in the database
             String hashedPassword = utils.generateKey(password);

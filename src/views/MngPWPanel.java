@@ -395,13 +395,15 @@ public class MngPWPanel extends JPanel
             Password pwData = ctrl.getPasswordInfo(selectedApp, username);
             appField.setText(pwData.getAppName());
             appUsrNameField.setText(pwData.getAppUserName());
+            
             int pwLen = pwData.getPasswordLength();
-            String pwStr = "";
+            StringBuilder pwStr = new StringBuilder();
             for (int i = 0; i < pwLen; i++) {
-                pwStr += "*";
+                pwStr.append("*");
             }
-            pwField.setText(pwStr);
-            confirmPWField.setText(pwStr);
+            
+            pwField.setText(pwStr.toString());
+            confirmPWField.setText(pwStr.toString());
         }
 
     }
