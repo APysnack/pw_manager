@@ -15,7 +15,7 @@ import controller.Controller;
 import model.DbConnection;
 
 public class ErrorPanel extends JPanel implements ActionListener {
-    
+
     JButton backButton;
     JPanel scrnMgr;
     CardLayout cl;
@@ -54,15 +54,12 @@ public class ErrorPanel extends JPanel implements ActionListener {
         gr.gridy = 1;
         gr.insets = new Insets(0, 0, 10, 0);
         add(errorLbl, gr);
-        gr.gridx = 1;
         gr.gridy = 2;
         gr.insets = new Insets(0, 0, 30, 0);
         add(errorLbl2, gr);
-        gr.gridx = 1;
         gr.gridy = 3;
         gr.insets = new Insets(0, 0, 0, 0);
         add(logoPanel, gr);
-        gr.gridx = 1;
         gr.gridy = 4;
         gr.insets = new Insets(0, 0, 0, 0);
         add(backButton, gr);

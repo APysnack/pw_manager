@@ -1,6 +1,8 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.Objects;
+
 import model.DbConnection;
 import structures.Password;
 import structures.PasswordSet;
@@ -8,9 +10,9 @@ import structures.User;
 
 public class Controller {
 
-    DbConnection conn;
+    final DbConnection conn;
     User currentUser;
-    CUtils utils;
+    final CUtils utils;
     String inputKey;
 
     // needed to make calls to the database
@@ -24,9 +26,9 @@ public class Controller {
     public boolean addUser(String userName, String password, boolean addPermission, boolean editPermission,
                            boolean deletePermission, String mobileNumber) {
         if (currentUser != null) {
-            if (currentUser.getAddPermission() == false && addPermission == true
-                    || currentUser.getEditPermission() == false && editPermission == true
-                    || currentUser.getDeletePermission() == false && deletePermission == true) {
+            if (!currentUser.getAddPermission() && addPermission
+                    || !currentUser.getEditPermission() && editPermission
+                    || !currentUser.getDeletePermission() && deletePermission) {
                 return false;
             }
         }
@@ -36,10 +38,6 @@ public class Controller {
         boolean validPassword = utils.validateInput(password, "password");
         boolean validNumber = utils.validateInput(sanitizedNumber, "mobileNumber");
 
-        if(sanitizedNumber.equals("")) {
-        	return false;
-        }
-        
         if (validPassword && validUserName && validNumber) {
             // stores hashed password and salt value in the database
             String hashedPassword = utils.generateKey(password);
@@ -52,10 +50,7 @@ public class Controller {
             sanitizedNumber = "";
             User user = new User(userName, hashedPassword, saltValue, pwLength, addPermission, editPermission,
                     deletePermission, encryptedNumber);
-            boolean insertSuccessful = conn.addUserToDb(user);
-            if (insertSuccessful) {
-                return true;
-            }
+            return conn.addUserToDb(user);
 
         }
         return false;
@@ -90,7 +85,7 @@ public class Controller {
                     } else if (userAuthenticated && sessionType.equals("userMod")) {
                         return true;
                     } else {
-                        if (sessionType == "login") {
+                        if (Objects.equals(sessionType, "login")) {
                             conn.updateLoginAttempts(user.getUserID(), "increment");
                         }
                     }
@@ -114,9 +109,7 @@ public class Controller {
                 String mobileNum = utils.decrypt(inputKey, user.getEncryptedNumber(), user.getSaltVal());
                 boolean messageSent = utils.sendMessage(mobileNum, nonce);
                 mobileNum = "";
-                if (messageSent) {
-                    return true;
-                }
+                return messageSent;
             }
         }
         return false;
@@ -164,8 +157,7 @@ public class Controller {
     // deletes user with the name {userName}
     // input validation not needed since this value comes directly from the database
     public boolean deleteUser(String userName) {
-        conn.deleteUserFromDb(userName);
-        return true;
+        return conn.deleteUserFromDb(userName);
     }
 
     // deletes password with the app name {appName} and username {userName}
@@ -217,17 +209,13 @@ public class Controller {
                 String saltVal = utils.getSaltVal();
                 Password newPassword = new Password(newAppName, newAppUserName, encryptedPassword, saltVal, pwLen);
                 boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword, currentUser.getUserID());
-                if (pwUpdated) {
-                    return true;
-                }
+                return pwUpdated;
             } else {
                 Password oldPassword = conn.getPasswordInfo(oldAppName, oldAppUserName);
                 Password newPassword = new Password(newAppName, newAppUserName, oldPassword.getEncryptedPassword(),
                         oldPassword.getSaltVal(), oldPassword.getPasswordLength());
                 boolean pwUpdated = conn.editPassword(oldAppName, oldAppUserName, newPassword, currentUser.getUserID());
-                if (pwUpdated) {
-                    return true;
-                }
+                return pwUpdated;
             }
         }
         return false;
@@ -277,7 +265,7 @@ public class Controller {
 
         if (validUserName && validPassword && validNumber) {
             User userToModify = conn.getUser(oldUserName);
-            if (userToModify.getUsername() != newUserName) {
+            if (!Objects.equals(userToModify.getUsername(), newUserName)) {
                 userToModify.setUsername(newUserName);
             }
 
@@ -357,11 +345,7 @@ public class Controller {
             }
 
             boolean userEdited = conn.editUser(oldUserName, userToModify);
-            if (userEdited == true) {
-                return true;
-            } else {
-                return false;
-            }
+            return userEdited == true;
         }
         return false;
     }

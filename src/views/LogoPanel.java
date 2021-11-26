@@ -59,7 +59,6 @@ public class LogoPanel extends JPanel {
         grid.gridy = 1;
         add(logoPanel, grid);
         grid.insets = new Insets(0,xoffset,55,0);
-        grid.gridx = 1;
         grid.gridy = 2;
         add(subLbl, grid);
 

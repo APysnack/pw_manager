@@ -12,10 +12,9 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.Insets;
+import java.util.Objects;
 
 import controller.Controller;
 import model.DbConnection;
@@ -65,21 +64,17 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
 
 
         grid.insets = new Insets(0,0,20,0);
-        grid.gridx = 3;
         grid.gridy = 3;
         add(userPnlLbl, grid);
 
         grid.insets = new Insets(0,0,10,0);
-        grid.gridx = 3;
         grid.gridy = 4;
         add(managePWBtn, grid);
 
         grid.insets = new Insets(0,0,70,0);
-        grid.gridx = 3;
         grid.gridy = 5;
         add(manageUsrBtn, grid);
 
-        grid.gridx = 3;
         grid.gridy = 6;
         add(logOutButton, grid);
     }
@@ -98,7 +93,7 @@ public class HomePanel extends JPanel implements ComponentListener, ActionListen
 
     @Override
     public void componentShown(ComponentEvent e) {
-        if(((Component) e.getSource()).getName() == "userPanel") {
+        if(Objects.equals(((Component) e.getSource()).getName(), "userPanel")) {
             User currentUser = conn.getCurrentUser();
             this.userName = currentUser.getUsername();
             userPnlLbl.setText("Welcome " + userName);

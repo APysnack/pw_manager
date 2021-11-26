@@ -22,20 +22,20 @@ import java.awt.event.KeyListener;
 
 public class LoginPanel extends JPanel implements FocusListener, ActionListener, KeyListener {
 
-    JPanel scrnMgr;
-    CardLayout cl;
-    Controller ctrl;
-    Utils u;
-    DbConnection conn;
-    JLabel flashLbl;
-    JLabel usrLbl;
-    JLabel pwLbl;
-    JTextField usrField;
-    JPasswordField pwField;
-    JButton lgnBtn;
-    LogoPanel logoPanel;
-    JPanel userPanel;
-    JPanel pwPanel;
+    final JPanel scrnMgr;
+    final CardLayout cl;
+    final Controller ctrl;
+    final Utils u;
+    final DbConnection conn;
+    final JLabel flashLbl;
+    final JLabel usrLbl;
+    final JLabel pwLbl;
+    final JTextField usrField;
+    final JPasswordField pwField;
+    final JButton lgnBtn;
+    final LogoPanel logoPanel;
+    final JPanel userPanel;
+    final JPanel pwPanel;
     int failedAttemptSimulator = 1;
 
     public LoginPanel(Controller ctrl, CardLayout cl, JPanel scrnMgr, DbConnection conn){
@@ -74,26 +74,22 @@ public class LoginPanel extends JPanel implements FocusListener, ActionListener,
         add(flashLbl, grid);
 
         grid.insets = new Insets(15,0,0,0);
-        grid.gridx = 3;
         grid.gridy = 2;
         add(logoPanel, grid);
 
         userPanel.add(usrLbl);
         userPanel.add(usrField);
 
-        grid.gridx = 3;
         grid.gridy = 3;
         add(userPanel, grid);
 
         pwPanel.add(pwLbl);
         pwPanel.add(pwField);
 
-        grid.gridx = 3;
         grid.gridy = 4;
         add(pwPanel, grid);
 
         grid.insets = new Insets(50,165,0,0);
-        grid.gridx = 3;
         grid.gridy = 5;
         add(lgnBtn, grid);
     }

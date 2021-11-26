@@ -8,19 +8,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
+
 import org.sqlite.SQLiteConfig;
 import structures.Password;
 import structures.User;
 
 public class DbConnection {
 
-    String dbpath;
+    final String dbpath;
     String new_query;
     ResultSet result;
     Connection conn;
     public User currentUser;
-    String dbName = "DB42328112177C2D6F2F6CA7F33C8E81084B8FF3E14202254137E22673BCE2C8";
-    String dbPass = "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8";
+    final String dbName = "DB42328112177C2D6F2F6CA7F33C8E81084B8FF3E14202254137E22673BCE2C8";
+    final String dbPass = "5E884898DA28047151D0E56F8DC6292773603D0D6AABBDD62A11EF721D1542D8";
 
     // tries to connect to the database, prints out an error if unsuccessful
     public DbConnection() {
@@ -51,7 +53,6 @@ public class DbConnection {
 
     public void initDatabase() {
         openConnection();
-        PreparedStatement pStmt;
         new_query = "SELECT NAME FROM SQLITE_MASTER WHERE TYPE='TABLE'";
         try {
             Statement stmt = conn.createStatement();
@@ -501,7 +502,6 @@ public class DbConnection {
             if (currentDate.isAfter(lastLoginDate)) {
                 new_query = "update logins set failedAttempts=?, lastLogin=?";
                 pStmt = conn.prepareStatement(new_query);
-                failedLogins = 0;
                 pStmt.setInt(1, 0);
                 pStmt.setString(2, currentDate.toString());
                 pStmt.executeUpdate();
@@ -524,7 +524,7 @@ public class DbConnection {
 
     public void updateLoginAttempts(int userID, String updateType) {
         openConnection();
-        if (updateType == "reset") {
+        if (Objects.equals(updateType, "reset")) {
             new_query = "update logins set failedAttempts=0 where uid=?";
         } else {
             new_query = "update logins set failedAttempts=failedAttempts+1 where uid=?";

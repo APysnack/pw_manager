@@ -395,13 +395,11 @@ public class MngPWPanel extends JPanel
             Password pwData = ctrl.getPasswordInfo(selectedApp, username);
             appField.setText(pwData.getAppName());
             appUsrNameField.setText(pwData.getAppUserName());
-            
             int pwLen = pwData.getPasswordLength();
             StringBuilder pwStr = new StringBuilder();
             for (int i = 0; i < pwLen; i++) {
                 pwStr.append("*");
             }
-            
             pwField.setText(pwStr.toString());
             confirmPWField.setText(pwStr.toString());
         }
@@ -436,7 +434,7 @@ public class MngPWPanel extends JPanel
 
     @Override
     public void componentShown(ComponentEvent e) {
-        if (((Component) e.getSource()).getName() == "managePWPanel") {
+        if (Objects.equals(((Component) e.getSource()).getName(), "managePWPanel")) {
             User user = conn.getCurrentUser();
             this.userName = user.getUsername();
             titleLbl.setText("Displaying passwords for " + userName);

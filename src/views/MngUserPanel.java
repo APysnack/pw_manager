@@ -478,7 +478,7 @@ public class MngUserPanel extends JPanel
                                             if (userEdited) {
                                                 flashLbl.setText("User successfully modified!");
                                             } else {
-                                                flashLbl.setText("ERROR: User could not be modified. Check that all your input values are correct");
+                                                flashLbl.setText("ERROR: User could not be modified");
                                             }
                                         } else {
                                             flashLbl.setText("The password you've entered for this user is incorrect");
@@ -567,7 +567,7 @@ public class MngUserPanel extends JPanel
 
     @Override
     public void componentShown(ComponentEvent e) {
-        if (((Component) e.getSource()).getName() == "manageUserPanel") {
+        if (Objects.equals(((Component) e.getSource()).getName(), "manageUserPanel")) {
             initializeComboBox();
         }
     }
