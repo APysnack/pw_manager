@@ -3,13 +3,13 @@ package pw_manager;
 import views.AppWindow;
 
 public class App {
-	public App() {
-		createApp();
-	}
+    public App() {
+        createApp();
+    }
 
-	public void createApp() {
-		AppWindow appWindow = new AppWindow();
-		appWindow.setSize(900, 550);
-		appWindow.setVisible(true);
-	}
+    public void createApp() {
+        AppWindow appWindow = new AppWindow();
+        appWindow.setSize(900, 550);
+        appWindow.setVisible(true);
+    }
 }
